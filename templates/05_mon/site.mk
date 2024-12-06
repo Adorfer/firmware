@@ -22,7 +22,6 @@ GLUON_SITE_PACKAGES := \
         gluon-weeklyreboot \
         eulenfunk-hotfix \
         gluon-txpowerfix \
-	eulenfunk-ch13to9 \
         gluon-banner \
         gluon-linkcheck \
         gluon-config-mode-geo-location-osm \
@@ -40,14 +39,19 @@ GLUON_SITE_PACKAGES += \
 GLUON_SITE_PACKAGES += \
 	gluon-config-mode-ppa \
 
-# ffnord:
+# ffmk:
 GLUON_SITE_PACKAGES += \
+	ffho-autoupdater-wifi-fallback \
+
+
+# ffnord:
+#GLUON_SITE_PACKAGES += \
 	gluon-ssid-changer 
 
 # openwrt:
 GLUON_SITE_PACKAGES += \
 	haveged \
-	iptables \
+#	iptables \
 	iwinfo \
 	socat \
         kmod-sched \
