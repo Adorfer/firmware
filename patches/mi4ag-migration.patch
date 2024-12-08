@@ -1,0 +1,12 @@
+diff --git a/target/linux/ramips/image/mt7621.mk b/target/linux/ramips/image/mt7621.mk
+index e559f1b147..19aa9a12e1 100644
+--- a/target/linux/ramips/image/mt7621.mk
++++ b/target/linux/ramips/image/mt7621.mk
+@@ -2060,7 +2060,6 @@ endef
+ TARGET_DEVICES += xiaomi_mi-router-4
+
+ define Device/xiaomi_mi-router-4a-gigabit
+-  $(Device/dsa-migration)
+   $(Device/uimage-lzma-loader)
+   IMAGE_SIZE := 14848k
+   DEVICE_VENDOR := Xiaomi

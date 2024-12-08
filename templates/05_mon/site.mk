@@ -3,21 +3,19 @@
 # for feature packs see https://github.com/freifunk-gluon/gluon/blob/v2018.2.x/package/features
 GLUON_FEATURES := \
         autoupdater \
-        gluon-config-mode-geo-location-osm \
         ebtables \
         ebtables-filter-multicast \
         ebtables-filter-ra-dhcp \
         ebtables-limit-arp \
         ebtables-source-filter \
-        gluon-authorized-keys \
         mesh-batman-adv-15 \
         mesh-vpn-tunneldigger \
-        radv-filterd \
 	radvd \
+        radv-filterd \
         respondd \
         status-page\
         web-advanced \
-        web-wizard \
+        web-wizard 
 
 
 # eulenfunk:
@@ -26,15 +24,18 @@ GLUON_SITE_PACKAGES := \
         gluon-weeklyreboot \
         eulenfunk-hotfix \
         gluon-txpowerfix \
+	gluon-radv-filterd \
+	gluon-ebtables-filter-ra-dhcp \
         gluon-banner \
         gluon-linkcheck \
         eulenfunk-migrate-updatebranch \
+        gluon-authorized-keys \
+        gluon-config-mode-geo-location-osm \
         eulenfunk-ath9kblackout
 
 # ffffm 
 # ev. kann man ffffm-additional-wifi-json-info teilweise durch standard gluon respondd-module-airtime ersetzen
 GLUON_SITE_PACKAGES += \
-	ffffm-keep-radio-channel \
 	ffffm-button-bind 
 
 # ffki:
@@ -42,13 +43,19 @@ GLUON_SITE_PACKAGES += \
 	gluon-config-mode-ppa \
 
 # ffmk:
-GLUON_SITE_PACKAGES += \
-	ffho-autoupdater-wifi-fallback \
+#GLUON_SITE_PACKAGES += \
+#	ffho-autoupdater-wifi-fallback \
 
 
 # ffnord:
 #GLUON_SITE_PACKAGES += \
-	gluon-ssid-changer 
+#	gluon-ssid-changer 
+
+# ffac:
+GLUON_SITE_PACKAGES += \
+	ffac-ssid-changer \
+	ffac-autoupdater-wifi-fallback
+
 
 # openwrt:
 GLUON_SITE_PACKAGES += \
