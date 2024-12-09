@@ -1,3 +1,20 @@
+diff --git a/package/base-files/files/lib/upgrade/fwtool.sh b/package/base-files/files/lib/upgrade/fwtool.sh
+index 8bd00a3332..14439633db 100644
+--- a/package/base-files/files/lib/upgrade/fwtool.sh
++++ b/package/base-files/files/lib/upgrade/fwtool.sh
+@@ -70,9 +70,9 @@ fwtool_check_image() {
+                        fi
+
+                        # minor compat version -> sysupgrade with -n required
+-                       if [ "${devicecompat#.*}" != "${imagecompat#.*}" ] && [ "$SAVE_CONFIG" = "1" ]; then
+-                               [ "$IGNORE_MINOR_COMPAT" = 1 ] && return 0
+-                               v "The device is supported, but the config is incompatible to the new image ($devicecompat->$imagecompat). Please upgrade without keeping config (sysupgrade -n)."
++                        if [ "${devicecompat#.*}" != "${imagecompat#.*}" ] && [ "$SAVE_CONFIG" = "1" ] &&  [ "$device" != "xiaomi,mi-router-4a-gigabit" ]; then
++                                [ "$IGNORE_MINOR_COMPAT" = 1 ] && return 0
++                                v "The device $device is supported, but the config is incompatible to the new image ($devicecompat->$imagecompat). Please upgrade without keeping config (sysupgrade -n)."
+                                [ -n "$compatmessage" ] && v "$compatmessage"
+                                return 1
+                        fi
 diff --git a/target/linux/ramips/image/mt7621.mk b/target/linux/ramips/image/mt7621.mk
 index e559f1b147..19aa9a12e1 100644
 --- a/target/linux/ramips/image/mt7621.mk
