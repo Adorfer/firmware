@@ -8,7 +8,7 @@ index 6060c49a..5a34c75e 100644
 
 +-- Totolink
 +
-+device('totolink_x5000r', 'totolink_x5000r', {
++device('totolink-x5000r', 'totolink_x5000r', {
 +       factory = false,
 +})
 +
