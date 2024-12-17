@@ -1,12 +1,12 @@
 diff --git a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-index 0d21f94e..329e937d 100644
+index 0d21f94e..57e5c7dd 100644
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 @@ -154,7 +154,9 @@
                                         <%- end %>
                                         <dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %></dd>
                                         <dt><%:Primary MAC address%></dt><dd><%| nodeinfo.network.mac %></dd>
-+                                       <dt><%:Mesh MAC Addresse%></dt><dd><%| nodeinfo.network.mesh.bat0.interfaces.other[1] %></dd>
++                                       <dt><%:Mesh MAC-Adresse%></dt><dd><%| nodeinfo.network.mesh.bat0.interfaces.other[1] %></dd>
                                         <dt><%:IP address%></dt><dd><%= pcdata(table.concat(sorted(nodeinfo.network.addresses), '\n')):gsub('\n', '<br>') %></dd>
 +                                       <dt><%:Gluon Version%></dt><dd><%| nodeinfo.software.firmware.base %></dd>
                                         <dt><%:Firmware%></dt><dd><%| nodeinfo.software.firmware.release %></dd>
@@ -20,3 +20,11 @@ index 0d21f94e..329e937d 100644
                                                         <%- end %>
                                                 </dd>
                                                 <% if nodeinfo.network.mesh_vpn.bandwidth_limit.enabled then -%>
+@@ -176,6 +179,7 @@
+                                                </dd>
+                                                <%- end %>
+                                        <%- end %>
++                                       <dt><%:Sitecode%></dt><dd><%| nodeinfo.system.site_code %></dd>
+                                        <dt><%:Site%></dt><dd><%| site.site_name() %></dd>
+                                        <% if nodeinfo.system.domain_code then -%>
+                                                <dt><%:Domain%></dt>
