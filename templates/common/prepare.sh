@@ -13,6 +13,8 @@ pushd ../gluon ; ../patches/additionaltargets.sh; popd  # add several targets fr
 pushd ../gluon ; ../patches/add-cellular.sh; popd  # add cellular modems zte
 pushd ../gluon ; ../patches/interfaces-patch.sh  ; popd  # change primary macs
 pushd ../gluon ; ../patches/statuspage-moredetails.sh  ; popd  # more details in status-page
+pushd ../gluon ; ../patches/airtime-logsilience.sh  ; popd  # top airtime-monitor from spamming logread
+
 #pushd ../gluon ; ../patches/ignore-preservechannels-for-outdoormode.sh ; popd # correct handling of outdoor-devices (enable auto-channel)
 exit 0;
 
