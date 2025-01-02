@@ -9,7 +9,7 @@ echo $PWD
   echo -n "patch in target?: ";grep 'covr' targets/ramips-mt7621
   pushd openwrt
 
-  patchfile="../../patches/add-dlink-covr186x-openwrt2.patch"
+  patchfile="../../patches/add-dlink-covr186x-openwrt.patch"
   if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
     patch -p1 --ignore-whitespace <$patchfile
    fi
