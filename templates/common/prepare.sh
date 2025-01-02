@@ -9,7 +9,7 @@
 pushd ../gluon ; ../patches/fix-respondd-rsk.sh; popd  # change respondd listener address to gluon 2016.x value
 pushd ../gluon ; ../patches/mi4apatch.sh; popd  # make Mi4Agigabit upgradable
 pushd ../gluon ; ../patches/add-totolink-x5000r.sh; popd  # adding Totolink X5000R
-pushd ../gluon ; ../patches/add-dlink-covr186x.sh; popd  # adding D-Link COVR 186x
+#pushd ../gluon ; ../patches/add-dlink-covr186x.sh; popd  # adding D-Link COVR 186x non working
 pushd ../gluon ; ../patches/additionaltargets.sh; popd  # add several targets from openwrt
 pushd ../gluon ; ../patches/add-cellular.sh; popd  # add cellular modems zte
 pushd ../gluon ; ../patches/interfaces-patch.sh  ; popd  # change primary macs
