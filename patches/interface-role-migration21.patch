@@ -1,5 +1,5 @@
 diff --git a/package/gluon-core/luasrc/lib/gluon/upgrade/021-interface-roles b/package/gluon-core/luasrc/lib/gluon/upgrade/021-interface-roles
-index 6bceb36e..829c12e6 100755
+index 6bceb36e..29c1876f 100755
 --- a/package/gluon-core/luasrc/lib/gluon/upgrade/021-interface-roles
 +++ b/package/gluon-core/luasrc/lib/gluon/upgrade/021-interface-roles
 @@ -18,6 +18,16 @@ roles.single = site.interfaces.single.default_roles({unpack(roles.wan)})
@@ -12,7 +12,7 @@ index 6bceb36e..829c12e6 100755
 +if mesh_vpn_enabled == '1' then
 + 	util.add_to_set(roles.wan, 'uplink')
 +	util.add_to_set(roles.single, 'uplink')
-+elseif mesh_vpn_enabled == '0'
++elseif mesh_vpn_enabled == '0' then
 +	util.remove_from_set(roles.wan, 'uplink')
 +	util.remove_from_set(roles.single, 'uplink')
 +end
