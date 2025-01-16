@@ -202,6 +202,7 @@ EXCLUDE_PCI_NET := \
 
 INCLUDE_VIRT := \
     qemu-ga
+    kmod-vmxnet3
 
 EXCLUDE_VIRT := \
     -qemu-ga
