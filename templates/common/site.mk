@@ -201,8 +201,8 @@ EXCLUDE_PCI_NET := \
     -kmod-bnx2
 
 INCLUDE_VIRT := \
-    qemu-ga
-    open-vm-tools
+    qemu-ga \
+    open-vm-tools \
     kmod-vmxnet3
 
 EXCLUDE_VIRT := \
