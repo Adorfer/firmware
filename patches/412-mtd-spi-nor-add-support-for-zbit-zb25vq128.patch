@@ -20,33 +20,34 @@ Signed-off-by: Daniel Palmer <daniel@0x0f.com>
 
 --- a/drivers/mtd/spi-nor/Makefile
 +++ b/drivers/mtd/spi-nor/Makefile
-@@ -19,6 +19,7 @@ spi-nor-objs                  += winbond.o
- spi-nor-objs                   += xilinx.o
- spi-nor-objs                   += xmc.o
- spi-nor-objs                   += xtx.o
-+spi-nor-objs                   += zbit.o
- obj-$(CONFIG_MTD_SPI_NOR)      += spi-nor.o
-
- obj-$(CONFIG_MTD_SPI_NOR)      += controllers/
+@@ -20,6 +20,7 @@ spi-nor-objs			+= winbond.o
+ spi-nor-objs			+= xilinx.o
+ spi-nor-objs			+= xmc.o
+ spi-nor-objs			+= xtx.o
++spi-nor-objs			+= zbit.o
+ obj-$(CONFIG_MTD_SPI_NOR)	+= spi-nor.o
+ 
+ obj-$(CONFIG_MTD_SPI_NOR)	+= controllers/
 --- a/drivers/mtd/spi-nor/core.c
 +++ b/drivers/mtd/spi-nor/core.c
-@@ -1862,6 +1862,7 @@ static const struct spi_nor_manufacturer *manufacturers[] = {
-        &spi_nor_xilinx,
-        &spi_nor_xmc,
-        &spi_nor_xtx,
-+       &spi_nor_zbit,
+@@ -1863,6 +1863,7 @@ static const struct spi_nor_manufacturer
+ 	&spi_nor_xilinx,
+ 	&spi_nor_xmc,
+ 	&spi_nor_xtx,
++	&spi_nor_zbit,
  };
-
+ 
  static const struct flash_info *
 --- a/drivers/mtd/spi-nor/core.h
 +++ b/drivers/mtd/spi-nor/core.h
-@@ -491,6 +491,7 @@ extern const struct spi_nor_manufacturer spi_nor_winbond;
+@@ -492,6 +492,7 @@ extern const struct spi_nor_manufacturer
  extern const struct spi_nor_manufacturer spi_nor_xilinx;
  extern const struct spi_nor_manufacturer spi_nor_xmc;
  extern const struct spi_nor_manufacturer spi_nor_xtx;
 +extern const struct spi_nor_manufacturer spi_nor_zbit;
-
+ 
  extern const struct attribute_group *spi_nor_sysfs_groups[];
+ 
 --- /dev/null
 +++ b/drivers/mtd/spi-nor/zbit.c
 @@ -0,0 +1,21 @@
@@ -71,4 +72,3 @@ Signed-off-by: Daniel Palmer <daniel@0x0f.com>
 +	.parts = zbit_parts,
 +	.nparts = ARRAY_SIZE(zbit_parts),
 +};
--- 
