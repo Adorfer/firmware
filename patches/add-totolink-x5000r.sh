@@ -8,5 +8,5 @@ echo $PWD
    fi
   echo -n "patch in target?: ";grep 'totolink_x5000r' targets/ramips-mt7621
   pushd openwrt
-  [ -f target/linux/ramips/patches-5.10/412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch ] && echo "target/linux/ramips/patches-5.10/412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch exists, skipping copy." || cp ../../412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch target/linux/ramips/patches-5.10/412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch
+  [ -f target/linux/ramips/patches-5.15/412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch ] && echo "target/linux/ramips/patches-5.15/412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch exists, skipping copy." || cp ../../patches/412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch target/linux/ramips/patches-5.15/412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch
   popd

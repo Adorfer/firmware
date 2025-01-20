@@ -30,19 +30,54 @@ echo $PWD
     patch -p1 --ignore-whitespace <$patchfile
    fi
 
+  echo "adding targets ipq40xx-chromiumn and ipq807x"
+  patchfile="../patches/targets-mk.patch"
+  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
+    patch -p1 --ignore-whitespace <$patchfile
+   fi
+
+  echo "adding google wifi"
+  patchfile="../patches/targets-ipq40xx-chromium.patch"
+  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
+    patch -p1 --ignore-whitespace <$patchfile
+   fi
+
+  echo "adding routerboard-wap-g-5hact2hnd/wap-ac"
+  patchfile="../patches/targets-ipq40xx-mikrotik.patch"
+  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
+    patch -p1 --ignore-whitespace <$patchfile
+   fi
+
+  echo "adding xiaomi_ax3600 Netgerar WAX218"
+  patchfile="../patches/targets-ipq807x-generic.patch"
+  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
+    patch -p1 --ignore-whitespace <$patchfile
+   fi
+
+  echo "adding Unifi 6LRv2/6LRv3 Netgear WAX206"
+  patchfile="../patches/targets-mediatek-mt7622.patch"
+  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
+    patch -p1 --ignore-whitespace <$patchfile
+   fi
+
   echo "adding AVM FB7430"
   patchfile="../patches/targets-ipq40xx-generic.patch"
   if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
     patch -p1 --ignore-whitespace <$patchfile
    fi
-
-  echo "adding Edimax BR6478acv2"
-  patchfile="../patches/targets-ramips-mt7620.patch"
+  echo "patching FB7430"
+  patchfile="../patches/targets-lantiq-xrx200-devices.patch"
   if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
     patch -p1 --ignore-whitespace <$patchfile
    fi
 
-  echo "adding Mikrotik RB750gr"
+#  echo "adding Edimax BR6478acv2"
+#  patchfile="../patches/targets-ramips-mt7620.patch"
+#  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
+#    patch -p1 --ignore-whitespace <$patchfile
+#   fi
+
+  echo "adding Mikrotik Cudy M1800, X6-v1, tp-linkax23v1"
   patchfile="../patches/targets-ramips-mt7621.patch"
   if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
     patch -p1 --ignore-whitespace <$patchfile

@@ -6,16 +6,17 @@
 #chmod +x ./openwrt/package/base-files/files/sbin/sysupgrade
 
 #pushd ../gluon ; git am ../patches/0001-*; popd ; # apply 0001-enumerated patches automaticylly
-pushd ../gluon ; ../patches/fix-respondd-rsk.sh; popd  # change respondd listener address to gluon 2016.x value
-pushd ../gluon ; ../patches/mi4apatch.sh; popd  # make Mi4Agigabit upgradable
-pushd ../gluon ; ../patches/add-totolink-x5000r.sh; popd  # adding Totolink X5000R
-#pushd ../gluon ; ../patches/add-dlink-covr186x.sh; popd  # adding D-Link COVR 186x non working
-pushd ../gluon ; ../patches/additionaltargets.sh; popd  # add several targets from openwrt
-pushd ../gluon ; ../patches/add-cellular.sh; popd  # add cellular modems zte
-pushd ../gluon ; ../patches/interface-role-migration21.sh; popd  # 2021-migration: interfaces with client-network
-pushd ../gluon ; ../patches/interfaces-patch.sh  ; popd  # change primary macs
-pushd ../gluon ; ../patches/statuspage-moredetails.sh  ; popd  # more details in status-page
-pushd ../gluon ; ../patches/airtime-logsilience.sh  ; popd  # top airtime-monitor from spamming logread
+pushd ../gluon ; ../patches/fix-respondd-rsk.sh; 		popd  # change respondd listener address to gluon 2016.x value
+pushd ../gluon ; ../patches/mi4apatch.sh; 			popd  # make Mi4Agigabit upgradable
+pushd ../gluon ; ../patches/add-totolink-x5000r.sh; 		popd  # adding Totolink X5000R
+pushd ../gluon ; ../patches/additionaltargets.sh; 		popd  # add several targets from openwrt
+pushd ../gluon ; ../patches/add-cellular.sh; 			popd  # add cellular modems zte
+pushd ../gluon ; ../patches/add-mt7915e-try.sh; 		popd  # [PATCH 1/2] mt76: include fixes for MT7603 / MT7612
+pushd ../gluon ; ../patches/interface-role-migration21.sh; 	popd  # 2021-migration: interfaces with client-network
+pushd ../gluon ; ../patches/interfaces-patch.sh; 		popd  # change primary macs
+pushd ../gluon ; ../patches/patch-gluon-makefiles.sh; 		popd  # change primary macs
+pushd ../gluon ; ../patches/statuspage-moredetails.sh; 		popd  # more details in status-page
+#pushd ../gluon ; ../patches/airtime-logsilience.sh; 		popd  # top airtime-monitor from spamming logread
 
 #pushd ../gluon ; ../patches/ignore-preservechannels-for-outdoormode.sh ; popd # correct handling of outdoor-devices (enable auto-channel)
 exit 0;

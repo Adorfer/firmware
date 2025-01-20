@@ -1,8 +1,8 @@
-GLUON_SITE_FEEDS="eulenfunk ffffm ffki ffmk ffac"
+GLUON_SITE_FEEDS="eulenfunk community ffac ffffm ffki"
 
-PACKAGES_EULENFUNK_REPO=https://github.com/eulenfunk/packages/
-PACKAGES_EULENFUNK_BRANCH=v2022.1.x
-PACKAGES_EULENFUNK_COMMIT=f15026e4a5dd7b5fff7562b28212fdd11386fbed
+PACKAGES_EULENFUNK_REPO=https://github.com/eulenfunk/packages.git
+PACKAGES_EULENFUNK_BRANCH=v2023.2.x
+PACKAGES_EULENFUNK_COMMIT=e03ef7f8afa439cd784e52b832698c9369651bb3
 
 PACKAGES_FFFFM_REPO=https://github.com/freifunk-ffm/packages.git
 PACKAGES_FFFFM_BRANCH=master
@@ -12,9 +12,11 @@ PACKAGES_FFKI_REPO=https://github.com/freifunk-kiel/ffki-packages.git
 PACKAGES_FFKI_COMMIT=dc3f8c3448b031beb94825aab452907f91a68eb7
 PACKAGES_FFKI_BRANCH=2018.1.x
 
-PACKAGES_FFMK_REPO=https://github.com/freifunk-mk/gluon-packages.git
-PACKAGES_FFMK_COMMIT=10281cc2e41c6675f1ae2cc15d0859157ece7a07
+PACKAGES_FFAC_REPO=https://github.com/ffac/gluon-packages.git
+PACKAGES_FFAC_COMMIT=e1b9856b23607b67cac196a58c74f795e92f0603
+PACKAGES_FFAC_BRANCH=main
 
-PACKAGES_FFAC_REPO=https://github.com/ffac/community-packages.git
-PACKAGES_FFAC_COMMIT=b2864f516fba037cb292e2aa26f0351d46532186
-PACKAGES_FFAC_BRANCH=master
+PACKAGES_COMMUNITY_REPO=https://github.com/freifunk-gluon/community-packages.git
+PACKAGES_COMMUNITY_COMMIT=9ed96218f8e3adc302b52565eaca5069a131ce94
+PACKAGES_COMMUNITY_BRANCH=master
+
