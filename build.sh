@@ -338,7 +338,7 @@ build_images_for_site ()
   local MAKE_J_VAL
   MAKE_J_VAL="$(( $(getconf _NPROCESSORS_ONLN) * 2 ))"
 # only 1 cpu core to use
-  MAKE_J_VAL=1
+#  MAKE_J_VAL=1
   for (( target_index=0; target_index < ${#TARGETS[@]}; target_index += 1 )); do
     TARGET="${TARGETS[target_index]}"
     echo "GLUONDEVICEs $GLUONDEVICES"
