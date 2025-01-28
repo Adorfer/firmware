@@ -2,8 +2,6 @@
 
 # for feature packs see https://github.com/freifunk-gluon/gluon/blob/v2018.2.x/package/features
 GLUON_FEATURES := \
-	web-wizard \
-	web-advanced \
 	mesh-batman-adv-15 \
 	respondd \
  	autoupdater \
@@ -22,10 +20,8 @@ GLUON_SITE_PACKAGES := \
         gluon-weeklyreboot \
         eulenfunk-hotfix \
         gluon-txpowerfix \
-	eulenfunk-ch13to9 \
         gluon-banner \
         gluon-linkcheck \
-        gluon-config-mode-geo-location-osm \
         gluon-authorized-keys \
         eulenfunk-migrate-updatebranch \
         eulenfunk-ath9kblackout
@@ -33,12 +29,7 @@ GLUON_SITE_PACKAGES := \
 # ffffm 
 # ev. kann man ffffm-additional-wifi-json-info teilweise durch standard gluon respondd-module-airtime ersetzen
 GLUON_SITE_PACKAGES += \
-	ffffm-keep-radio-channel \
-	ffffm-button-bind 
-
-# ffki:
-GLUON_SITE_PACKAGES += \
-	gluon-config-mode-ppa \
+	ffffm-keep-radio-channel 
 
 # ffnord:
 GLUON_SITE_PACKAGES += \

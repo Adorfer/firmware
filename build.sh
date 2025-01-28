@@ -88,7 +88,7 @@ GITRESET=false
 
 #SBRANCH="$(date +%Y%m%d%H%M)"
 SBRANCH="$(date +%y%m%d%H)$(cat $1|grep -v ^#|head -1|cut -c1-3)"  
-SBRANCH="24111214sackgasse"
+SBRANCH="24111215sackgasse"
 #SBRANCH="24041622"
 
 SITECODE_BEFORE="coldstart"
