@@ -10,7 +10,7 @@ pushd ../gluon ; ../patches/fix-respondd-rsk.sh; 		popd  # change respondd liste
 pushd ../gluon ; ../patches/mi4apatch.sh; 			popd  # make Mi4Agigabit upgradable
 pushd ../gluon ; ../patches/add-ubnt-usw-flex.sh; 		popd  # adding UBNT USW-flex
 pushd ../gluon ; ../patches/add-totolink-x5000r.sh; 		popd  # adding Totolink X5000R
-pushd ../gluon ; ../patches/add-nanopi-r3c.sh; 			popd  # adding FriendlyElec Nanopi_R3C
+pushd ../gluon ; ../patches/add-nanopi-r2c.sh; 			popd  # adding FriendlyElec Nanopi_R2C
 pushd ../gluon ; ../patches/additionaltargets.sh; 		popd  # add several targets from openwrt
 pushd ../gluon ; ../patches/add-cellular.sh; 			popd  # add cellular modems zte
 pushd ../gluon ; ../patches/add-mt7915e-try.sh; 		popd  # [PATCH 1/2] mt76: include fixes for MT7603 / MT7612
