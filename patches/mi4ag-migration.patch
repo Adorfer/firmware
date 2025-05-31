@@ -15,10 +15,10 @@ index 8bd00a3332..1b3d588bcd 100644
                                 return 1
                         fi
 diff --git a/target/linux/ramips/image/mt7621.mk b/target/linux/ramips/image/mt7621.mk
-index e559f1b147..19aa9a12e1 100644
+index b2e3285194..5976db362c 100644
 --- a/target/linux/ramips/image/mt7621.mk
 +++ b/target/linux/ramips/image/mt7621.mk
-@@ -2060,7 +2060,6 @@ endef
+@@ -2763,7 +2763,6 @@ endef
  TARGET_DEVICES += xiaomi_mi-router-4
 
  define Device/xiaomi_mi-router-4a-gigabit

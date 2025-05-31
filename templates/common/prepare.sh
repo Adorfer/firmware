@@ -7,7 +7,7 @@
 
 #pushd ../gluon ; git am ../patches/0001-*; popd ; # apply 0001-enumerated patches automaticylly
 pushd ../gluon ; ../patches/fix-respondd-rsk.sh; 		popd  # change respondd listener address to gluon 2016.x value
-pushd ../gluon ; ../patches/mi4apatch.sh; 			popd  # make Mi4Agigabit upgradable
+#pushd ../gluon ; ../patches/mi4apatch.sh; 			popd  # make Mi4Agigabit upgradable
 pushd ../gluon ; ../patches/add-ar9344-ETH-reset-patch.sh; 	popd  # TL-WR3600/WR4300 reboot-hang fix
 pushd ../gluon ; ../patches/add-ubnt-usw-flex.sh; 		popd  # adding UBNT USW-flex
 pushd ../gluon ; ../patches/add-totolink-x5000r.sh; 		popd  # adding Totolink X5000R
