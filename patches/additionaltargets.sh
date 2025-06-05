@@ -68,7 +68,7 @@ echo $PWD
   echo "patching FB7430"
   patchfile="../patches/targets-lantiq-xrx200-devices.patch"
   if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
-    patch -p1 --ignore-whitespace <$patchfile
+    patch -p1 -f --ignore-whitespace <$patchfile
    fi
 
 #  echo "adding Edimax BR6478acv2"
@@ -79,12 +79,6 @@ echo $PWD
 
   echo "adding Mikrotik Cudy M1800, X6-v1, tp-linkax23v1"
   patchfile="../patches/targets-ramips-mt7621.patch"
-  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
-    patch -p1 --ignore-whitespace <$patchfile
-   fi
-
-  echo "removing TP-Link re305 6MB flash"
-  patchfile="../patches/targets-ramips-mt76x8.patch"
   if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
     patch -p1 --ignore-whitespace <$patchfile
    fi

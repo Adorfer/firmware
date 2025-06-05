@@ -1,10 +1,13 @@
 diff --git a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-index 0d21f94e..509fc6af 100644
+index fddb4f1f..e622d79a 100644
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -154,7 +154,9 @@
+@@ -154,8 +154,12 @@
+                                                </a></dd>
                                         <%- end %>
                                         <dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %></dd>
++                                        <dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %>/<%| nodeinfo.software.firmware.subtarget %></dd>
++                                        <dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
                                         <dt><%:Primary MAC address%></dt><dd><%| nodeinfo.network.mac %></dd>
 +                                        <dt><%:Mesh MAC-Adresse%></dt><dd><%| nodeinfo.network.mesh.bat0.interfaces.other[1] %></dd>
                                         <dt><%:IP address%></dt><dd><%= pcdata(table.concat(sorted(nodeinfo.network.addresses), '\n')):gsub('\n', '<br>') %></dd>
@@ -12,7 +15,7 @@ index 0d21f94e..509fc6af 100644
                                         <dt><%:Firmware%></dt><dd><%| nodeinfo.software.firmware.release %></dd>
                                         <% if nodeinfo.network.mesh_vpn then -%>
                                                 <dt><%:Mesh VPN%></dt>
-@@ -162,7 +164,10 @@
+@@ -163,7 +167,10 @@
                                                         <%| enabled(nodeinfo.network.mesh_vpn.enabled) %>
                                                         <% if nodeinfo.network.mesh_vpn.provider then -%>
                                                         <br><%| nodeinfo.network.mesh_vpn.provider %>
@@ -24,7 +27,7 @@ index 0d21f94e..509fc6af 100644
                                                 </dd>
                                                 <% if nodeinfo.network.mesh_vpn.bandwidth_limit.enabled then -%>
                                                 <dt><%:Bandwidth limit%></dt>
-@@ -176,6 +181,7 @@
+@@ -177,6 +184,7 @@
                                                 </dd>
                                                 <%- end %>
                                         <%- end %>
