@@ -15,3 +15,6 @@ echo $PWD
    fi
   grep  'wr3000e' target/linux/mediatek/image/filogic.mk
 
+
+#[ -f target/linux/mediatek/dts/mt7981b-cudy-wr3000e-v1.dts ] && echo "target/linux/mediatek/dts/mt7981b-cudy-wr3000e-v1.dts exists, skipping copy." || cp ../../patches/XIAOMI-MIR4A-GIGABIT.dts target/linux/mediatek/dts/mt7981b-cudy-wr3000e-v1.dts
+#[ -f target/linux/mediatek/dts/mt7981b-cudy-wr3000-nand.dtsi ] && echo "target/linux/mediatek/dts/mt7981b-cudy-wr3000-nand.dtsi exists, skipping copy." || cp ../../patches/XIAOMI-MIR4A-GIGABIT.dts target/linux/mediatek/dts/mt7981b-cudy-wr3000-nand.dtsi
