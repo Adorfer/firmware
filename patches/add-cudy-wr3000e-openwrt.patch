@@ -1,0 +1,166 @@
+diff --git a/target/linux/mediatek/dts/mt7981b-cudy-wr3000e-v1.dts b/target/linux/mediatek/dts/mt7981b-cudy-wr3000e-v1.dts
+new file mode 100644
+index 0000000000..099c93b65f
+--- /dev/null
++++ b/target/linux/mediatek/dts/mt7981b-cudy-wr3000e-v1.dts
+@@ -0,0 +1,120 @@
++// SPDX-License-Identifier: (GPL-2.0 OR MIT)
++
++/dts-v1/;
++
++#include "mt7981b-cudy-wr3000-nand.dtsi"
++
++/ {
++        model = "Cudy WR3000E v1";
++        compatible = "cudy,wr3000e-v1", "mediatek,mt7981";
++
++        aliases {
++                label-mac-device = &gmac0;
++                led-boot = &led_power;
++                led-failsafe = &led_power;
++                led-running = &led_power;
++                led-upgrade = &led_power;
++                serial0 = &uart0;
++        };
++
++        leds {
++                compatible = "gpio-leds";
++
++                led_power: led-power {
++                        function = LED_FUNCTION_POWER;
++                        color = <LED_COLOR_ID_BLUE>;
++                        gpios = <&pio 8 GPIO_ACTIVE_LOW>;
++                };
++
++                led-lan-1 {
++                        function = LED_FUNCTION_LAN;
++                        color = <LED_COLOR_ID_BLUE>;
++                        gpios = <&pio 9 GPIO_ACTIVE_LOW>;
++                };
++
++                led-lan-2 {
++                        function = LED_FUNCTION_LAN;
++                        color = <LED_COLOR_ID_RED>;
++                        gpios = <&pio 5 GPIO_ACTIVE_LOW>;
++                };
++
++                led-wan {
++                        function = LED_FUNCTION_WAN_ONLINE;
++                        color = <LED_COLOR_ID_BLUE>;
++                        gpios = <&pio 11 GPIO_ACTIVE_LOW>;
++                };
++
++                led-wps-1 {
++                        function = LED_FUNCTION_WPS;
++                        color = <LED_COLOR_ID_BLUE>;
++                        gpios = <&pio 10 GPIO_ACTIVE_LOW>;
++                };
++
++                led-wps-2 {
++                        function = LED_FUNCTION_WPS;
++                        color = <LED_COLOR_ID_RED>;
++                        gpios = <&pio 4 GPIO_ACTIVE_LOW>;
++                };
++
++                led-wlan2g {
++                        function = LED_FUNCTION_WLAN_2GHZ;
++                        color = <LED_COLOR_ID_BLUE>;
++                        gpios = <&pio 6 GPIO_ACTIVE_LOW>;
++                        linux,default-trigger = "phy0tpt";
++                };
++
++                led-wlan5g {
++                        function = LED_FUNCTION_WLAN_5GHZ;
++                        color = <LED_COLOR_ID_BLUE>;
++                        gpios = <&pio 7 GPIO_ACTIVE_LOW>;
++                        linux,default-trigger = "phy1tpt";
++                };
++        };
++};
++&switch {
++        ports {
++                #address-cells = <1>;
++                #size-cells = <0>;
++
++                port@0 {
++                        reg = <0>;
++                        label = "wan";
++
++                        nvmem-cell-names = "mac-address";
++                        nvmem-cells = <&macaddr_bdinfo_de00 1>;
++                };
++
++                port@1 {
++                        reg = <1>;
++                        label = "lan1";
++                };
++
++                port@2 {
++                        reg = <2>;
++                        label = "lan2";
++                };
++
++                port@3 {
++                        reg = <3>;
++                        label = "lan3";
++                };
++
++                port@4 {
++                        reg = <4>;
++                        label = "lan4";
++                };
++
++                port@6 {
++                        reg = <6>;
++                        label = "cpu";
++                        ethernet = <&gmac0>;
++                        phy-mode = "2500base-x";
++
++                        fixed-link {
++                                speed = <2500>;
++                                full-duplex;
++                                pause;
++                        };
++                };
++        };
++};
+diff --git a/target/linux/mediatek/filogic/base-files/etc/hotplug.d/ieee80211/11_fix_wifi_mac b/target/linux/mediatek/filogic/base-files/etc/hotplug.d/ieee80211/11_fix_wifi_mac
+index 053d8e09cd..b200c5e451 100644
+--- a/target/linux/mediatek/filogic/base-files/etc/hotplug.d/ieee80211/11_fix_wifi_mac
++++ b/target/linux/mediatek/filogic/base-files/etc/hotplug.d/ieee80211/11_fix_wifi_mac
+@@ -68,6 +68,7 @@ case "$board" in
+ 		[ "$PHYNBR" = "1" ] && macaddr_setbit_la $(macaddr_add $addr 1) > /sys${DEVPATH}/macaddress
+ 		;;
+ 	cudy,m3000-v1|\
++        cudy,wr3000e-v1|\
+ 	cudy,wr3000-v1)
+ 		addr=$(mtd_get_mac_binary bdinfo 0xde00)
+ 		# Originally, phy0 is phy1 mac with LA bit set. However, this would conflict
+diff --git a/target/linux/mediatek/image/filogic.mk b/target/linux/mediatek/image/filogic.mk
+index 88b279140c..384eeadb10 100644
+--- a/target/linux/mediatek/image/filogic.mk
++++ b/target/linux/mediatek/image/filogic.mk
+@@ -437,6 +437,23 @@ define Device/cudy_wr3000-v1
+ endef
+ TARGET_DEVICES += cudy_wr3000-v1
+ 
++define Device/cudy_wr3000e-v1
++  DEVICE_VENDOR := Cudy
++  DEVICE_MODEL := WR3000E
++  DEVICE_VARIANT := v1
++  DEVICE_DTS := mt7981b-cudy-wr3000e-v1
++  DEVICE_DTS_DIR := ../dts
++  SUPPORTED_DEVICES += R53
++  UBINIZE_OPTS := -E 5
++  BLOCKSIZE := 128k
++  PAGESIZE := 2048
++  IMAGE_SIZE := 65536k
++  KERNEL_IN_UBI := 1
++  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
++  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
++endef
++TARGET_DEVICES += cudy_wr3000e-v1
++
+ define Device/dlink_aquila-pro-ai-m30-a1
+   DEVICE_VENDOR := D-Link
+   DEVICE_MODEL := AQUILA PRO AI M30
