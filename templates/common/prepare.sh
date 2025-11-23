@@ -8,11 +8,10 @@
 #pushd ../gluon ; git am ../patches/0001-*; popd ; # apply 0001-enumerated patches automaticylly
 pushd ../gluon ; ../patches/fix-respondd-rsk.sh; 			popd  # change respondd listener address to gluon 2016.x value
 pushd ../gluon ; ../patches/mi4apatch.sh; 				popd  # make Mi4Agigabit upgradable
-pushd ../gluon ; ../patches/add-ar9344-ETH-reset-patch.sh; 		popd  # TL-WR3600/WR4300 reboot-hang fix
 pushd ../gluon ; ../patches/add-ubnt-usw-flex.sh; 			popd  # adding UBNT USW-flex
 pushd ../gluon ; ../patches/add-totolink-x5000r.sh;	 		popd  # adding Totolink X5000R
 pushd ../gluon ; ../patches/add-nanopi-r2c.sh; 				popd  # adding FriendlyElec Nanopi_R2C
-pushd ../gluon ; ../patches/add-cudy-wr3000e.sh; 			popd  # adding Cudy WR3000E (die anderen 3000er wären auch einfach reinzubringen bei Bedarf)
+pushd ../gluon ; ../patches/add-cudy-3000.sh; 				popd  # adding Cudy 3000 series to the mediatek filogic target
 pushd ../gluon ; ../patches/additionaltargets.sh; 			popd  # add several targets from openwrt
 pushd ../gluon ; ../patches/add-cellular.sh; 				popd  # add cellular modems zte
 pushd ../gluon ; ../patches/add-mt7915e-try.sh; 			popd  # [PATCH 1/2] mt76: include fixes for MT7603 / MT7612
@@ -21,7 +20,6 @@ pushd ../gluon ; ../patches/interfaces-patch.sh; 			popd  # change primary macs
 pushd ../gluon ; ../patches/patch-gluon-makefiles.sh; 			popd  # change primary macs
 pushd ../gluon ; ../patches/statuspage-moredetails.sh; 			popd  # more details in status-page
 
-#pushd ../gluon ; ../patches/genexis-ex400-disablewpsconfigmode.sh	popd  # remove wps reset / configmode for EX400
 #pushd ../gluon ; ../patches/airtime-logsilience.sh; 			popd  # top airtime-monitor from spamming logread
 
 #pushd ../gluon ; ../patches/ignore-preservechannels-for-outdoormode.sh ; popd # correct handling of outdoor-devices (enable auto-channel)
