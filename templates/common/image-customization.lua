@@ -236,6 +236,7 @@ if target('ramips', 'mt7621') or target('ramips', 'mt7622') or target('mediatek'
         -- restart device if mt7915e driver shows known failure symptom
         packages {
                 'ffac-mt7915-hotfix',
+                '-gluon-linkcheck',            
         }
 end
 
