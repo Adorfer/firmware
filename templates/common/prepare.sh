@@ -10,6 +10,7 @@ pushd ../gluon ; ../patches/fix-respondd-rsk.sh; 			popd  # change respondd list
 pushd ../gluon ; ../patches/mi4apatch.sh; 				popd  # make Mi4Agigabit upgradable
 pushd ../gluon ; ../patches/add-ubnt-usw-flex.sh; 			popd  # adding UBNT USW-flex
 pushd ../gluon ; ../patches/add-totolink-x5000r.sh;	 		popd  # adding Totolink X5000R
+pushd ../gluon ; ../patches/add-mercusys-mr90x.sh;	 		popd  # adding MERCUSYS MR90X
 pushd ../gluon ; ../patches/add-nanopi-r2c.sh; 				popd  # adding FriendlyElec Nanopi_R2C
 pushd ../gluon ; ../patches/add-cudy-3000.sh; 				popd  # adding Cudy 3000 series to the mediatek filogic target
 pushd ../gluon ; ../patches/additionaltargets.sh; 			popd  # add several targets from openwrt

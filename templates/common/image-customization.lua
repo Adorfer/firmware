@@ -233,7 +233,8 @@ if target('bcm27xx') then
 end
 
 if target('ramips', 'mt7621') or target('ramips', 'mt7622') or target('mediatek', 'filogic') then
-        -- restart device if mt7915e driver shows known failure symptom
+        -- restart device if mt7915e driver shows known failure symptom 
+        -- and remove gluon-linkcheck, as "iw dev $dev scan lowpri passive" interrupts wifimesh links on mediatek filogic
         packages {
                 'ffac-mt7915-hotfix',
                 '-gluon-linkcheck',            
