@@ -35,10 +35,8 @@ packages {
     'eulenfunk-hotfix',  		-- eulenfunk
     'gluon-txpowerfix',			-- eulenfunk
     'gluon-banner',			-- eulenfunk 
-    'gluon-linkcheck',			-- eulenfunk
     'eulenfunk-migrate-updatebranch',	-- eulenfunk
     'eulenfunk-ath9kblackout',		-- eulenfunk
-    'gluon-config-mode-ppa',		-- ffki
     'ffffm-button-bind',		-- ffffm
     'ffac-ssid-changer',		-- ffac
     'ffac-autoupdater-wifi-fallback',	-- ffac
@@ -234,10 +232,8 @@ end
 
 if target('ramips', 'mt7621') or target('ramips', 'mt7622') or target('mediatek', 'filogic') then
         -- restart device if mt7915e driver shows known failure symptom 
-        -- and remove gluon-linkcheck, as "iw dev $dev scan lowpri passive" interrupts wifimesh links on mediatek filogic
         packages {
                 'ffac-mt7915-hotfix',
-                '-gluon-linkcheck',            
         }
 end
 
