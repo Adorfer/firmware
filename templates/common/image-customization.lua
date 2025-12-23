@@ -37,6 +37,7 @@ packages {
     'gluon-banner',			-- eulenfunk 
     'eulenfunk-migrate-updatebranch',	-- eulenfunk
     'eulenfunk-ath9kblackout',		-- eulenfunk
+--    'eulenfunk-ssid-changer',		-- eulenfunk
     'ffffm-button-bind',		-- ffm
     'ffac-ssid-changer',		-- gluon community packages
     'ffac-autoupdater-wifi-fallback',	-- gluon community packages
@@ -61,7 +62,7 @@ if not device_class('tiny') then
     }
     packages {
         'openssh-sftp-server',
-        'ffda-gluon-usteer
+        'ffda-gluon-usteer',
     }
 end
 
