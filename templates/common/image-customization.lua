@@ -37,16 +37,16 @@ packages {
     'gluon-banner',			-- eulenfunk 
     'eulenfunk-migrate-updatebranch',	-- eulenfunk
     'eulenfunk-ath9kblackout',		-- eulenfunk
---    'eulenfunk-ssid-changer',		-- eulenfunk
+    'eulenfunk-ssid-changer',		-- eulenfunk
     'ffffm-button-bind',		-- ffm
-    'ffac-ssid-changer',		-- gluon community packages
+--    'ffac-ssid-changer',		-- gluon community packages
     'ffac-autoupdater-wifi-fallback',	-- gluon community packages
     'ff-ap-timer',			-- gluon community packages
     'ff-web-ap-timer', 			-- gluon community packages
     'ffbs-collect-debug-info', 		-- gluon community packages
     'ffbs-debugbathosts', 		-- gluon community packages
     'ffda-node-whisperer', 		-- gluon community packages
-    'ffmuc-ipv6-ra-filter', 		-- gluon community packages
+--    'ffmuc-ipv6-ra-filter', 		-- gluon community packages
     'tecff-general-workaround', 	-- ffac
     'tecff-broken-wlan-workaround', 	-- ffac
 }
