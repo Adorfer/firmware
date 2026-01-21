@@ -16,6 +16,7 @@ pushd ../gluon ; ../patches/add-cudy-3000.sh; 				popd  # adding Cudy 3000 serie
 pushd ../gluon ; ../patches/additionaltargets.sh; 			popd  # add several targets from openwrt
 pushd ../gluon ; ../patches/add-cellular.sh; 				popd  # add cellular modems zte
 pushd ../gluon ; ../patches/add-mt7915e-try.sh; 			popd  # [PATCH 1/2] mt76: include fixes for MT7603 / MT7612
+pushd ../gluon ; ../patches/mt7915-filogic-syncpowersave-patch.sh; 	popd  # patches/openwrt/0013-wifi-mt76-mt7915-sync-power-save-state-with-WA.patch
 pushd ../gluon ; ../patches/interface-role-migration21.sh; 		popd  # 2021-migration: interfaces with client-network
 pushd ../gluon ; ../patches/interfaces-patch.sh; 			popd  # change primary macs
 pushd ../gluon ; ../patches/patch-gluon-makefiles.sh; 			popd  # change primary macs
