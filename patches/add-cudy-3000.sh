@@ -15,3 +15,10 @@ echo $PWD
    fi
   grep  'wr3000e' target/linux/mediatek/image/filogic.mk
 
+  patchfile="../../patches/patches/add-cudy-3000-singleeth-openwrt.patch"
+  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
+    patch -p1 -f --ignore-whitespace <$patchfile
+   fi
+  grep  'cudy,ap3000-v1' target/linux/mediatek/base-files/lib/preinit/05_set_preinit_iface
+  
+  popd
