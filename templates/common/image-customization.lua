@@ -38,6 +38,7 @@ packages {
     'eulenfunk-migrate-updatebranch',	-- eulenfunk
     'eulenfunk-ath9kblackout',		-- eulenfunk
     'eulenfunk-ssid-changer',		-- eulenfunk
+    'neanderfunk-nodeplacer',		-- neanderfunk
     'ffffm-button-bind',		-- ffm
 --    'ffac-ssid-changer',		-- gluon community packages
     'ffac-autoupdater-wifi-fallback',	-- gluon community packages
