@@ -85,20 +85,56 @@ dass ein Alias den alten abfängt.
 Diese Kategorie ist damit kein Migrationsblocker, aber ein Restrisiko für
 Karteileichen. Gluon 2025.1 unterstützt ohnehin nur Upgrades ab v2022.1.
 
-### Offene Verifikation
+### Abgleich mit dem Feld — und damit die Entwarnung
 
-Welche Namen eure Knoten **tatsächlich** melden, ließ sich von hier nicht feststellen:
-`https://map.ffdus.de/data/nodes.json` liefert `{"version":null,"nodes":null}`.
+Datenquelle: `https://map.eulenfunk.de/data/nodes.json`, 1199 Knoten, davon 1115 online
+(Stand 2026-09-05). `https://map.ffdus.de/data/nodes.json` liefert dagegen nur
+`{"version":null,"nodes":null}` und ist unbrauchbar.
 
-Vor der Migration wäre das die eine Zahl, die zählt — über respondd beziehungsweise
-euren Kollektor:
+**835 Knoten melden ein `image_name`** — durchweg die auf v2023.2.5. Sie verteilen sich
+auf **67 verschiedene Namen**, und davon fehlt in Gluon 2025.1:
 
-```
-nodeinfo.software.firmware.image_name
-```
+> **kein einziger.**
 
-über alle Knoten auszählen und gegen die Liste unter (c) halten. Sind dort keine
-Legacy-Namen vertreten, ist Kategorie (c) erledigt.
+Sieben der 67 stammen aus euren Patches, und alle sieben sind in 2025.1 bereits
+upstream:
+
+| Imagename | Knoten |
+|---|---|
+| `totolink-x5000r` | 13 |
+| `cudy-wr3000e-v1` | 6 |
+| `cudy-wr3000h-v1` | 4 |
+| `tp-link-archer-ax23-v1` | 2 |
+| `cudy-wr3000s-v1` | 1 |
+| `mercusys-mr90x-v1` | 1 |
+| `cudy-tr3000-v1` | 1 |
+
+**Für ausgeliefertes Gerät ist also kein einziger Forward-Port nötig.** Die 15 Geräte
+aus Kapitel 2.2 betreffen ausnahmslos Hardware, die ihr derzeit nicht im Feld habt.
+
+Auch der Namenskonflikt aus (b) entschärft sich: `cudy-ap3000outdoor-v1` kommt im Feld
+**nicht** vor. Er ist ein Risiko für die Zukunft — solltet ihr AP3000 Outdoor noch unter
+2023.2 ausrollen, entsteht das Problem. Vorher migrieren, oder gleich den
+Upstream-Namen verwenden.
+
+### Die andere Hälfte: 364 Knoten ohne `image_name`
+
+Davon sind 76 gar keine Gluon-Knoten (Basis `Ubuntu`, Modell `KVM VirtualMachine` —
+Gateways). Bleiben **279 echte Gluon-Knoten auf v2021.1.2 oder älter**, und davon
+laufen **231 auf TP-Link WR841N/ND v8–v11, WR940N, WR741N/ND oder WA901N/ND** — der
+4/32-Klasse.
+
+Diese Geräte sind **schon in Gluon 2023.2 nicht mehr baubar**: dort existiert nur noch
+`tp-link-tl-wr841n-v13`, die 8/64-Variante. Die v8–v11 flogen vor 2023.2 raus, ebenso
+`nanostation-loco-m2`.
+
+Rund 231 Knoten — etwa ein Fünftel eures Netzes — hängen also **bereits jetzt** fest und
+bekommen seit Jahren keine Updates mehr. **Der Umstieg auf 2025.1 ändert daran nichts,
+weder zum Guten noch zum Schlechten.** Das ist ein eigenes Thema (Austauschprogramm),
+kein Migrationshindernis.
+
+Damit erledigt sich auch Kategorie (c) oben: die 48 aufgegebenen Legacy-Aliase betreffen
+Knoten, die ohnehin nicht mehr aktualisiert werden können.
 
 ## Kurzfassung
 
@@ -108,6 +144,7 @@ Legacy-Namen vertreten, ist Kategorie (c) erledigt.
 | Von euren Patches ergänzte Geräte | **34** |
 | davon in Gluon 2025.1 bereits upstream | **19** — Patch entbehrlich |
 | davon nachzuziehen | **15** — aber **alle 15 in OpenWrt 24.10 vorhanden**, also je eine `device()`-Zeile |
+| **Im Feld tatsächlich betroffen** | **0 Geräte** — alle 67 Imagenamen der 835 Knoten auf v2023.2.5 kennt 2025.1 |
 | Targets, die entfallen | **1** (`realtek-rtl838x`) |
 | Geräte, die entfallen | **2** |
 | Als „deprecated" markierte Geräte | **0** in beiden Zweigen |
@@ -277,20 +314,33 @@ mit Exit-Code.
 
 ## 5. Vorschlag zur Reihenfolge
 
+Der Feldabgleich in Kapitel 0 hat den Pflichtteil klein gemacht.
+
+**Pflicht**
+
 1. `prepare.sh` laut Kapitel 4.3 laut machen — **vor** allem anderen, sonst ist jeder
    Migrationsversuch blind.
-2. Die tatsächlich gemeldeten `image_name` der Knoten auszählen (Kapitel 0, Offene
-   Verifikation). Ergibt die Liste der wirklich betroffenen Geräte.
-3. `manifest_aliases = {'cudy-ap3000outdoor-v1'}` klären — upstream einreichen oder
-   lokal patchen. Ohne das verlieren ausgelieferte AP3000 Outdoor den Update-Pfad.
-4. Die acht entfallenden Patches entfernen, die sechs schrumpfenden kürzen.
-5. `targets.conf`: `realtek-rtl838x` streichen, `ipq807x-generic` in
+2. Die acht entfallenden Patches entfernen, die sechs schrumpfenden kürzen.
+3. `targets.conf`: `realtek-rtl838x` streichen, `ipq807x-generic` in
    `qualcommax-ipq807x` umbenennen.
-6. Die 15 fehlenden Geräte als je eine `device()`-Zeile nachziehen — **mit den
-   bisherigen Imagenamen und Aliasen**, sonst stranden die eigenen Bestandsknoten.
-7. zbit-Frage klären (4.1), `mi4ag-migration.patch` prüfen (4.2).
-8. Erst dann bauen. Danach das erzeugte Manifest gegen das alte diffen: jeder Name,
-   der verschwindet, ist ein Gerät ohne Update-Pfad.
+4. zbit-Frage klären (4.1), `mi4ag-migration.patch` prüfen (4.2). Der Totolink X5000R
+   steht mit 13 Knoten im Feld, das ist der einzige Punkt mit echtem Zeitdruck.
+5. Bauen. Danach das erzeugte Manifest gegen das alte diffen: jeder Name, der
+   verschwindet, ist ein Gerät ohne Update-Pfad.
+
+**Nach Bedarf, kein Migrationsblocker**
+
+6. Von den 15 Geräten aus Kapitel 2.2 nur das nachziehen, was ihr tatsächlich ausrollen
+   wollt — im Feld ist derzeit keines davon. Dann aber **mit den bisherigen Imagenamen
+   und Aliasen**.
+7. `manifest_aliases = {'cudy-ap3000outdoor-v1'}` nur nötig, falls vor der Migration
+   noch AP3000 Outdoor unter 2023.2 ausgerollt werden. Sonst gleich den
+   Upstream-Namen `cudy-ap3000-outdoor-v1` übernehmen.
+
+**Eigenes Thema, unabhängig von der Migration**
+
+8. Die ~231 Knoten der 4/32-Klasse hängen schon heute auf v2021.1.2 fest. Austausch
+   oder Abschaltung ist zu planen, hat mit 2025.1 aber nichts zu tun.
 
 Nicht Teil dieser Aufstellung, aber ebenfalls offen: Tunneldigger aus
 `community-packages`, die Site-Feeds ohne 2025.1-Branch, die opkg-URLs auf `23.05.5`
