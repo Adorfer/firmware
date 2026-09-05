@@ -33,6 +33,34 @@ patch_abort ()
   exit 1
 }
 
+# remove_patch_leftovers <patchdatei>
+#
+# Loescht .orig- und .rej-Dateien neben den Dateien, die der Patch anfasst.
+#
+# patch legt bei jedem Hunk-Versatz eine .orig-Kopie an. Die landet in der
+# Firmware: Gluon kopiert package/*/files/. und luasrc/. vollstaendig ins Image
+# (Gluon/Build/Install in package/gluon.mk). Ausgeliefert wurde dadurch unter
+# anderem /lib/gluon/upgrade/020-interfaces.orig - ausfuehrbar, und
+# gluon-reconfigure arbeitet das Verzeichnis mit "for script in *" ab. Die
+# ungepatchte Fassung lief also direkt nach der gepatchten und ueberschrieb
+# deren Schnittstellenzuordnung wieder.
+#
+# Neue .orig-Dateien verhindert --no-backup-if-mismatch. Die schon
+# vorhandenen muessen weg: "git reset --hard" fasst unversionierte Dateien
+# nicht an, sie ueberleben also jeden Lauf.
+remove_patch_leftovers ()
+{
+  local patch_file="$1"
+  local target
+
+  # Aus den "+++ b/<pfad>"-Zeilen die Zieldateien ziehen (-p1, also b/ weg).
+  while read -r target; do
+    [ -n "$target" ] || continue
+    [ "$target" = "/dev/null" ] && continue
+    rm -f "$target.orig" "$target.rej"
+  done < <(awk '/^\+\+\+ /{ sub(/^\+\+\+ [ab]\//, "", $0); sub(/[ \t].*$/, "", $0); print }' "$patch_file")
+}
+
 # apply_patch <patchdatei> [pruefdatei] [pruefmuster]
 #
 # Wendet die Patchdatei relativ zum aktuellen Verzeichnis an (-p1). Ist sie
@@ -46,6 +74,8 @@ apply_patch ()
   local check_pattern="${3-}"
 
   [ -f "$patch_file" ] || patch_abort "$patch_file nicht gefunden (Arbeitsverzeichnis: $PWD)."
+
+  remove_patch_leftovers "$patch_file"
 
   # Laesst sich der Patch rueckwaerts anwenden, ist er schon drin. prepare.sh
   # laeuft je Bau mehrfach, die Skripte muessen also idempotent sein.
@@ -62,7 +92,9 @@ apply_patch ()
   else
     # -f, damit patch bei unerwartetem Zustand abbricht, statt interaktiv zu
     # fragen und den Build haengen zu lassen.
-    patch -p1 -f --ignore-whitespace <"$patch_file" \
+    # --no-backup-if-mismatch: ohne das legt patch bei jedem Versatz eine
+    # .orig-Kopie neben der Zieldatei an. Siehe remove_patch_leftovers.
+    patch -p1 -f --ignore-whitespace --no-backup-if-mismatch <"$patch_file" \
       || patch_abort "$patch_file liess sich nicht anwenden."
     echo "  $patch_file: angewendet."
   fi
