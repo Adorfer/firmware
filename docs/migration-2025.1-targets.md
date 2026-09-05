@@ -6,6 +6,20 @@ Bestandsaufnahme, Stand 2026-09-05. **Nur Analyse, nichts umgesetzt.**
 > Autoupdater-Manifest, nicht die Target- oder Boardnamen. Ändert sich der Name,
 > findet ein Bestandsknoten sein Update nicht mehr.
 
+## Umfang
+
+Betrachtet wird, was bei der Migration **Probleme machen kann**. Zwei Gruppen sind
+darum ausdrücklich ausgenommen:
+
+* **Geräte, die nicht im Feld sind.** Was nirgends läuft, kann auch keinen Update-Pfad
+  verlieren. Solche Geräte tauchen hier nur nachrichtlich auf, damit klar ist, was
+  beim Wegfall eines Patches an Baubarkeit verloren ginge.
+* **Die Sackgassen-Geräte auf v2021.1.2.** Rund 231 Knoten der 4/32-Klasse
+  (TP-Link WR841N/ND v8–v11 und Verwandte) hängen dort fest, weil Gluon diese Hardware
+  **schon vor 2023.2** fallen gelassen hat — in 2023.2 existiert nur noch
+  `tp-link-tl-wr841n-v13`. Das ist mit einem Versionswechsel nicht lösbar und hat mit
+  2025.1 nichts zu tun. Eigenes Thema.
+
 ## 0. Manifest-Namen — der entscheidende Vergleich
 
 ### Warum dieser Name zählt
@@ -117,24 +131,15 @@ Auch der Namenskonflikt aus (b) entschärft sich: `cudy-ap3000outdoor-v1` kommt 
 2023.2 ausrollen, entsteht das Problem. Vorher migrieren, oder gleich den
 Upstream-Namen verwenden.
 
-### Die andere Hälfte: 364 Knoten ohne `image_name`
+### Die restlichen 364 Knoten — außerhalb des Umfangs
 
-Davon sind 76 gar keine Gluon-Knoten (Basis `Ubuntu`, Modell `KVM VirtualMachine` —
-Gateways). Bleiben **279 echte Gluon-Knoten auf v2021.1.2 oder älter**, und davon
-laufen **231 auf TP-Link WR841N/ND v8–v11, WR940N, WR741N/ND oder WA901N/ND** — der
-4/32-Klasse.
+Sie melden kein `image_name`. 76 davon sind gar keine Gluon-Knoten (Basis `Ubuntu`,
+Modell `KVM VirtualMachine` — Gateways). Die übrigen 279 laufen auf v2021.1.2 oder
+älter, davon 231 auf der 4/32-Klasse. Siehe **Umfang** oben: nicht lösbar, nicht Teil
+dieser Betrachtung.
 
-Diese Geräte sind **schon in Gluon 2023.2 nicht mehr baubar**: dort existiert nur noch
-`tp-link-tl-wr841n-v13`, die 8/64-Variante. Die v8–v11 flogen vor 2023.2 raus, ebenso
-`nanostation-loco-m2`.
-
-Rund 231 Knoten — etwa ein Fünftel eures Netzes — hängen also **bereits jetzt** fest und
-bekommen seit Jahren keine Updates mehr. **Der Umstieg auf 2025.1 ändert daran nichts,
-weder zum Guten noch zum Schlechten.** Das ist ein eigenes Thema (Austauschprogramm),
-kein Migrationshindernis.
-
-Damit erledigt sich auch Kategorie (c) oben: die 48 aufgegebenen Legacy-Aliase betreffen
-Knoten, die ohnehin nicht mehr aktualisiert werden können.
+Damit erledigt sich auch Kategorie (c): die 48 aufgegebenen Legacy-Aliase betreffen
+ausschließlich Knoten aus dieser Gruppe.
 
 ## Kurzfassung
 
@@ -337,10 +342,7 @@ Der Feldabgleich in Kapitel 0 hat den Pflichtteil klein gemacht.
    noch AP3000 Outdoor unter 2023.2 ausgerollt werden. Sonst gleich den
    Upstream-Namen `cudy-ap3000-outdoor-v1` übernehmen.
 
-**Eigenes Thema, unabhängig von der Migration**
-
-8. Die ~231 Knoten der 4/32-Klasse hängen schon heute auf v2021.1.2 fest. Austausch
-   oder Abschaltung ist zu planen, hat mit 2025.1 aber nichts zu tun.
+Die 4/32-Sackgasse taucht hier bewusst nicht auf — siehe **Umfang**.
 
 Nicht Teil dieser Aufstellung, aber ebenfalls offen: Tunneldigger aus
 `community-packages`, die Site-Feeds ohne 2025.1-Branch, die opkg-URLs auf `23.05.5`
