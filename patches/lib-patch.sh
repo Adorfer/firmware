@@ -51,6 +51,14 @@ apply_patch ()
   # laeuft je Bau mehrfach, die Skripte muessen also idempotent sein.
   if patch -R -p1 -s -f --dry-run --ignore-whitespace <"$patch_file" >/dev/null 2>&1; then
     echo "  $patch_file: bereits angewendet."
+  elif [ -n "$check_file" ] && [ -n "$check_pattern" ] && [ -f "$check_file" ] \
+       && grep -q "$check_pattern" "$check_file"; then
+    # Der Rueckwaerts-Test scheitert auch dann, wenn ein spaeterer Patch
+    # dieselbe Stelle noch einmal veraendert hat: statuspage-ssid und
+    # statuspage-hwdetails setzen genau so auf statuspage-moredetails auf.
+    # Steht das Merkmal schon im Baum, ist trotzdem nichts zu tun.
+    echo "  $patch_file: '$check_pattern' steht bereits in $check_file, nichts zu tun."
+    return 0
   else
     # -f, damit patch bei unerwartetem Zustand abbricht, statt interaktiv zu
     # fragen und den Build haengen zu lassen.
