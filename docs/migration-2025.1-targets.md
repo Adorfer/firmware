@@ -18,7 +18,8 @@ darum ausdrücklich ausgenommen:
   (TP-Link WR841N/ND v8–v11 und Verwandte) hängen dort fest, weil Gluon diese Hardware
   **schon vor 2023.2** fallen gelassen hat — in 2023.2 existiert nur noch
   `tp-link-tl-wr841n-v13`. Das ist mit einem Versionswechsel nicht lösbar und hat mit
-  2025.1 nichts zu tun. Eigenes Thema.
+  2025.1 nichts zu tun. Eigenes Thema — untersucht in
+  [`4-32-machbarkeit.md`](4-32-machbarkeit.md).
 
 ## 0. Manifest-Namen — der entscheidende Vergleich
 
