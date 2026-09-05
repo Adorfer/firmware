@@ -74,10 +74,9 @@ apply_patch "$PATCH_DIR/targets-ipq40xx-generic.patch" \
   "targets/ipq40xx-generic" \
   'ATH10K_PACKAGES_IPQ40XX_QCA9984'
 
-echo "- AVM FRITZ!Box 7430 und 3390"
-apply_patch "$PATCH_DIR/targets-lantiq-xrx200-devices.patch" \
-  "targets/lantiq-xrx200" \
-  'avm_fritz7430'
+# AVM FRITZ!Box 7430 und 3390 stehen nicht mehr hier, sondern in
+# add-lantiq-xrx200-devices.sh: derselbe Patch legt einen OpenWrt-Patch im
+# Gluon-Baum ab und muss deshalb vor "make update" laufen.
 
 # echo "- Edimax BR6478ACv2"
 # apply_patch "$PATCH_DIR/targets-ramips-mt7620.patch" \

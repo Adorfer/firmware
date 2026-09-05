@@ -17,9 +17,9 @@ apply_patch "$PATCH_DIR/gluon-makefile.patch" \
   "Makefile" \
   'override GLUON_TARGETS'
 
-echo "- Paket-Patches"
-apply_patch "$PATCH_DIR/gluon-packages.patch" \
-  "patches/packages/gluon/0001-delete-etc-opkg-keys-on-autoupdater-upgrade-does-trigger-on-autoupdate-after-checking-that-the-image-is-correct.patch"
+# Der Paketpatch fuer packages/gluon steht nicht mehr hier, sondern in
+# add-gluon-package-patches.sh: "make update" spielt ihn ein, er muss also
+# vorher abgelegt sein.
 
 # ffda-node-whisperer hat upstream keinen PKG_MIRROR_HASH, also uebergibt
 # OpenWrt den Platzhalter --hash="x", verweigert den Download-Cache und klont
