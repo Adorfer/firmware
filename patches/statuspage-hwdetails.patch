@@ -25,6 +25,25 @@ verlaesslich vorhanden ist:
     "Intel(R) Pentium(R) CPU 4405U @ 2.10GHz".
   - eine Zeile "BIOS" mit Hersteller und Version aus /sys/class/dmi/id,
     zusammen in einer Zeile.
+  - "RAM gesamt": MemTotal aus /proc/meminfo, also der physische
+    Arbeitsspeicher ohne Swap.
+  - "Flash gesamt": der groesste zusammenhaengende Dauerspeicher, der
+    Baustein mit dem Boot-Image.
+
+Zur Flash-Ermittlung: bei MTD ist das *nicht* die Summe der Partitionen.
+Auf dem D-Link COVR-X1860 steht neben den elf physischen Partitionen ein
+zwoelftes Geraet "ubi" mit Offset 0 und 74 MiB - eine Verkettung von
+fwconcat0 und fwconcat1, also bereits gezaehlter Bereiche. Aufsummieren
+ergaebe 74 MiB zu viel, und /proc/partitions liefert genau diese Dublette als
+groesstes Blockgeraet. Verwendet wird daher das groesste Partitionsende aus
+/sys/class/mtd/mtdN/{offset,size}: Verkettungen beginnen bei Offset 0 und
+koennen den Chip nicht ueberschreiten. Ergibt korrekt 128 MiB.
+Ohne MTD - x86, virtio, SATA, eMMC - gewinnt das groesste Blockgeraet aus
+/proc/partitions, unter Auslassung von loop* und ram*.
+
+Die Verzeichnisse werden dabei nicht aufgelistet, sondern mtd0, mtd1, ...
+durchgezaehlt, bis keines mehr existiert: das Lua der Knoten ist 5.1 und kann
+Verzeichnisse nicht auflisten.
 
 Alle drei Ergaenzungen stehen unter einer Bedingung. Fehlt /proc/cpuinfo oder
 hat es keine "model name"-Zeile, und fehlt /sys/class/dmi wie auf den
@@ -40,7 +59,7 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -39,6 +39,43 @@
+@@ -39,6 +39,98 @@
  		return interfaces
  	end
  
@@ -81,19 +100,76 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +		return vendor or version
 +	end
 +
++	-- Physischer Arbeitsspeicher laut Kernel, ohne Swap.
++	local function get_ram_bytes()
++		local f = io.open('/proc/meminfo')
++		if not f then return nil end
++		for line in f:lines() do
++			local kb = line:match('^MemTotal:%s*(%d+)%s*kB')
++			if kb then
++				f:close()
++				return tonumber(kb) * 1024
++			end
++		end
++		f:close()
++		return nil
++	end
++
++	-- Groesster zusammenhaengender Dauerspeicher, also der Baustein mit dem
++	-- Boot-Image. Bei MTD ist das nicht die Summe der Partitionen: Geraete wie
++	-- "ubi" sind Verkettungen bereits gezaehlter Partitionen und lagen im Test
++	-- als 74-MiB-Dublette neben dem 128-MiB-Chip. Das groesste Partitionsende
++	-- ergibt die Chipgroesse, weil Verkettungen bei Offset 0 beginnen und den
++	-- Chip nicht ueberschreiten koennen. Ohne MTD - x86, virtio, SATA, eMMC -
++	-- gewinnt das groesste Blockgeraet aus /proc/partitions.
++	local function get_flash_bytes()
++		local total, i = 0, 0
++		while true do
++			local size = tonumber(read_first_line('/sys/class/mtd/mtd' .. i .. '/size'))
++			if not size then break end
++			local offset = tonumber(read_first_line('/sys/class/mtd/mtd' .. i .. '/offset')) or 0
++			if offset + size > total then total = offset + size end
++			i = i + 1
++		end
++		if total > 0 then return total end
++
++		local f = io.open('/proc/partitions')
++		if not f then return nil end
++		for line in f:lines() do
++			local blocks, name = line:match('^%s*%d+%s+%d+%s+(%d+)%s+(%S+)')
++			if blocks and name and not name:match('^loop') and not name:match('^ram') then
++				local bytes = tonumber(blocks) * 1024
++				if bytes > total then total = bytes end
++			end
++		end
++		f:close()
++		if total > 0 then return total end
++		return nil
++	end
++
++	local function format_bytes(n)
++		if not n then return nil end
++		if n >= 1024 * 1024 * 1024 then
++			return string.format('%.1f GiB', n / (1024 * 1024 * 1024))
++		end
++		return string.format('%.0f MiB', n / (1024 * 1024))
++	end
++
  	local function get_radios()
  		local ret = {}
  
-@@ -80,6 +117,8 @@
+@@ -80,6 +172,10 @@
  	ubus.close(uconn)
  
  	local radios = get_radios()
 +	local cpu_model = get_cpu_model()
 +	local bios = get_bios()
++	local ram_total = format_bytes(get_ram_bytes())
++	local flash_total = format_bytes(get_flash_bytes())
  
  	local function sorted(t)
  		t = {unpack(t)}
-@@ -153,7 +192,13 @@
+@@ -153,7 +249,19 @@
  							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
  						</a></dd>
  					<%- end %>
@@ -104,6 +180,12 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +					<%- end %>
 +					<% if bios then -%>
 +						<dt><%:BIOS%></dt><dd><%| bios %></dd>
++					<%- end %>
++					<% if ram_total then -%>
++						<dt><%:RAM gesamt%></dt><dd><%| ram_total %></dd>
++					<%- end %>
++					<% if flash_total then -%>
++						<dt><%:Flash gesamt%></dt><dd><%| flash_total %></dd>
 +					<%- end %>
                                          <dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %>/<%| nodeinfo.software.firmware.subtarget %></dd>
                                          <dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
