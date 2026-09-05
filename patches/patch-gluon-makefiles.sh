@@ -1,21 +1,37 @@
 #!/bin/bash
-echo $PWD 
-  echo "patching glunon-makefile"
-  patchfile="../patches/gluon-makefile.patch"
-  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
-    patch -p1 --ignore-whitespace <$patchfile
-   fi
+#
+# Passt das Gluon-Makefile und die Paketliste an.
+#
+# Wird aus dem Gluon-Verzeichnis heraus aufgerufen, so wie prepare.sh es tut:
+#   pushd ../gluon ; ../patches/patch-gluon-makefiles.sh ; popd
 
-  echo "patching gluon-packages"
-  patchfile="../patches/gluon-packages.patch"
-  if ! patch -R -p1 -s -f --ignore-whitespace --dry-run <$patchfile &>/dev/null; then
-    patch -p1 --ignore-whitespace <$patchfile
-   fi
+. "$(dirname "${BASH_SOURCE[0]}")/lib-patch.sh"
 
-  # ffda-node-whisperer has no PKG_MIRROR_HASH upstream, so OpenWrt passes the
-  # placeholder --hash="x", refuses the download cache and does a full git clone
-  # on every single build. With the hash it uses dl/ffda-node-whisperer-1.tar.xz.
-  echo "adding PKG_MIRROR_HASH to ffda-node-whisperer"
-  grep -q PKG_MIRROR_HASH packages/community/ffda-node-whisperer/Makefile || sed -i '/^PKG_SOURCE_VERSION:=/a PKG_MIRROR_HASH:=2783a35814b5c638d208db4aa34897ee95a9fb5797e23c16ad1861b4967212a9' packages/community/ffda-node-whisperer/Makefile
+WHISPERER_MAKEFILE="packages/community/ffda-node-whisperer/Makefile"
+WHISPERER_HASH="2783a35814b5c638d208db4aa34897ee95a9fb5797e23c16ad1861b4967212a9"
 
+echo "Gluon-Makefiles"
 
+echo "- Makefile"
+apply_patch "$PATCH_DIR/gluon-makefile.patch" \
+  "Makefile" \
+  'override GLUON_TARGETS'
+
+echo "- Paket-Patches"
+apply_patch "$PATCH_DIR/gluon-packages.patch" \
+  "patches/packages/gluon/0001-delete-etc-opkg-keys-on-autoupdater-upgrade-does-trigger-on-autoupdate-after-checking-that-the-image-is-correct.patch"
+
+# ffda-node-whisperer hat upstream keinen PKG_MIRROR_HASH, also uebergibt
+# OpenWrt den Platzhalter --hash="x", verweigert den Download-Cache und klont
+# bei jedem Bau neu. Mit dem Hash nutzt es dl/ffda-node-whisperer-1.tar.xz.
+echo "- PKG_MIRROR_HASH fuer ffda-node-whisperer"
+[ -f "$WHISPERER_MAKEFILE" ] || patch_abort "$WHISPERER_MAKEFILE nicht gefunden."
+if grep -q PKG_MIRROR_HASH "$WHISPERER_MAKEFILE"; then
+  echo "  $WHISPERER_MAKEFILE: bereits gesetzt."
+else
+  sed -i "/^PKG_SOURCE_VERSION:=/a PKG_MIRROR_HASH:=$WHISPERER_HASH" "$WHISPERER_MAKEFILE" \
+    || patch_abort "sed auf $WHISPERER_MAKEFILE fehlgeschlagen."
+  grep -q "PKG_MIRROR_HASH:=$WHISPERER_HASH" "$WHISPERER_MAKEFILE" \
+    || patch_abort "sed lief durch, aber PKG_MIRROR_HASH steht nicht in $WHISPERER_MAKEFILE."
+  echo "  $WHISPERER_MAKEFILE: gesetzt."
+fi
