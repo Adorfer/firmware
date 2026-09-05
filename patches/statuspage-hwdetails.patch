@@ -31,13 +31,16 @@ hat es keine "model name"-Zeile, und fehlt /sys/class/dmi wie auf den
 ARM-Targets, faellt jeweils nur die betroffene Zeile weg. Auf Nicht-x86-Geraeten
 aendert sich damit nichts.
 
+Abweichung von Upstream: dort steht fest " CPUs". Bei genau einem Kern wird
+hier "1 CPU" ausgegeben.
+
 Reihenfolge: dieser Patch setzt auf dem Stand NACH statuspage-moredetails.patch
 auf, weil jener direkt hinter der Modellzeile Eintraege einfuegt und damit den
 Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -39,6 +39,42 @@
+@@ -39,6 +39,43 @@
  		return interfaces
  	end
  
@@ -53,6 +56,7 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +		return nil
 +	end
 +
++	-- Auf MIPS-Targets ohne "model name"-Zeile liefert dies nil, die Zeile entfaellt.
 +	local function get_cpu_model()
 +		local f = io.open('/proc/cpuinfo')
 +		if not f then return nil end
@@ -80,7 +84,7 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
  	local function get_radios()
  		local ret = {}
  
-@@ -80,6 +116,8 @@
+@@ -80,6 +117,8 @@
  	ubus.close(uconn)
  
  	local radios = get_radios()
@@ -89,12 +93,12 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
  
  	local function sorted(t)
  		t = {unpack(t)}
-@@ -153,7 +191,13 @@
+@@ -153,7 +192,13 @@
  							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
  						</a></dd>
  					<%- end %>
 -					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %></dd>
-+					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %><% if nodeinfo.hardware.nproc then %> (<%| nodeinfo.hardware.nproc %> CPUs)<% end %></dd>
++					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %><% if nodeinfo.hardware.nproc then %> (<%| nodeinfo.hardware.nproc %> <%| nodeinfo.hardware.nproc == 1 and 'CPU' or 'CPUs' %>)<% end %></dd>
 +					<% if cpu_model then -%>
 +						<dt><%:CPU%></dt><dd><%| cpu_model %></dd>
 +					<%- end %>
