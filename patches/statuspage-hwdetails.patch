@@ -1,0 +1,73 @@
+Gluon-Statuspage: CPU-Typ und Kernzahl anzeigen
+
+Hintergrund: auf generischen x86-Boards liefert DMI haeufig keinen brauchbaren
+Modellnamen. Auf 24_dusukw steht dort "Default string Default string" - das ist
+der DMI-Platzhalter, den der Hersteller nicht gefuellt hat. libplatforminfo
+liest auf x86 nur /tmp/sysinfo/model, das OpenWrt aus DMI befuellt; es gibt
+dort also nichts zu reparieren.
+
+Verlaesslich vorhanden ist dagegen der CPU-Typ in /proc/cpuinfo. Diese Aenderung
+laesst den Modellstring unangetastet und ergaenzt daneben:
+
+  - die Kernzahl hinter dem Modell, wie Gluon es ab v2025.1 tut
+    (Upstream 7c040c2d04ee). nodeinfo.hardware.nproc wird von respondd bereits
+    in v2023.2.x geliefert, es fehlte nur die Anzeige.
+  - eine Zeile "CPU" mit dem Wert aus /proc/cpuinfo.
+
+Beides steht unter einer Bedingung: fehlt /proc/cpuinfo oder enthaelt es keine
+"model name"-Zeile - auf vielen ARM-Targets der Fall -, faellt nur die Zeile
+weg. Auf Nicht-x86-Geraeten aendert sich damit nichts.
+
+Reihenfolge: dieser Patch setzt auf dem Stand NACH statuspage-moredetails.patch
+auf, weil jener direkt hinter der Modellzeile Eintraege einfuegt und damit den
+Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
+
+Nicht enthalten ist ein Ersatz fuer den DMI-Modellstring selbst. Ob sich aus
+board_vendor/board_name etwas Besseres gewinnen laesst, haengt vom konkreten
+Board ab und ist ohne Blick auf dessen DMI-Felder nicht zu entscheiden.
+
+--- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
++++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
+--- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
++++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
+@@ -39,6 +39,20 @@
+ 		return interfaces
+ 	end
+ 
++	local function get_cpu_model()
++		local f = io.open('/proc/cpuinfo')
++		if not f then return nil end
++		for line in f:lines() do
++			local name = line:match('^model name%s*:%s*(.+)$')
++			if name then
++				f:close()
++				return name
++			end
++		end
++		f:close()
++		return nil
++	end
++
+ 	local function get_radios()
+ 		local ret = {}
+ 
+@@ -80,6 +94,7 @@
+ 	ubus.close(uconn)
+ 
+ 	local radios = get_radios()
++	local cpu_model = get_cpu_model()
+ 
+ 	local function sorted(t)
+ 		t = {unpack(t)}
+@@ -153,7 +168,10 @@
+ 							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
+ 						</a></dd>
+ 					<%- end %>
+-					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %></dd>
++					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %><% if nodeinfo.hardware.nproc then %> (<%| nodeinfo.hardware.nproc %> CPUs)<% end %></dd>
++					<% if cpu_model then -%>
++						<dt><%:CPU%></dt><dd><%| cpu_model %></dd>
++					<%- end %>
+                                         <dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %>/<%| nodeinfo.software.firmware.subtarget %></dd>
+                                         <dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
+ 					<dt><%:Primary MAC address%></dt><dd><%| nodeinfo.network.mac %></dd>

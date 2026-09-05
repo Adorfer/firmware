@@ -21,6 +21,7 @@ pushd ../gluon ; ../patches/interfaces-patch.sh; 			popd  # change primary macs
 pushd ../gluon ; ../patches/patch-gluon-makefiles.sh; 			popd  # change primary macs
 pushd ../gluon ; ../patches/statuspage-moredetails.sh; 			popd  # more details in status-page
 pushd ../gluon ; ../patches/statuspage-ssid.sh; 			popd  # SSID und htmode je Radio (Backport aus Gluon v2025.1)
+pushd ../gluon ; ../patches/statuspage-hwdetails.sh; 			popd  # CPU-Typ und Kernzahl auf der Statusseite
 
 #pushd ../gluon ; ../patches/airtime-logsilience.sh; 			popd  # top airtime-monitor from spamming logread
 
