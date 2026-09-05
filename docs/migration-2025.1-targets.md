@@ -346,17 +346,35 @@ weil sich die spi-nor-API dazwischen geaendert hat.
 24.10 bewegt; der Patch ist gegen 24.10 neu zu prüfen. Nicht analysiert, weil er die
 Sysupgrade-Logik betrifft und nicht die Target-Auswahl.
 
-### 4.3 Der `patch -R`-Mechanismus
+### 4.3 Der `patch -R`-Mechanismus — **erledigt**
 
-Alle Patch-Skripte prüfen per Rückwärts-Trockenlauf, ob schon angewendet, und
-schweigen bei Fehlschlag; `prepare.sh` endet mit `exit 0;`. Bei einem Sprung über
-eine Hauptversion **fallen scheiternde Patches damit nicht auf**. Vor dem
-Migrationsversuch sollte das `exit 0;` weichen und Patch-Fehler den Build abbrechen
-lassen — sonst entsteht eine Firmware, in der still die Hälfte der Geräte fehlt.
+*Ausgangslage:* Alle Patch-Skripte prüften per Rückwärts-Trockenlauf, ob schon
+angewendet, und schwiegen bei Fehlschlag; `prepare.sh` endete mit `exit 0;`. Bei einem
+Sprung über eine Hauptversion wären scheiternde Patches damit nicht aufgefallen — es
+wäre still eine Firmware entstanden, in der die Hälfte der Geräte fehlt.
 
-Das neuere Muster aus `patches/statuspage-ssid.sh` und `statuspage-hwdetails.sh`
-macht es richtig vor: gequotete Pfade, Vorabprüfungen, `patch -f`, geprüftes Ergebnis
-mit Exit-Code.
+*Umgesetzt:* `patches/lib-patch.sh` enthält das Muster aus `statuspage-ssid.sh` jetzt
+einmal für alle: gequotete Pfade, Vorabprüfungen, `patch -f`, geprüftes Ergebnis im
+Zielbaum, Abbruch mit Exit-Code. Alle vierzehn aktiven Skripte nutzen es. `prepare.sh`
+ruft sie über `run_patch` auf, prüft jeden Rückgabewert und bricht beim ersten Fehler
+unter Nennung des Skripts ab; das `exit 0;` ist weg. `build.sh` läuft mit `errexit`
+und `pipefail`, der Abbruch kommt also auch durch die `tee`-Pipe an.
+
+Drei Nebenbefunde aus der Umstellung:
+
+- `interface-role-migration21.sh` prüfte auf `client or client`. Diesen Text gibt es in
+  `021-interface-roles` nicht; der grep schlug seit jeher fehl, nur sah es niemand.
+- In `additionaltargets.sh` nehmen die Aufrufe unter „adding RPI4" und „adding AVM
+  FB7430" dieselbe Patchdatei wie der jeweils darüber. Beide sind Wiederholungen und
+  folgenlos, stehen aber jetzt kommentiert da.
+- Der Rückwärts-Trockenlauf schlägt auch dann fehl, wenn ein **späterer** Patch dieselbe
+  Stelle noch einmal ändert — `statuspage-ssid` und `-hwdetails` setzen genau so auf
+  `statuspage-moredetails` auf. Ein zweiter Lauf von `prepare.sh` hätte deshalb
+  abgebrochen. `apply_patch` prüft daher zusätzlich, ob das Merkmal des Patches schon
+  im Baum steht.
+
+Für die Migration heißt das: ein Patch, der gegen 2025.1 nicht mehr passt, hält den Bau
+an der Stelle an, an der er scheitert, statt ihn stillschweigend weiterlaufen zu lassen.
 
 ## 5. Vorschlag zur Reihenfolge
 
@@ -364,8 +382,7 @@ Der Feldabgleich in Kapitel 0 hat den Pflichtteil klein gemacht.
 
 **Pflicht**
 
-1. `prepare.sh` laut Kapitel 4.3 laut machen — **vor** allem anderen, sonst ist jeder
-   Migrationsversuch blind.
+1. ~~`prepare.sh` laut Kapitel 4.3 laut machen~~ — **erledigt**, siehe 4.3.
 2. Die acht entfallenden Patches entfernen, die sechs schrumpfenden kürzen.
 3. `targets.conf`: `realtek-rtl838x` streichen, `ipq807x-generic` in
    `qualcommax-ipq807x` umbenennen.
