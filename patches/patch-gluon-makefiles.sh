@@ -25,7 +25,10 @@ apply_patch "$PATCH_DIR/gluon-packages.patch" \
 # OpenWrt den Platzhalter --hash="x", verweigert den Download-Cache und klont
 # bei jedem Bau neu. Mit dem Hash nutzt es dl/ffda-node-whisperer-1.tar.xz.
 echo "- PKG_MIRROR_HASH fuer ffda-node-whisperer"
-[ -f "$WHISPERER_MAKEFILE" ] || patch_abort "$WHISPERER_MAKEFILE nicht gefunden."
+# Das Verzeichnis packages/ legt erst "make update" an; build.sh ruft
+# prepare.sh deshalb danach auf.
+[ -f "$WHISPERER_MAKEFILE" ] \
+  || patch_abort "$WHISPERER_MAKEFILE nicht gefunden - lief 'make update' vorher?"
 if grep -q PKG_MIRROR_HASH "$WHISPERER_MAKEFILE"; then
   echo "  $WHISPERER_MAKEFILE: bereits gesetzt."
 else
