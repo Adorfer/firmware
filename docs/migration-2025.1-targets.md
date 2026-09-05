@@ -2,6 +2,104 @@
 
 Bestandsaufnahme, Stand 2026-09-05. **Nur Analyse, nichts umgesetzt.**
 
+> **Lies zuerst Kapitel 0.** Der maßgebliche Vergleich sind die Modellnamen im
+> Autoupdater-Manifest, nicht die Target- oder Boardnamen. Ändert sich der Name,
+> findet ein Bestandsknoten sein Update nicht mehr.
+
+## 0. Manifest-Namen — der entscheidende Vergleich
+
+### Warum dieser Name zählt
+
+`scripts/generate_manifest.lua` schreibt je Sysupgrade-Image die Zeile
+
+```
+<model> <release> <sha256> <größe> <dateiname>
+```
+
+`model` ist das **erste Argument von `device(image, board, options)`**, also der
+Gluon-Imagename — nicht der OpenWrt-Boardname. Zusätzlich entsteht je eine Zeile für
+jeden Eintrag in `options.aliases` und `options.manifest_aliases`; letzteres ist genau
+der Mechanismus, mit dem Gluon Umbenennungen abfedert.
+
+Der Knoten meldet denselben Namen. Auf dem Testknoten COVR-X1860 live geprüft:
+
+```
+image_name: d-link-covr-x1860-a1        (Board wäre: dlink,covr-x1860-a1)
+```
+
+Ein Knoten sucht sich also im Manifest über den Namen, der in **sein** Image
+einkompiliert wurde. Fehlt dieser Name im neuen Manifest, bekommt er keine Updates
+mehr — er fällt still aus dem Autoupdater.
+
+### Datengrundlage
+
+Verglichen wurde das **echte Manifest eures Baus**
+(`images-1788320276`, Domain 05_mon, broken, 253 Modellnamen) gegen die vollständige
+Namensmenge von Gluon 2025.1 (363 Namen aus 328 Geräten, inklusive aller Aliase).
+
+Nebenbefund: Gluon hat kräftig ausgemistet — 2023.2.x führt 81 Aliase, 2025.1.x nur
+noch 35.
+
+### Ergebnis: 61 Namen aus eurem Manifest fehlen in 2025.1
+
+**a) 12 Namen — kommen mit dem Forward-Port zurück**
+
+Eure eigenen Patch-Geräte und die von euch vergebenen Aliase. Da ihr die Namen selbst
+bestimmt, sind sie nach dem Nachziehen unverändert wieder da:
+
+`cudy-ap3000-v1`, `cudy-m1800`, `cudy-tr3000-256mb-v1`, `tp-link-eap225-wall-v2`,
+`zte-mf286r`, `zyxel-nbg6616`, `mikrotik-routerboard-750gr3`,
+`mikrotik-routerboard-mapl-2nd`, `mikrotik-routerboard-wap-g-5hact2hnd`
+sowie deren Aliase `mikrotik-routerboard-hex-v3`, `mikrotik-routerboard-map-lite`,
+`mikrotik-routerboard-wap-ac-t2`.
+
+**b) 1 Name — echter Konflikt, Handlungsbedarf**
+
+| | |
+|---|---|
+| euer Name | `cudy-ap3000outdoor-v1` |
+| Gluon 2025.1 | `cudy-ap3000-outdoor-v1` |
+
+Gleiches Board (`cudy_ap3000outdoor-v1`), abweichender Imagename, **kein Alias**.
+Übernehmt ihr die Upstream-Definition, verlieren bereits ausgelieferte Cudy AP3000
+Outdoor ihren Update-Pfad.
+
+Abhilfe: `manifest_aliases = {'cudy-ap3000outdoor-v1'}` an der Upstream-Definition
+ergänzen. Besser upstream einreichen als lokal patchen — andere Communities mit
+demselben Gerät haben dasselbe Problem.
+
+**c) 48 Namen — von Gluon aufgegebene Legacy-Aliase**
+
+Alte Schreibweisen, die Gluon 2023.2 noch als `manifest_aliases` mitgeschleppt hat und
+2025.1 nicht mehr führt: die ganze `openmesh-*`-Familie, `tp-link-cpe210-v1.0` und
+Verwandte, `tp-link-tl-wr1043n-nd-v*`, `ubnt-erx`, `ubnt-erx-sfp`, `x86-kvm`,
+`x86-xen_domu`, `zbt-wg3526*`, `netgear-wndr3700v2`, `d-link-dir-505-rev-a*` und
+weitere.
+
+**Diese Namen betreffen nur Knoten, die noch mit sehr alter Firmware laufen.** Ein
+Knoten, der seit 2023.2 mindestens einmal aktualisiert wurde, meldet den heutigen
+Primärnamen — und der existiert in 2025.1 weiterhin. Geprüft: es gibt **keine einzige**
+Upstream-Umbenennung zwischen 2023.2 und 2025.1, bei der der Primärname wechselt, ohne
+dass ein Alias den alten abfängt.
+
+Diese Kategorie ist damit kein Migrationsblocker, aber ein Restrisiko für
+Karteileichen. Gluon 2025.1 unterstützt ohnehin nur Upgrades ab v2022.1.
+
+### Offene Verifikation
+
+Welche Namen eure Knoten **tatsächlich** melden, ließ sich von hier nicht feststellen:
+`https://map.ffdus.de/data/nodes.json` liefert `{"version":null,"nodes":null}`.
+
+Vor der Migration wäre das die eine Zahl, die zählt — über respondd beziehungsweise
+euren Kollektor:
+
+```
+nodeinfo.software.firmware.image_name
+```
+
+über alle Knoten auszählen und gegen die Liste unter (c) halten. Sind dort keine
+Legacy-Namen vertreten, ist Kategorie (c) erledigt.
+
 ## Kurzfassung
 
 | | |
@@ -181,12 +279,18 @@ mit Exit-Code.
 
 1. `prepare.sh` laut Kapitel 4.3 laut machen — **vor** allem anderen, sonst ist jeder
    Migrationsversuch blind.
-2. Die acht entfallenden Patches entfernen, die sechs schrumpfenden kürzen.
-3. `targets.conf`: `realtek-rtl838x` streichen, `ipq807x-generic` in
+2. Die tatsächlich gemeldeten `image_name` der Knoten auszählen (Kapitel 0, Offene
+   Verifikation). Ergibt die Liste der wirklich betroffenen Geräte.
+3. `manifest_aliases = {'cudy-ap3000outdoor-v1'}` klären — upstream einreichen oder
+   lokal patchen. Ohne das verlieren ausgelieferte AP3000 Outdoor den Update-Pfad.
+4. Die acht entfallenden Patches entfernen, die sechs schrumpfenden kürzen.
+5. `targets.conf`: `realtek-rtl838x` streichen, `ipq807x-generic` in
    `qualcommax-ipq807x` umbenennen.
-4. Die 15 fehlenden Geräte als je eine `device()`-Zeile nachziehen.
-5. zbit-Frage klären (4.1), `mi4ag-migration.patch` prüfen (4.2).
-6. Erst dann bauen.
+6. Die 15 fehlenden Geräte als je eine `device()`-Zeile nachziehen — **mit den
+   bisherigen Imagenamen und Aliasen**, sonst stranden die eigenen Bestandsknoten.
+7. zbit-Frage klären (4.1), `mi4ag-migration.patch` prüfen (4.2).
+8. Erst dann bauen. Danach das erzeugte Manifest gegen das alte diffen: jeder Name,
+   der verschwindet, ist ein Gerät ohne Update-Pfad.
 
 Nicht Teil dieser Aufstellung, aber ebenfalls offen: Tunneldigger aus
 `community-packages`, die Site-Feeds ohne 2025.1-Branch, die opkg-URLs auf `23.05.5`
