@@ -1,39 +1,58 @@
-Gluon-Statuspage: CPU-Typ und Kernzahl anzeigen
+Gluon-Statuspage: CPU-Typ, Kernzahl und BIOS anzeigen
 
 Hintergrund: auf generischen x86-Boards liefert DMI haeufig keinen brauchbaren
-Modellnamen. Auf 24_dusukw steht dort "Default string Default string" - das ist
-der DMI-Platzhalter, den der Hersteller nicht gefuellt hat. libplatforminfo
-liest auf x86 nur /tmp/sysinfo/model, das OpenWrt aus DMI befuellt; es gibt
-dort also nichts zu reparieren.
+Modellnamen. Auf dem Testknoten 24_dusukw stehen *saemtliche* identifizierenden
+DMI-Felder auf "Default string" - sys_vendor, product_name, product_version,
+product_family, board_vendor, board_name, board_version, chassis_vendor.
+Gefuellt sind allein bios_vendor ("American Megatrends Inc.") und bios_version
+("5.12").
 
-Verlaesslich vorhanden ist dagegen der CPU-Typ in /proc/cpuinfo. Diese Aenderung
-laesst den Modellstring unangetastet und ergaenzt daneben:
+Daran ist per Backport nichts zu machen: die Datenerhebung ist zwischen
+v2023.2.x und main byte-identisch - package/gluon-respondd/src/respondd-nodeinfo.c
+ebenso wie libplatforminfo (x86.c, template/subtarget.c, common.c) und dessen
+Paket-Makefile im gepinnten Feed. platforminfo_get_model() liest auf x86 nur
+/tmp/sysinfo/model, das OpenWrt aus DMI befuellt. Der Wert ist eine Eigenschaft
+des Boards, nicht der Gluon-Version. Ein Fallback auf board_vendor/board_name
+waere folgenlos, weil auch die auf "Default string" stehen.
+
+Der Modellstring bleibt daher unveraendert stehen. Ergaenzt wird, was
+verlaesslich vorhanden ist:
 
   - die Kernzahl hinter dem Modell, wie Gluon es ab v2025.1 tut
-    (Upstream 7c040c2d04ee). nodeinfo.hardware.nproc wird von respondd bereits
-    in v2023.2.x geliefert, es fehlte nur die Anzeige.
-  - eine Zeile "CPU" mit dem Wert aus /proc/cpuinfo.
+    (Upstream 7c040c2d04ee). nodeinfo.hardware.nproc liefert respondd bereits in
+    v2023.2.x, es fehlte allein die Anzeige.
+  - eine Zeile "CPU" mit dem "model name" aus /proc/cpuinfo, auf dem Testknoten
+    "Intel(R) Pentium(R) CPU 4405U @ 2.10GHz".
+  - eine Zeile "BIOS" mit Hersteller und Version aus /sys/class/dmi/id,
+    zusammen in einer Zeile.
 
-Beides steht unter einer Bedingung: fehlt /proc/cpuinfo oder enthaelt es keine
-"model name"-Zeile - auf vielen ARM-Targets der Fall -, faellt nur die Zeile
-weg. Auf Nicht-x86-Geraeten aendert sich damit nichts.
+Alle drei Ergaenzungen stehen unter einer Bedingung. Fehlt /proc/cpuinfo oder
+hat es keine "model name"-Zeile, und fehlt /sys/class/dmi wie auf den
+ARM-Targets, faellt jeweils nur die betroffene Zeile weg. Auf Nicht-x86-Geraeten
+aendert sich damit nichts.
 
 Reihenfolge: dieser Patch setzt auf dem Stand NACH statuspage-moredetails.patch
 auf, weil jener direkt hinter der Modellzeile Eintraege einfuegt und damit den
 Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 
-Nicht enthalten ist ein Ersatz fuer den DMI-Modellstring selbst. Ob sich aus
-board_vendor/board_name etwas Besseres gewinnen laesst, haengt vom konkreten
-Board ab und ist ohne Blick auf dessen DMI-Felder nicht zu entscheiden.
-
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
---- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-+++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -39,6 +39,20 @@
+@@ -39,6 +39,42 @@
  		return interfaces
  	end
  
++	local function read_first_line(path)
++		local f = io.open(path)
++		if not f then return nil end
++		local line = f:read('*l')
++		f:close()
++		if line then
++			line = line:match('^%s*(.-)%s*$')
++			if line ~= '' then return line end
++		end
++		return nil
++	end
++
 +	local function get_cpu_model()
 +		local f = io.open('/proc/cpuinfo')
 +		if not f then return nil end
@@ -48,18 +67,29 @@ Board ab und ist ohne Blick auf dessen DMI-Felder nicht zu entscheiden.
 +		return nil
 +	end
 +
++	-- Nur auf x86 vorhanden; anderswo fehlt /sys/class/dmi und die Zeile entfaellt.
++	local function get_bios()
++		local vendor = read_first_line('/sys/class/dmi/id/bios_vendor')
++		local version = read_first_line('/sys/class/dmi/id/bios_version')
++		if vendor and version then
++			return vendor .. ' ' .. version
++		end
++		return vendor or version
++	end
++
  	local function get_radios()
  		local ret = {}
  
-@@ -80,6 +94,7 @@
+@@ -80,6 +116,8 @@
  	ubus.close(uconn)
  
  	local radios = get_radios()
 +	local cpu_model = get_cpu_model()
++	local bios = get_bios()
  
  	local function sorted(t)
  		t = {unpack(t)}
-@@ -153,7 +168,10 @@
+@@ -153,7 +191,13 @@
  							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
  						</a></dd>
  					<%- end %>
@@ -67,6 +97,9 @@ Board ab und ist ohne Blick auf dessen DMI-Felder nicht zu entscheiden.
 +					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %><% if nodeinfo.hardware.nproc then %> (<%| nodeinfo.hardware.nproc %> CPUs)<% end %></dd>
 +					<% if cpu_model then -%>
 +						<dt><%:CPU%></dt><dd><%| cpu_model %></dd>
++					<%- end %>
++					<% if bios then -%>
++						<dt><%:BIOS%></dt><dd><%| bios %></dd>
 +					<%- end %>
                                          <dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %>/<%| nodeinfo.software.firmware.subtarget %></dd>
                                          <dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>

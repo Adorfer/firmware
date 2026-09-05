@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Ergaenzt die Gluon-Statusseite um CPU-Typ und Kernzahl.
+# Ergaenzt die Gluon-Statusseite um CPU-Typ, Kernzahl und BIOS.
 # Siehe Kopf von statuspage-hwdetails.patch.
 #
 # Wird aus dem Gluon-Verzeichnis heraus aufgerufen, so wie prepare.sh es tut:
@@ -12,7 +12,7 @@ set -o pipefail
 PATCH_FILE="../patches/statuspage-hwdetails.patch"
 TARGET_FILE="package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html"
 
-echo "Gluon-Statuspage: CPU-Typ und Kernzahl"
+echo "Gluon-Statuspage: CPU-Typ, Kernzahl und BIOS"
 
 # Alle Pfade gequotet. Ein unquotetes "<$patchfile" ist genau die Falle, an der
 # hier schon mehrere Patch-Skripte still gescheitert sind: ein Leerzeichen im
@@ -48,4 +48,4 @@ if ! grep -q 'get_cpu_model' "$TARGET_FILE"; then
   exit 1
 fi
 
-echo "  ok: CPU- und Kernzahl-Ausgabe sind in $TARGET_FILE."
+echo "  ok: CPU-, Kernzahl- und BIOS-Ausgabe sind in $TARGET_FILE."
