@@ -1,0 +1,62 @@
+Gluon-Statuspage: SSID und HT-Modus je Radio anzeigen
+
+Backport von Gluon-Upstream nach v2023.2.x.
+
+  Upstream: 7c040c2d04ee "gluon-status-page: add ssid, htmode, base version
+            and firmware target to overview" (Florian Maurer, 2026-01-04),
+            enthalten ab Gluon v2025.1.
+
+Uebernommen wird nur der Radio-Teil. Die uebrigen Angaben jenes Commits -
+Basisversion und Firmware-Target - ergaenzt bei uns bereits
+statuspage-moredetails.patch.
+
+Die SSID wird nicht aus der site.conf gelesen, sondern zur Anzeigezeit per
+iwinfo/nl80211 vom Client-Interface (client0, client1 ...) abgefragt. Sie
+zeigt also, was der Knoten tatsaechlich funkt - bei aktivem Offline-SSID-
+Wechsel entsprechend die geaenderte SSID.
+
+Zwei Abweichungen von Upstream, bewusst:
+
+  - suffix wird geprueft, bevor daraus 'client' .. suffix gebildet wird.
+    Upstream verkettet ungeprueft; heisst eine wifi-device-Sektion nicht
+    radioN, ist suffix nil und Lua bricht die ganze Statusseite ab.
+  - SSID- und htmode-Ausgabe stehen unter einer Bedingung. Fehlt das
+    Client-Interface oder ist htmode nicht gesetzt, faellt nur die jeweilige
+    Zeile weg statt die Seite zu zerlegen.
+
+--- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
++++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
+@@ -44,10 +44,15 @@
+ 
+ 		wireless.foreach_radio(uci, function(radio)
+ 			local channel = iwinfo.nl80211.channel(wireless.find_phy(radio))
++			local radio_name = radio['.name']
++			local suffix = radio_name:match('^radio(%d+)$')
++			local ssid = suffix and iwinfo.nl80211.ssid('client' .. suffix)
+ 			if channel then
+ 				table.insert(ret, {
+-					name = radio['.name'],
++					name = radio_name,
+ 					channel = channel,
++					ssid = ssid,
++					htmode = radio.htmode,
+ 				})
+ 			end
+ 		end)
+@@ -235,7 +240,16 @@
+ 								<tr>
+ 									<th><%| radio.name %></th>
+ 									<td><%| translatef('Channel %u', radio.channel) %></td>
++									<% if radio.htmode then -%>
++										<td>(<%| radio.htmode %>)</td>
++									<%- end %>
+ 								</tr>
++								<% if radio.ssid then -%>
++									<tr>
++										<th></th>
++										<td><%| translate('SSID') %>: <%| radio.ssid %></td>
++									</tr>
++								<%- end %>
+ 							<%- end %>
+ 						</tbody>
+ 					</table>

@@ -20,6 +20,7 @@ pushd ../gluon ; ../patches/interface-role-migration21.sh; 		popd  # 2021-migrat
 pushd ../gluon ; ../patches/interfaces-patch.sh; 			popd  # change primary macs
 pushd ../gluon ; ../patches/patch-gluon-makefiles.sh; 			popd  # change primary macs
 pushd ../gluon ; ../patches/statuspage-moredetails.sh; 			popd  # more details in status-page
+pushd ../gluon ; ../patches/statuspage-ssid.sh; 			popd  # SSID und htmode je Radio (Backport aus Gluon v2025.1)
 
 #pushd ../gluon ; ../patches/airtime-logsilience.sh; 			popd  # top airtime-monitor from spamming logread
 
