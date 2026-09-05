@@ -61,6 +61,37 @@ remove_patch_leftovers ()
   done < <(awk '/^\+\+\+ /{ sub(/^\+\+\+ [ab]\//, "", $0); sub(/[ \t].*$/, "", $0); print }' "$patch_file")
 }
 
+# remove_created_files <patchdatei>
+#
+# Loescht die Dateien, die der Patch neu anlegen wuerde ("--- /dev/null"),
+# sofern sie schon da sind.
+#
+# Aufgerufen nur, wenn der Rueckwaerts-Test fehlgeschlagen ist, der Patch also
+# nicht vollstaendig drinsteht. Dann sind vorhandene Neuanlagen Reste eines
+# frueheren Laufs, den ein "git reset --hard" nur halb zurueckgenommen hat: es
+# stellt versionierte Dateien wieder her, unversionierte laesst es stehen.
+# patch scheitert an so einem Halbzustand mit "the next patch would create the
+# file ..., which already exists".
+remove_created_files ()
+{
+  local patch_file="$1"
+  local target
+
+  while read -r target; do
+    [ -n "$target" ] || continue
+    [ -e "$target" ] || continue
+    echo "  $target: Rest eines frueheren Laufs, wird vor dem Patchen entfernt."
+    rm -f "$target"
+  done < <(awk '
+    /^--- \/dev\/null/ {
+      if ((getline line) > 0 && line ~ /^\+\+\+ /) {
+        sub(/^\+\+\+ [ab]\//, "", line)
+        sub(/[ \t].*$/, "", line)
+        print line
+      }
+    }' "$patch_file")
+}
+
 # apply_patch <patchdatei> [pruefdatei] [pruefmuster]
 #
 # Wendet die Patchdatei relativ zum aktuellen Verzeichnis an (-p1). Ist sie
@@ -90,6 +121,8 @@ apply_patch ()
     echo "  $patch_file: '$check_pattern' steht bereits in $check_file, nichts zu tun."
     return 0
   else
+    remove_created_files "$patch_file"
+
     # -f, damit patch bei unerwartetem Zustand abbricht, statt interaktiv zu
     # fragen und den Build haengen zu lassen.
     # --no-backup-if-mismatch: ohne das legt patch bei jedem Versatz eine
