@@ -11,4 +11,4 @@ echo "Migration 2021: Schnittstellenrollen mit Client-Netz"
 
 apply_patch "$PATCH_DIR/interface-role-migration21.patch" \
   "package/gluon-core/luasrc/lib/gluon/upgrade/021-interface-roles" \
-  'client or client'
+  'mesh_vpn_enabled'
