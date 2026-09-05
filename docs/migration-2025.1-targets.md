@@ -372,6 +372,19 @@ Drei Nebenbefunde aus der Umstellung:
   `statuspage-moredetails` auf. Ein zweiter Lauf von `prepare.sh` hätte deshalb
   abgebrochen. `apply_patch` prüft daher zusätzlich, ob das Merkmal des Patches schon
   im Baum steht.
+- **`.orig`-Dateien landeten in der Firmware.** `patch` legt bei jedem Hunk-Versatz eine
+  Sicherungskopie neben der Zieldatei an, und `Gluon/Build/Install` kopiert
+  `package/*/files/.` und `luasrc/.` vollständig ins Image. Im Sysupgrade-Image vom
+  2026-09-04 stecken `/lib/gluon/upgrade/020-interfaces.orig` (ausführbar),
+  `/lib/gluon/status-page/view/status-page.html.orig` und
+  `/usr/lib/lua/gluon/platform.lua.orig`. Die erste lief mit: `gluon-reconfigure`
+  arbeitet das Verzeichnis per `for script in *` ab, `.orig` sortiert hinter das
+  Original, und die ungepatchte Fassung setzte `sysconfig.lan_ifname`/`wan_ifname`
+  wieder auf die `board.json`-Vorgabe. Betroffen sind die Geräte, für die
+  `020-interfaces.patch` überhaupt existiert — im Feld neun Knoten (2× FRITZ!Box 7530,
+  3× 7360 V2, 1× 7360 SL, 3× 7362 SL). Behoben mit `--no-backup-if-mismatch` plus
+  Aufräumen der Altbestände, die `git reset --hard` als unversionierte Dateien stehen
+  lässt.
 
 Für die Migration heißt das: ein Patch, der gegen 2025.1 nicht mehr passt, hält den Bau
 an der Stelle an, an der er scheitert, statt ihn stillschweigend weiterlaufen zu lassen.
