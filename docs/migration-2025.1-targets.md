@@ -159,9 +159,10 @@ bestätigt sich für diesen Schritt **nicht**. Gluon kennt zwar `GLUON_DEPRECATE
 (eure `site.mk` setzt `full`), aber weder 2023.2.x noch 2025.1.x markieren auch nur
 ein einziges Gerät als deprecated. Der große Flash-Kahlschlag lag vor 2023.2.
 
-Der Aufwand liegt woanders: **nicht** bei den Geräten, sondern bei den zwei
-OpenWrt-seitigen Kernel-Patches und beim Target-Rename `ipq807x-generic` →
-`qualcommax-ipq807x`.
+Der Aufwand liegt woanders: beim Target-Rename `ipq807x-generic` →
+`qualcommax-ipq807x` und bei `mi4ag-migration.patch`. Der zbit-Flash-Patch, zunächst
+als größte Baustelle eingeschätzt, ist unter Kernel 6.6 aller Voraussicht nach
+entbehrlich — siehe 4.1.
 
 ## Methode
 
@@ -282,21 +283,61 @@ steht dort inzwischen upstream.
 
 ## 4. Die eigentlichen Baustellen
 
-### 4.1 zbit-Flash-Patch — Kernel 5.15 → 6.6
+### 4.1 zbit-Flash-Patch — mit hoher Wahrscheinlichkeit entbehrlich
 
 `add-totolink-x5000r.sh` legt `412-mtd-spi-nor-add-support-for-zbit-zb25vq128.patch`
-in **`target/linux/ramips/patches-5.15/`** ab. In OpenWrt 24.10 heißt das Verzeichnis
-`patches-6.6`. Der Patch fasst `drivers/mtd/spi-nor/{core.c,core.h,Makefile}` an und
-legt `zbit.c` an — zwischen 5.15 und 6.6 hat sich die spi-nor-API geändert, ein
-reines Umkopieren wird nicht genügen.
+in `target/linux/ramips/patches-5.15/` ab. Er stammt von Daniel Palmer, wurde
+2021-09-18 an linux-mtd geschickt und ergaenzt die JEDEC-ID des Zbit ZB25VQ128
+(`5e 40 18`), den Totolink ab Baujahr 2022 verbaut.
 
-**Offene Frage:** Der Totolink X5000R ist in Gluon 2025.1 upstream, und OpenWrt 24.10
-enthält **keinen** zbit-Support. Entweder brauchen nur bestimmte Hardware-Revisionen
-den Chip, oder das Gerät läuft dort ohne. Vor dem Rebase klären — womöglich entfällt
-der Patch ersatzlos.
+**Recherchiert am 2026-09-05:**
 
-Nebenbei: das Skript referenziert auch `patches-5.10`, ein Überbleibsel aus
-noch älteren Zeiten.
+* Der Patch ist **nie in den Linux-Kernel gelangt** — weder in 6.6 noch in der
+  aktuellen Mainline gibt es `drivers/mtd/spi-nor/zbit.c`, und weder `core.c` noch
+  `core.h` erwaehnen `zbit` oder `zb25`.
+* In OpenWrt lief er als PR #12396 („ramips: add linux 5.15 and 5.10 support for Zbits
+  ZB25VQ128 SPI-NOR on Totolink X5000R", 2023-04-14). Der PR wurde **nach einem Tag
+  ohne Kommentar geschlossen**, nicht gemerged.
+* Eine Fassung gegen Kernel 6.6 existiert nirgends.
+
+**Sie wird aller Voraussicht nach auch nicht gebraucht.** Kernel 6.6 hat einen
+generischen Rueckfall eingebaut, den 5.15 und 6.1 noch nicht kannten:
+
+```c
+/* Fallback to a generic flash described only by its SFDP data. */
+if (!info) {
+        ret = spi_nor_check_sfdp_signature(nor);
+        if (!ret)
+                info = &spi_nor_generic_flash;
+}
+```
+
+Ist die JEDEC-ID unbekannt, aber liefert der Chip gueltige SFDP-Tabellen, laeuft er
+ueber `spi-nor-generic`. Die Kernel-Doku sagt dazu: *„For flashes that define SFDP
+tables, you likely won't need a flash entry at all."* Genau das Fehlen dieses Rueckfalls
+machte den Patch unter 5.15 noetig.
+
+Geprueft: `spi_nor_generic_flash` kommt in Linux 5.15 und 6.1 **nicht** vor, in 6.6
+**doch**.
+
+**Restunsicherheit:** Ob der ZB25VQ128ASIG gueltige SFDP-Tabellen liefert, liess sich
+nicht belegen — nur Chips ganz ohne SFDP fallen weiterhin durch. Bei einem Baustein
+dieser Generation ist SFDP praktisch Standard.
+
+**Billig zu klaeren, noch vor der Migration.** Auf einem der 13 X5000R im Feld:
+
+```
+dmesg | grep -i spi-nor
+```
+
+Steht dort ein konkreter Chipname, ist die ID bekannt und die Frage erledigt. Steht
+dort `spi-nor-generic`, greift bereits heute der SFDP-Weg. Und zeigt der Chip sich als
+Winbond oder XMC statt Zbit, betrifft euch die Sache ohnehin nicht — im
+OpenWrt-Forum berichtet ein Nutzer genau das fuer seine Geraete.
+
+**Empfehlung:** den Patch beim Umstieg **ersatzlos streichen** und beim ersten Testbau
+einen X5000R gegenpruefen. Ein Rebase des 5.15-Patches auf 6.6 waere ohnehin Handarbeit,
+weil sich die spi-nor-API dazwischen geaendert hat.
 
 ### 4.2 `mi4ag-migration.patch`
 
@@ -328,8 +369,8 @@ Der Feldabgleich in Kapitel 0 hat den Pflichtteil klein gemacht.
 2. Die acht entfallenden Patches entfernen, die sechs schrumpfenden kürzen.
 3. `targets.conf`: `realtek-rtl838x` streichen, `ipq807x-generic` in
    `qualcommax-ipq807x` umbenennen.
-4. zbit-Frage klären (4.1), `mi4ag-migration.patch` prüfen (4.2). Der Totolink X5000R
-   steht mit 13 Knoten im Feld, das ist der einzige Punkt mit echtem Zeitdruck.
+4. zbit-Patch ersatzlos streichen (4.1) und beim ersten Testbau einen der 13 X5000R
+   gegenprüfen. `mi4ag-migration.patch` prüfen (4.2).
 5. Bauen. Danach das erzeugte Manifest gegen das alte diffen: jeder Name, der
    verschwindet, ist ein Gerät ohne Update-Pfad.
 
