@@ -2,9 +2,24 @@
 #
 # Wendet die Patches aus patches/ auf den Gluon-Baum an.
 #
-# Aufgerufen wird die Datei von build.sh (prepare_gluon_tree), einmal je Lauf
+# Aufgerufen wird die Datei von build.sh (prepare_gluon_tree), je Lauf zweimal
 # und mit dem Gluon-Verzeichnis als Arbeitsverzeichnis. Sie liegt als Kopie in
 # jedem zusammengebauten Site-Verzeichnis, deshalb der Umweg ueber ../gluon.
+#
+# Zwei Phasen, weil "make update" dazwischen liegt:
+#
+#   prepare.sh pre-update    vor  "make update"
+#   prepare.sh post-update   nach "make update"
+#
+# In die pre-update-Phase gehoert alles, was eine Datei unter patches/openwrt
+# oder patches/packages im Gluon-Baum ablegt: Gluons scripts/patch.sh spielt
+# diese Dateien waehrend "make update" per "git am" auf die Module ein. Danach
+# abgelegt wuerden sie erst im naechsten Lauf wirken - und nur so lange, wie
+# sie einen "git reset --hard" als unversionierte Dateien ueberleben.
+#
+# Alles andere gehoert in die post-update-Phase, insbesondere jeder Patch am
+# OpenWrt-Baum: "make update" setzt den neu auf und wuerde die Aenderungen
+# sonst wieder wegnehmen.
 #
 # Bis hierher endete die Datei mit "exit 0;", und keines der Patch-Skripte gab
 # einen Fehler weiter. Ein scheiternder Patch fiel damit nicht auf - er ergab
@@ -25,6 +40,12 @@ abort ()
   echo "prepare.sh: $*" >&2
   exit 1
 }
+
+PHASE="${1-}"
+case "$PHASE" in
+  pre-update|post-update) ;;
+  *) abort "Aufruf: prepare.sh pre-update|post-update" ;;
+esac
 
 [ -d "$GLUON_DIR/package/gluon-core" ] \
   || abort "$GLUON_DIR ist kein Gluon-Baum - laeuft prepare.sh im Gluon-Verzeichnis? (Arbeitsverzeichnis: $PWD)"
@@ -52,7 +73,19 @@ run_patch ()
     || abort "patches/$script fehlgeschlagen ($description)."
 }
 
-echo "Patches aus patches/ anwenden ..."
+echo "Patches aus patches/ anwenden, Phase $PHASE ..."
+
+if [ "$PHASE" = "pre-update" ]; then
+
+  # Beide legen eine Datei im Gluon-Baum ab, die "make update" gleich darauf
+  # auf ein Modul anwendet. Sie muessen deshalb hier stehen und nicht unten.
+  run_patch add-gluon-package-patches.sh  "Paketpatch fuer packages/gluon bereitlegen"
+  run_patch add-lantiq-xrx200-devices.sh  "AVM FRITZ!Box 7430 und 3390, mit OpenWrt-Patch"
+
+  echo
+  echo "Phase pre-update abgeschlossen."
+  exit 0
+fi
 
 run_patch fix-respondd-rsk.sh          "respondd-Listener auf den Gluon-2016.x-Wert"
 run_patch mi4apatch.sh                 "Mi Router 4A Gigabit sysupgrade-faehig"
@@ -84,4 +117,4 @@ run_patch statuspage-hwdetails.sh      "Statusseite: CPU-Typ, Kernzahl und BIOS"
 #                                      automatisch anwenden
 
 echo
-echo "Alle Patches angewendet."
+echo "Phase post-update abgeschlossen, alle Patches angewendet."
