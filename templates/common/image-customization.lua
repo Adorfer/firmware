@@ -21,34 +21,49 @@ features {
 }
 
 
+-- Herkunft hinter jedem Paket. Die Feeds und ihre Pins stehen nebenan in
+-- "modules":
+--
+--   gluon             Gluon selbst, gluon/package/
+--   gluon-packages    Feed "gluon"        freifunk-gluon/packages
+--   community         Feed "community"    freifunk-gluon/community-packages
+--   ffac              Feed "ffac"         ffac/gluon-packages
+--   neanderfunk       Feed "neanderfunk"  Neanderfunk/packages
+--   openwrt           OpenWrt-Basis
+--   openwrt-packages  OpenWrt-Feed "packages"
+--
+-- Vorsicht: der Namensvorsatz sagt nichts ueber den Feed. ffac-ssid-changer,
+-- ffac-autoupdater-wifi-fallback, ffac-update-location-gps und
+-- ffac-mt7915-hotfix liegen in community-packages. Aus dem ffac-Feed kommt bei
+-- uns allein ffac-web-private-wan-dhcp.
 packages {
-    'gluon-ebtables-filter-ra-dhcp',    -- gluon?
-    'respondd-module-airtime',          -- gluon?
-    'iwinfo',                           -- openwrt
-    'haveged', 			        -- openwrt
-    'socat',  				-- openwrt
-    'kmod-sched',  			-- openwrt for socat
-    'libc',  				-- openwrt for socat
-    'libpthread',  			-- openwrt for socat
-    'librt',  				-- openwrt for socat
-    'neanderfunk-weeklyreboot',		-- neanderfunk
-    'neanderfunk-hotfix',		-- neanderfunk
-    'neanderfunk-linkcheck',		-- neanderfunk (wieder aktiv, Bugs 2026-09-06 behoben)
-    'neanderfunk-txpowerfix',		-- neanderfunk
-    'neanderfunk-banner',		-- neanderfunk
-    'neanderfunk-migrate-updatebranch',	-- neanderfunk
-    'neanderfunk-wifi-blackout',	-- neanderfunk (war eulenfunk-ath9kblackout)
-    'neanderfunk-ssid-changer',		-- neanderfunk
-    'neanderfunk-nodeplacer',		-- neanderfunk
-    'neanderfunk-button-bind',		-- neanderfunk (Fork von ffffm-button-bind, Konflikt deklariert)
-    'neanderfunk-node-whisperer', 	-- neanderfunk
---    'ffac-ssid-changer',		-- gluon community packages
-    'ffac-autoupdater-wifi-fallback',	-- gluon community packages
-    'ff-ap-timer',			-- gluon community packages
-    'ff-web-ap-timer', 			-- gluon community packages
-    'ffbs-collect-debug-info', 		-- gluon community packages
-    'ffbs-debugbathosts', 		-- gluon community packages
---    'ffmuc-ipv6-ra-filter', 		-- gluon community packages
+    'gluon-ebtables-filter-ra-dhcp',      -- gluon
+    'respondd-module-airtime',            -- gluon-packages
+    'iwinfo',                             -- openwrt
+    'haveged',                            -- openwrt-packages
+    'socat',                              -- openwrt-packages
+    'kmod-sched',                         -- openwrt, fuer socat
+    'libc',                               -- openwrt, fuer socat
+    'libpthread',                         -- openwrt, fuer socat
+    'librt',                              -- openwrt, fuer socat
+    'neanderfunk-weeklyreboot',           -- neanderfunk
+    'neanderfunk-hotfix',                 -- neanderfunk
+    'neanderfunk-linkcheck',              -- neanderfunk (wieder aktiv, Bugs 2026-09-06 behoben)
+    'neanderfunk-txpowerfix',             -- neanderfunk
+    'neanderfunk-banner',                 -- neanderfunk
+    'neanderfunk-migrate-updatebranch',   -- neanderfunk
+    'neanderfunk-wifi-blackout',          -- neanderfunk (war eulenfunk-ath9kblackout)
+    'neanderfunk-ssid-changer',           -- neanderfunk
+    'neanderfunk-nodeplacer',             -- neanderfunk
+    'neanderfunk-button-bind',            -- neanderfunk (Fork von ffffm-button-bind, Konflikt deklariert)
+    'neanderfunk-node-whisperer',         -- neanderfunk (Fork von ffda-node-whisperer, Konflikt deklariert)
+--    'ffac-ssid-changer',                -- community
+    'ffac-autoupdater-wifi-fallback',     -- community
+    'ff-ap-timer',                        -- community
+    'ff-web-ap-timer',                    -- community
+    'ffbs-collect-debug-info',            -- community
+    'ffbs-debugbathosts',                 -- community
+--    'ffmuc-ipv6-ra-filter',             -- community
 }
 
 -- "all devices" section finished
@@ -62,7 +77,7 @@ if not device_class('tiny') then
     }
     packages {
         'openssh-sftp-server',
-        'ffda-gluon-usteer',
+        'ffda-gluon-usteer',              -- community
     }
 end
 
@@ -79,12 +94,12 @@ if device({
         'web-cellular',
     }
     packages {
-        'ffac-web-private-wan-dhcp',
+        'ffac-web-private-wan-dhcp',      -- ffac
     }
 end
 
 pkgs_usb = {
-    'usbutils',
+    'usbutils',                          -- openwrt-packages
 }
 
 pkgs_hid = {
@@ -138,7 +153,7 @@ pkgs_usb_net = {
 }
 
 pkgs_pci = {
-    'pciutils',
+    'pciutils',                          -- openwrt-packages
     'kmod-bnx2', -- Broadcom NetExtreme BCM5706/5708/5709/5716
 }
 
@@ -209,7 +224,7 @@ if include_usb then
     packages(pkgs_usb_net)
     packages(pkgs_usb_serial)
     packages(pkgs_usb_storage)
-    packages {'ffka-gluon-web-usb-wan-hotplug', 'ffac-update-location-gps'}
+    packages {'ffka-gluon-web-usb-wan-hotplug', 'ffac-update-location-gps'}  -- beide community
 end
 
 -- device has no reset button and requires a special package to go into setup mode
@@ -217,7 +232,7 @@ end
 if device({
     'zyxel-nwa55axe',
 }) then
-    packages {'ffda-network-setup-mode'}
+    packages {'ffda-network-setup-mode'}  -- community
     broken(false)
 end
 
@@ -225,7 +240,7 @@ if target('x86', '64') then
     -- add guest agent for qemu and vmware
     packages {
         'qemu-ga',
-        'open-vm-tools',
+        'open-vm-tools',                 -- openwrt-packages
     	'kmod-vmxnet3',
     }
 end
@@ -242,7 +257,7 @@ end
 if target('ramips', 'mt7621') or target('ramips', 'mt7622') or target('mediatek', 'filogic') then
         -- restart device if mt7915e driver shows known failure symptom 
         packages {
-                'ffac-mt7915-hotfix',  -- ffac
+                'ffac-mt7915-hotfix',         -- community, nicht ffac
                 'neanderfunk-mt7915-backlog', -- neanderfunk
         }
 end
