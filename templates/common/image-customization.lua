@@ -31,23 +31,23 @@ packages {
     'libc',  				-- openwrt for socat
     'libpthread',  			-- openwrt for socat
     'librt',  				-- openwrt for socat
-    'neanderfunk-weeklyreboot',	-- neanderfunk
+    'neanderfunk-weeklyreboot',		-- neanderfunk
     'neanderfunk-hotfix',		-- neanderfunk
-    'neanderfunk-linkcheck',	-- neanderfunk (wieder aktiv, Bugs 2026-09-06 behoben)
-    'neanderfunk-txpowerfix',	-- neanderfunk
+    'neanderfunk-linkcheck',		-- neanderfunk (wieder aktiv, Bugs 2026-09-06 behoben)
+    'neanderfunk-txpowerfix',		-- neanderfunk
     'neanderfunk-banner',		-- neanderfunk
     'neanderfunk-migrate-updatebranch',	-- neanderfunk
     'neanderfunk-wifi-blackout',	-- neanderfunk (war eulenfunk-ath9kblackout)
-    'neanderfunk-ssid-changer',	-- neanderfunk
+    'neanderfunk-ssid-changer',		-- neanderfunk
     'neanderfunk-nodeplacer',		-- neanderfunk
-    'neanderfunk-button-bind',	-- neanderfunk (Fork von ffffm-button-bind, Konflikt deklariert)
+    'neanderfunk-button-bind',		-- neanderfunk (Fork von ffffm-button-bind, Konflikt deklariert)
+    'neanderfunk-node-whisperer', 	-- neanderfunk
 --    'ffac-ssid-changer',		-- gluon community packages
     'ffac-autoupdater-wifi-fallback',	-- gluon community packages
     'ff-ap-timer',			-- gluon community packages
     'ff-web-ap-timer', 			-- gluon community packages
     'ffbs-collect-debug-info', 		-- gluon community packages
     'ffbs-debugbathosts', 		-- gluon community packages
-    'ffda-node-whisperer', 		-- gluon community packages
 --    'ffmuc-ipv6-ra-filter', 		-- gluon community packages
     'tecff-general-workaround', 	-- ffac
     'tecff-broken-wlan-workaround', 	-- ffac
