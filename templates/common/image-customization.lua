@@ -33,9 +33,9 @@ features {
 --   openwrt-packages  OpenWrt-Feed "packages"
 --
 -- Vorsicht: der Namensvorsatz sagt nichts ueber den Feed. ffac-ssid-changer,
--- ffac-autoupdater-wifi-fallback, ffac-update-location-gps und
--- ffac-mt7915-hotfix liegen in community-packages. Aus dem ffac-Feed kommt bei
--- uns allein ffac-web-private-wan-dhcp.
+-- ffac-autoupdater-wifi-fallback und ffac-update-location-gps liegen in
+-- community-packages. Aus dem ffac-Feed kommt bei uns allein
+-- ffac-web-private-wan-dhcp.
 packages {
     'gluon-ebtables-filter-ra-dhcp',      -- gluon
     'respondd-module-airtime',            -- gluon-packages
@@ -254,10 +254,12 @@ if target('bcm27xx') then
     packages(pkgs_hid)
 end
 
-if target('ramips', 'mt7621') or target('ramips', 'mt7622') or target('mediatek', 'filogic') then
-        -- restart device if mt7915e driver shows known failure symptom 
+-- mt7622 ist bei Gluon ein eigenes Board (targets/mediatek-mt7622), kein
+-- ramips-Subtarget: target() vergleicht das erste Argument gegen env.BOARD,
+-- 'ramips','mt7622' traf also nie.
+if target('ramips', 'mt7621') or target('mediatek', 'mt7622') or target('mediatek', 'filogic') then
+        -- restart device if mt7915e driver shows known failure symptom
         packages {
-                'ffac-mt7915-hotfix',         -- community, nicht ffac
                 'neanderfunk-mt7915-backlog', -- neanderfunk
         }
 end
