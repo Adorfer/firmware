@@ -49,8 +49,6 @@ packages {
     'ffbs-collect-debug-info', 		-- gluon community packages
     'ffbs-debugbathosts', 		-- gluon community packages
 --    'ffmuc-ipv6-ra-filter', 		-- gluon community packages
-    'tecff-general-workaround', 	-- ffac
-    'tecff-broken-wlan-workaround', 	-- ffac
 }
 
 -- "all devices" section finished
