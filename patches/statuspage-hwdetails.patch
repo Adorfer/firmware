@@ -25,10 +25,12 @@ verlaesslich vorhanden ist:
     "Intel(R) Pentium(R) CPU 4405U @ 2.10GHz".
   - eine Zeile "BIOS" mit Hersteller und Version aus /sys/class/dmi/id,
     zusammen in einer Zeile.
-  - "RAM gesamt": MemTotal aus /proc/meminfo, also der physische
-    Arbeitsspeicher ohne Swap.
-  - "Flash gesamt": der groesste zusammenhaengende Dauerspeicher, der
-    Baustein mit dem Boot-Image.
+  - eine Zeile "RAM/Flash" mit beiden Groessen hintereinander, z. B.
+    "1.9 GiB / 128 MiB": links MemTotal aus /proc/meminfo, also der physische
+    Arbeitsspeicher ohne Swap, rechts der groesste zusammenhaengende
+    Dauerspeicher, der Baustein mit dem Boot-Image. Fehlt einer der beiden
+    Werte ausnahmsweise, steht dort ein Fragezeichen, damit die Zuordnung zur
+    Beschriftung erhalten bleibt.
 
 Zur Flash-Ermittlung: bei MTD ist das *nicht* die Summe der Partitionen.
 Auf dem D-Link COVR-X1860 steht neben den elf physischen Partitionen ein
@@ -158,7 +160,7 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
  	local function get_radios()
  		local ret = {}
  
-@@ -80,6 +172,10 @@
+@@ -85,6 +177,16 @@
  	ubus.close(uconn)
  
  	local radios = get_radios()
@@ -166,10 +168,16 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +	local bios = get_bios()
 +	local ram_total = format_bytes(get_ram_bytes())
 +	local flash_total = format_bytes(get_flash_bytes())
++	-- Beides steht in einer Zeile "RAM/Flash". Fehlt ausnahmsweise einer der
++	-- Werte, haelt das Fragezeichen die Zuordnung zur Beschriftung aufrecht.
++	local ram_flash
++	if ram_total or flash_total then
++		ram_flash = (ram_total or '?') .. ' / ' .. (flash_total or '?')
++	end
  
  	local function sorted(t)
  		t = {unpack(t)}
-@@ -153,7 +249,19 @@
+@@ -158,7 +260,16 @@
  							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
  						</a></dd>
  					<%- end %>
@@ -181,11 +189,8 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +					<% if bios then -%>
 +						<dt><%:BIOS%></dt><dd><%| bios %></dd>
 +					<%- end %>
-+					<% if ram_total then -%>
-+						<dt><%:RAM gesamt%></dt><dd><%| ram_total %></dd>
-+					<%- end %>
-+					<% if flash_total then -%>
-+						<dt><%:Flash gesamt%></dt><dd><%| flash_total %></dd>
++					<% if ram_flash then -%>
++						<dt><%:RAM/Flash%></dt><dd><%| ram_flash %></dd>
 +					<%- end %>
                                          <dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %>/<%| nodeinfo.software.firmware.subtarget %></dd>
                                          <dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
