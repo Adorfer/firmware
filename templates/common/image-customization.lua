@@ -33,6 +33,7 @@ packages {
     'librt',  				-- openwrt for socat
     'neanderfunk-weeklyreboot',	-- neanderfunk
     'neanderfunk-hotfix',		-- neanderfunk
+    'neanderfunk-linkcheck',	-- neanderfunk (wieder aktiv, Bugs 2026-09-06 behoben)
     'neanderfunk-txpowerfix',	-- neanderfunk
     'neanderfunk-banner',		-- neanderfunk
     'neanderfunk-migrate-updatebranch',	-- neanderfunk
