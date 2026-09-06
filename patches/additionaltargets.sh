@@ -13,10 +13,16 @@
 
 echo "Zusaetzliche Targets und Geraete"
 
-echo "- 6M-Flash-TP-Link-Geraete entfernen, EAP225 Outdoor v3 ergaenzen"
+# Die alte Ueberschrift lautete "removing 6M-Flash TP-Link-Devices" - der Patch
+# entfernt aber nichts, er ergaenzt EAP225 Wall v2 und Zyxel NBG6616. Nebenbei
+# legt er ein zweites, gleichlautendes device() fuer den EAP225 Outdoor v3 an,
+# den Gluon selbst schon fuehrt; das ist ueberfluessig und gehoert aufgeraeumt.
+# Merkmal ist deshalb zyxel_nbg6616: eap225-outdoor-v3 steht auch im
+# unveraenderten Baum und taugt nicht zur Unterscheidung.
+echo "- TP-Link EAP225 Wall v2 und Zyxel NBG6616"
 apply_patch "$PATCH_DIR/targets-ath79-generic.patch" \
   "targets/ath79-generic" \
-  'tplink_eap225-outdoor-v3'
+  'zyxel_nbg6616'
 
 echo "- Mikrotik RB951Ui-2nD"
 apply_patch "$PATCH_DIR/targets-ath79-mikrotik.patch" \
