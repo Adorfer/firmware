@@ -92,6 +92,22 @@ remove_created_files ()
     }' "$patch_file")
 }
 
+# do_patch <patchdatei>
+#
+# Wendet den Patch an und bricht bei Fehlschlag ab.
+do_patch ()
+{
+  local patch_file="$1"
+
+  # -f, damit patch bei unerwartetem Zustand abbricht, statt interaktiv zu
+  # fragen und den Build haengen zu lassen.
+  # --no-backup-if-mismatch: ohne das legt patch bei jedem Versatz eine
+  # .orig-Kopie neben der Zieldatei an. Siehe remove_patch_leftovers.
+  patch -p1 -f --ignore-whitespace --no-backup-if-mismatch <"$patch_file" \
+    || patch_abort "$patch_file liess sich nicht anwenden."
+  echo "  $patch_file: angewendet."
+}
+
 # apply_patch <patchdatei> [pruefdatei] [pruefmuster]
 #
 # Wendet die Patchdatei relativ zum aktuellen Verzeichnis an (-p1). Ist sie
@@ -108,28 +124,36 @@ apply_patch ()
 
   remove_patch_leftovers "$patch_file"
 
-  # Laesst sich der Patch rueckwaerts anwenden, ist er schon drin. prepare.sh
-  # laeuft je Bau mehrfach, die Skripte muessen also idempotent sein.
+  # Reihenfolge der Pruefungen, jede beantwortet genau eine Frage:
+  #
+  #   1. Rueckwaerts anwendbar?      -> steht schon vollstaendig drin
+  #   2. Vorwaerts anwendbar?        -> normaler Fall, anwenden
+  #   3. Merkmal schon im Baum?      -> ein spaeterer Patch hat dieselbe Stelle
+  #                                     nochmal geaendert (statuspage-ssid und
+  #                                     -hwdetails setzen so auf
+  #                                     statuspage-moredetails auf)
+  #   4. Neuanlagen von einem halben Lauf wegraeumen und nochmal vorwaerts
+  #   5. sonst Abbruch
+  #
+  # Der Vorwaerts-Test steht bewusst VOR der Merkmalspruefung: sonst wuerde ein
+  # Merkmal, das es im unveraenderten Baum ohnehin schon gibt, den Patch
+  # dauerhaft stillschweigend ueberspringen. Genau das ist mit
+  # targets-ath79-generic.patch passiert.
   if patch -R -p1 -s -f --dry-run --ignore-whitespace <"$patch_file" >/dev/null 2>&1; then
     echo "  $patch_file: bereits angewendet."
+  elif patch -p1 -s -f --dry-run --ignore-whitespace <"$patch_file" >/dev/null 2>&1; then
+    do_patch "$patch_file"
   elif [ -n "$check_file" ] && [ -n "$check_pattern" ] && [ -f "$check_file" ] \
        && grep -q "$check_pattern" "$check_file"; then
-    # Der Rueckwaerts-Test scheitert auch dann, wenn ein spaeterer Patch
-    # dieselbe Stelle noch einmal veraendert hat: statuspage-ssid und
-    # statuspage-hwdetails setzen genau so auf statuspage-moredetails auf.
-    # Steht das Merkmal schon im Baum, ist trotzdem nichts zu tun.
     echo "  $patch_file: '$check_pattern' steht bereits in $check_file, nichts zu tun."
     return 0
   else
+    # Reste eines Laufs, den ein "git reset --hard" nur halb zurueckgenommen
+    # hat: die neu angelegten Dateien ueberleben als unversionierte Dateien,
+    # die Aenderungen an versionierten Dateien sind weg. patch scheitert dann
+    # mit "the next patch would create the file ..., which already exists".
     remove_created_files "$patch_file"
-
-    # -f, damit patch bei unerwartetem Zustand abbricht, statt interaktiv zu
-    # fragen und den Build haengen zu lassen.
-    # --no-backup-if-mismatch: ohne das legt patch bei jedem Versatz eine
-    # .orig-Kopie neben der Zieldatei an. Siehe remove_patch_leftovers.
-    patch -p1 -f --ignore-whitespace --no-backup-if-mismatch <"$patch_file" \
-      || patch_abort "$patch_file liess sich nicht anwenden."
-    echo "  $patch_file: angewendet."
+    do_patch "$patch_file"
   fi
 
   [ -n "$check_file" ] || return 0
