@@ -1,12 +1,8 @@
-GLUON_SITE_FEEDS="eulenfunk community ffac ffffm"
+GLUON_SITE_FEEDS="neanderfunk community ffac"
 
-PACKAGES_EULENFUNK_REPO=https://github.com/Neanderfunk/packages.git
-PACKAGES_EULENFUNK_BRANCH=v2023.2.x
-PACKAGES_EULENFUNK_COMMIT=a9e5d0ed1d815e1b391b25db534383029288b4f2
-
-PACKAGES_FFFFM_REPO=https://github.com/freifunk-ffm/packages.git
-PACKAGES_FFFFM_BRANCH=master
-PACKAGES_FFFFM_COMMIT=ccd88fb7883628c6e554c841889726d7edec1c20
+PACKAGES_NEANDERFUNK_REPO=https://github.com/Neanderfunk/packages.git
+PACKAGES_NEANDERFUNK_BRANCH=v2023.2.x
+PACKAGES_NEANDERFUNK_COMMIT=5b848352e391605f8c7b6c136ccdcb3ddf0f019b
 
 PACKAGES_FFAC_REPO=https://github.com/ffac/gluon-packages.git
 PACKAGES_FFAC_COMMIT=0ff95afb3fbb60e8cd779fd73c054571775c3d40
@@ -15,4 +11,3 @@ PACKAGES_FFAC_BRANCH=main
 PACKAGES_COMMUNITY_REPO=https://github.com/freifunk-gluon/community-packages.git
 PACKAGES_COMMUNITY_COMMIT=91e5fa8a253b1c5cf73fca7f5f519520cf6c90c2
 PACKAGES_COMMUNITY_BRANCH=v2023.2.x
-
