@@ -31,15 +31,15 @@ packages {
     'libc',  				-- openwrt for socat
     'libpthread',  			-- openwrt for socat
     'librt',  				-- openwrt for socat
-    'gluon-weeklyreboot',  		-- eulenfunk
-    'eulenfunk-hotfix',  		-- eulenfunk
-    'gluon-txpowerfix',			-- eulenfunk
-    'gluon-banner',			-- eulenfunk 
-    'eulenfunk-migrate-updatebranch',	-- eulenfunk
-    'eulenfunk-ath9kblackout',		-- eulenfunk
-    'eulenfunk-ssid-changer',		-- eulenfunk
+    'neanderfunk-weeklyreboot',	-- neanderfunk
+    'neanderfunk-hotfix',		-- neanderfunk
+    'neanderfunk-txpowerfix',	-- neanderfunk
+    'neanderfunk-banner',		-- neanderfunk
+    'neanderfunk-migrate-updatebranch',	-- neanderfunk
+    'neanderfunk-wifi-blackout',	-- neanderfunk (war eulenfunk-ath9kblackout)
+    'neanderfunk-ssid-changer',	-- neanderfunk
     'neanderfunk-nodeplacer',		-- neanderfunk
-    'ffffm-button-bind',		-- ffm
+    'neanderfunk-button-bind',	-- neanderfunk (Fork von ffffm-button-bind, Konflikt deklariert)
 --    'ffac-ssid-changer',		-- gluon community packages
     'ffac-autoupdater-wifi-fallback',	-- gluon community packages
     'ff-ap-timer',			-- gluon community packages
@@ -244,7 +244,7 @@ if target('ramips', 'mt7621') or target('ramips', 'mt7622') or target('mediatek'
         -- restart device if mt7915e driver shows known failure symptom 
         packages {
                 'ffac-mt7915-hotfix',  -- ffac
-                'eulenfunk-mt7915-backlog', -- eulenfunk
+                'neanderfunk-mt7915-backlog', -- neanderfunk
         }
 end
 
