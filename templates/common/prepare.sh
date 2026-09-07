@@ -98,6 +98,7 @@ run_patch add-cellular.sh              "Mobilfunkgeraet ZTE MF286R"
 run_patch interface-role-migration21.sh "Migration 2021: Schnittstellen mit Client-Netz"
 run_patch interfaces-patch.sh          "primaere MACs und Schnittstellenzuordnung"
 run_patch patch-gluon-makefiles.sh     "Gluon-Makefile und Paketliste"
+run_patch limit-wireless-buffers.sh    "WLAN-Puffer nach RAM begrenzen (Backport Gluon 8f38662f)"
 
 # Reihenfolge beachten: moredetails fuegt direkt hinter der Modellzeile ein,
 # ssid und hwdetails setzen auf diesem Zustand auf.
@@ -109,7 +110,6 @@ run_patch statuspage-hwdetails.sh      "Statusseite: CPU-Typ, Kernzahl und BIOS"
 #
 # add-mt7915e-try.sh                   mt76-Korrekturen fuer MT7603/MT7612;
 #                                      patches/mt7915e-try.patch war nie im Repo
-# mt7915-filogic-syncpowersave-patch.sh  patches/openwrt/0013-wifi-mt76-...
 # airtime-logsilience.sh               haelt den Airtime-Monitor aus dem Log
 # ignore-preservechannels-for-outdoormode.sh  Auto-Channel fuer Outdoor-Geraete
 #
