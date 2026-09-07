@@ -1,7 +1,8 @@
 gluon-core: limit size of wireless buffers
 
 Backport des Gluon-Commits 8f38662f44f5df69357ced93f166000716f018b3
-(David Bauer, 2025-11-26) aus dem main-Zweig nach v2023.2.x. Originaltext:
+(David Bauer, 2025-11-26) aus dem main-Zweig nach v2023.2.x, **plus zwei
+weitere Stufen fuer groessere Geraete**. Originaltext des Commits:
 
   By default, the kernel configures the buffers for wireless PHYs to 4MB
   for 11n radios and 16MB for 11ac and above.
@@ -25,19 +26,37 @@ keinem Knoten ein Limit gesetzt, es galt die Kernelvorgabe von 16 MB je
 11ac+-PHY. Das ist der Naehrboden fuer den TX-Backlog, auf den
 neanderfunk-mt7915-backlog mit einem WLAN-Neustart reagiert.
 
-Beachten: die Staffel endet bei 128 MB RAM. Unsere filogic-Geraete haben
-236 bis 487 MiB und bekommen dadurch weiterhin kein Limit - der Backport
-hilft zunaechst der ramips-mt7621-Klasse. Ob die Staffel fuer die groesseren
-Geraete weitergezogen werden sollte, ist eine eigene Entscheidung; siehe
-docs/mt7915-analyse.md, Kapitel 4.2.
+Unsere Ergaenzung: Gluons Staffel endet bei 128 MB, unsere mt7915-Geraete
+haben aber 236 bis 487 MiB und blieben damit ungedeckelt - ausgerechnet die
+Klasse mit dem Symptom. Fortgeschrieben ist das Verhaeltnis der 128-MB-Stufe,
+also rund 1,6 % des Arbeitsspeichers:
 
-Die neue Fassung ruft zusaetzlich "iw phy ... set txq memory_limit". iw liegt
-auf den Knoten, neanderfunk-mt7915-backlog benutzt "iw phy ... get txq"
-bereits.
+     <=  64 MB RAM ->  512 kB   (Gluon, 0,8 %)
+     <= 128 MB RAM ->    2 MB   (Gluon, 1,6 %)
+     <= 256 MB RAM ->    4 MB   (wir,   1,6 %)
+      > 256 MB RAM ->    8 MB   (wir,   1,6 % bei 512 MB)
+
+Damit ergibt sich fuer unsere Geraete:
+
+     ramips-mt7621, 128 MB   ->  2 MB
+     Cudy WR3000S,  256 MB   ->  4 MB
+     ZyXEL, MR90X,  512 MB   ->  8 MB
+
+Auch die oberste Stufe liegt noch bei der Haelfte der Kernelvorgabe. Zur
+Einordnung der Groessenordnung: laut Bauer reichen 512 kB fuer ~100 Mbit/s an
+drei Clients auf einem staerkeren Board.
+
+Die "else"-Stufe faengt auch x86-Knoten mit viel RAM ab; 8 MB sind dort
+reichlich und immer noch weniger als die Vorgabe.
+
+Die Fassung ruft zusaetzlich "iw phy ... set txq memory_limit". iw liegt auf
+den Knoten, neanderfunk-mt7915-backlog benutzt "iw phy ... get txq" bereits.
+
+Siehe docs/mt7915-analyse.md.
 
 --- a/package/gluon-core/files/etc/hotplug.d/ieee80211/01-gluon-core-codel-memusage
 +++ b/package/gluon-core/files/etc/hotplug.d/ieee80211/01-gluon-core-codel-memusage
-@@ -1,8 +1,17 @@
+@@ -1,8 +1,21 @@
  #!/bin/sh
  
 +LIMIT=""
@@ -50,6 +69,10 @@ bereits.
 +		LIMIT=524288
 +	elif [ "$RAM" -le $((128*1024)) ]; then
 +		LIMIT=2097152
++	elif [ "$RAM" -le $((256*1024)) ]; then
++		LIMIT=4194304
++	else
++		LIMIT=8388608
 +	fi
 +
 +	if [ -n "$LIMIT" ]; then
