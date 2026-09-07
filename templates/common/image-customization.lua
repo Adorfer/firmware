@@ -258,8 +258,17 @@ end
 -- ramips-Subtarget: target() vergleicht das erste Argument gegen env.BOARD,
 -- 'ramips','mt7622' traf also nie.
 if target('ramips', 'mt7621') or target('mediatek', 'mt7622') or target('mediatek', 'filogic') then
-        -- restart device if mt7915e driver shows known failure symptom
         packages {
+                -- Setzt max_inactivity auf den client_*-Interfaces. Ohne das
+                -- gilt hostapds Vorgabe von 300 s: ein Client, der zum
+                -- Nachbar-AP roamt, bleibt fuenf Minuten in der
+                -- Stationstabelle, und die Hardware puffert weiter Frames fuer
+                -- ihn. Genau das fuellt den Backlog (openwrt/mt76#1009).
+                -- hostapd pollt vor dem Rauswurf (skip_inactivity_poll=0),
+                -- anwesende, aber stille Clients fliegen also nicht raus.
+                'ffac-mt7915-maxinactivity',  -- ffac
+                -- Symptombehandlung dazu: startet WLAN neu, wenn der Backlog
+                -- trotzdem hochlaeuft.
                 'neanderfunk-mt7915-backlog', -- neanderfunk
         }
 end

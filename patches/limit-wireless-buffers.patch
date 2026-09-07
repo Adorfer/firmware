@@ -1,8 +1,8 @@
 gluon-core: limit size of wireless buffers
 
 Backport des Gluon-Commits 8f38662f44f5df69357ced93f166000716f018b3
-(David Bauer, 2025-11-26) aus dem main-Zweig nach v2023.2.x, **plus zwei
-weitere Stufen fuer groessere Geraete**. Originaltext des Commits:
+(David Bauer, 2025-11-26) nach v2023.2.x, mit **einer Abweichung**: die obere
+Staffel ist auf 2 MB flach gezogen statt nach RAM zu wachsen. Originaltext:
 
   By default, the kernel configures the buffers for wireless PHYs to 4MB
   for 11n radios and 16MB for 11ac and above.
@@ -20,43 +20,43 @@ weitere Stufen fuer groessere Geraete**. Originaltext des Commits:
   Also remove the old logic handling 32MB devices. Gluon dropped support
   for those years ago.
 
-Warum wir das brauchen: die alte Fassung greift nur bei Geraeten mit 32 MB
-RAM, die Gluon 2023.2 gar nicht mehr unterstuetzt. Bei uns war damit auf
-keinem Knoten ein Limit gesetzt, es galt die Kernelvorgabe von 16 MB je
-11ac+-PHY. Das ist der Naehrboden fuer den TX-Backlog, auf den
-neanderfunk-mt7915-backlog mit einem WLAN-Neustart reagiert.
+Warum wir das ueberhaupt brauchen: die alte Fassung greift nur bei Geraeten
+mit 32 MB RAM, die Gluon 2023.2 gar nicht mehr unterstuetzt. Bei uns war damit
+auf keinem Knoten ein Limit gesetzt, es galt die Kernelvorgabe von 16 MB je
+11ac+-PHY.
 
-Unsere Ergaenzung: Gluons Staffel endet bei 128 MB, unsere mt7915-Geraete
-haben aber 236 bis 487 MiB und blieben damit ungedeckelt - ausgerechnet die
-Klasse mit dem Symptom. Fortgeschrieben ist das Verhaeltnis der 128-MB-Stufe,
-also rund 1,6 % des Arbeitsspeichers:
+Warum wir nicht nach RAM staffeln: Bauers Grund ist der Schutz vor OOM auf
+kleinen Geraeten, deshalb waechst sein Limit mit dem Arbeitsspeicher. Unser
+Engpass ist ein anderer - viele Clients (10 bis 40) bei wenig Bandbreite (nie
+mehr als 200 MBit/s gesamt), dafuer staendiges Roaming zu Nachbar-APs mit
+gleicher SSID. Dabei bleiben Frames fuer abgewanderte Stationen im
+Power-Save-Zustand haengen und fuellen den TX-Backlog (openwrt/mt76#1009).
+Gegen dieses Problem hilft ein **enger** Deckel, nicht ein weiter:
 
-     <=  64 MB RAM ->  512 kB   (Gluon, 0,8 %)
-     <= 128 MB RAM ->    2 MB   (Gluon, 1,6 %)
-     <= 256 MB RAM ->    4 MB   (wir,   1,6 %)
-      > 256 MB RAM ->    8 MB   (wir,   1,6 % bei 512 MB)
+     200 MBit/s = 25 MB/s
+     2 MB Puffer  ->  80 ms Pufferung   <- gewaehlt
+     4 MB         -> 160 ms
+     8 MB         -> 320 ms
+    16 MB (Kernelvorgabe) -> 640 ms
 
-Damit ergibt sich fuer unsere Geraete:
+2 MB sind fuer unseren Durchsatz reichlich - Bauers Vergleichswert: 512 kB
+genuegen fuer ~100 MBit/s an drei Clients auf einem staerkeren Board - und
+begrenzen zugleich, wie viel ein abgewanderter Client festhalten kann.
 
-     ramips-mt7621, 128 MB   ->  2 MB
-     Cudy WR3000S,  256 MB   ->  4 MB
-     ZyXEL, MR90X,  512 MB   ->  8 MB
+Daraus:
 
-Auch die oberste Stufe liegt noch bei der Haelfte der Kernelvorgabe. Zur
-Einordnung der Groessenordnung: laut Bauer reichen 512 kB fuer ~100 Mbit/s an
-drei Clients auf einem staerkeren Board.
-
-Die "else"-Stufe faengt auch x86-Knoten mit viel RAM ab; 8 MB sind dort
-reichlich und immer noch weniger als die Vorgabe.
+     <=  64 MB RAM ->  512 kB   (wie Gluon)
+      >  64 MB RAM ->    2 MB   (Gluon staffelt hier weiter nach oben)
 
 Die Fassung ruft zusaetzlich "iw phy ... set txq memory_limit". iw liegt auf
 den Knoten, neanderfunk-mt7915-backlog benutzt "iw phy ... get txq" bereits.
 
-Siehe docs/mt7915-analyse.md.
+Beim Umstieg auf Gluon 2025.1 neu bewerten: dort ist 8f38662f enthalten, und
+mt76 bringt den Power-Save-Strang mit. Siehe docs/mt7915-analyse.md.
 
 --- a/package/gluon-core/files/etc/hotplug.d/ieee80211/01-gluon-core-codel-memusage
 +++ b/package/gluon-core/files/etc/hotplug.d/ieee80211/01-gluon-core-codel-memusage
-@@ -1,8 +1,21 @@
+@@ -1,8 +1,17 @@
  #!/bin/sh
  
 +LIMIT=""
@@ -67,12 +67,8 @@ Siehe docs/mt7915-analyse.md.
 -		echo 'fq_memory_limit 262144' > "/sys/kernel/debug/ieee80211/$DEVICENAME/aqm"
 +	if [ "$RAM" -le $((64*1024)) ]; then
 +		LIMIT=524288
-+	elif [ "$RAM" -le $((128*1024)) ]; then
-+		LIMIT=2097152
-+	elif [ "$RAM" -le $((256*1024)) ]; then
-+		LIMIT=4194304
 +	else
-+		LIMIT=8388608
++		LIMIT=2097152
 +	fi
 +
 +	if [ -n "$LIMIT" ]; then
