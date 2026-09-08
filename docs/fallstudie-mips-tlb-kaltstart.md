@@ -229,7 +229,7 @@ Steckdose und **dasselbe Netzteil**, und der Kernel war in beiden Fällen
 
 Das Netzteil ausdrücklich zu nennen lohnt, weil es die naheliegendste
 Rückfrage vorwegnimmt. Es ist seit dem Xiaomi eines mit PEN-Bezug; vorher
-hatten wir sporadische Aussetzer der seriellen Strecke, die Messreihen
+hatten wir sporadische Aussetzer des seriellen Links, die Messreihen
 verdorben haben. Seither trat kein einziger leerer Mitschnitt mehr auf. Wer
 solche Reihen selbst fährt: eine eigene Ergebniskategorie für "nichts
 empfangen" ist Pflicht, sonst zählt man Störungen der Messstrecke als
