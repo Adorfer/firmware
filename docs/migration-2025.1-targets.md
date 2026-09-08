@@ -464,21 +464,31 @@ unberuehrt. Echter Kaltstart, also zufaelliger TLB-Inhalt:
 [   21.673257] kmodloader: done loading kernel modules from /etc/modules.d/*
 ```
 
-Vollstaendig durchgebootet. **6.6.144 ist auf 74Kc nicht betroffen.**
+Vollstaendig durchgebootet.
 
-Einschraenkung: das ist *ein* Kaltstart. Unser 5.15.198-Fehler war
-deterministisch - dasselbe Geraet hing bei jedem Versuch -, deshalb wiegt ein
-einzelner Erfolg hier schwer. Gegen einen sporadischen Fehler beweist er
-nichts; der urspruengliche Upstream-Fehler trat mit 7 von 1000 Starts auf. Fuer
-eine belastbare Zahl muesste die Sequenz oft wiederholt werden, was ein
-fernsteuerbares Netzteil voraussetzt.
+**Danach als Messreihe wiederholt**, mit fernschaltbarem Netzteil, 63 gueltige
+Kaltstarts am selben Geraet, drei Varianten im Wechsel:
+
+| Variante | durchgebootet | haengt | n |
+| --- | ---: | ---: | ---: |
+| 5.15.198 ohne Patch | 0 | 21 | 21 |
+| 5.15.198 mit Patch | 21 | 0 | 21 |
+| 6.6.144 (OpenWrt 24.10.8) | 21 | 0 | 21 |
+
+Die beiden 5.15.198-Varianten stammen aus demselben Build-Baum und
+unterscheiden sich nur durch den Patch. **6.6.144 ist auf 74Kc nicht
+betroffen**, und der Fehler in 5.15.198 ist **deterministisch** - nicht
+sporadisch, wie der urspruengliche Upstream-Fehler auf microAptiv/M5150 mit
+7 von 1000 Starts. Dass die 57 Knoten im Maerz 2026 ueber Tage verteilt
+ausfielen, lag also allein daran, wann sie Strom verloren.
 
 **Beim Umstieg zu tun:**
 
 1. Auf 2025.1.1 oder neuer gehen, nicht auf v2025.1.
-2. Den Kaltstarttest aus obigem Kasten mit dem **tatsaechlichen** Gluon-Image
-   wiederholen, sobald es gebaut ist - gemessen wurde bisher nur der Kernel aus
-   OpenWrt 24.10.8, nicht ein fertiges Gluon-2025.1-Image.
+2. Den Kaltstarttest mit dem **tatsaechlichen** Gluon-Image wiederholen,
+   sobald es gebaut ist - gemessen wurde der Kernel aus OpenWrt 24.10.8, nicht
+   ein fertiges Gluon-2025.1-Image. Ein einzelner Durchgang genuegt dafuer:
+   bei einem deterministischen Fehler zeigt sich das Ergebnis sofort.
 3. Erst danach unseren Patch streichen. Er ist an 5.15 gebunden und wuerde
    gegen die Neufassung ohnehin nicht mehr greifen.
 

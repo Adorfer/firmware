@@ -1,106 +1,44 @@
 From: Freifunk im Neanderland <projekt@neanderfunk.de>
 Subject: MIPS: tlb-r4k: drop the call to r4k_tlb_uniquify()
 
-Reverts the call introduced by stable kernel 5.15.190 with
+On MIPS 74Kc, 5.15.198 hangs in tlb_init() on every cold start. 63 cold starts
+on a TP-Link Archer C25 v1 (QCA956X), mains switched remotely, images loaded
+over TFTP into RAM so the flash stayed untouched:
 
-    35ad7e181541 ("MIPS: mm: tlb-r4k: Uniquify TLB entries on init")
+  5.15.198 stock             0 of 21 booted
+  5.15.198 with this patch  21 of 21 booted
+  6.6.144 (OpenWrt 24.10.8) 21 of 21 booted
 
-and reworked in 5.15.197 by
+Both 5.15.198 arms come from the same build tree and differ only by this patch.
+Also reproduced on a TL-WR1043ND v2 (QCA9558).
 
-    9f048fa48740 ("MIPS: mm: Prevent a TLB shutdown on initial uniquification")
+This reverts the call added in 5.15.190 by 35ad7e181541 ("MIPS: mm: tlb-r4k:
+Uniquify TLB entries on init"), restoring 5.15.189 behaviour. The last output
+before the hang comes from vfs_caches_init_early(), the next would come from
+mm_init(); trap_init() sits between them and reaches r4k_tlb_uniquify() via
+tlb_init() and r4k_tlb_configure().
 
-restoring the behaviour of 5.15.189 and everything before it.
+Cold start only: the function operates on whatever the bootloader left in the
+TLB - arbitrary on power-up, already uniquified after a warm reset. From the
+follow-up 9f048fa48740, which is in 5.15.197 and does not suffice here: "a TLB
+shutdown may occur if multiple matching entries are detected ... Given that we
+don't know what entries we have been handed". Devices therefore survive any
+number of sysupgrades and never come back after a power cut.
 
-Why: on MIPS 74Kc the kernel stops dead in tlb_init() on a cold start. Serial
-console, two different SoCs, identical spot:
+Nothing further landed in 5.15 through .203. The 6.6 line received four more
+commits (231ac951faba, 43fa022b56dc, 591f030449ad, 811b3dccfb0a), the last a
+rewrite depending on current_cpu_data.vmbits, VPN2_SHIFT, struct tlbent,
+memblock_alloc_raw and slab_is_available - none of them present in the 5.15
+file, so backporting was rejected. 35ad7e181541 addresses microAptiv/M5150,
+cores we do not deploy.
 
-  TP-Link TL-WR1043ND v2   QCA9558  "Scorpion"
-  TP-Link Archer C25 v1    QCA956X  "Dragonfly"
+Under target/linux/generic/ because tlb-r4k.c is built for every r4k-class MIPS
+core: our March 2026 outage hit 57 nodes across ath79 (74Kc and 24Kc), lantiq
+(34Kc) and ramips (24KEc), and no non-MIPS node at all. ramips-mt7621 (1004Kc)
+runs the same code and is untested.
 
-  [    0.000000] Dentry cache hash table entries: 8192 ...
-  [    0.000000] Inode-cache hash table entries: 4096 ...
-  <nothing further>
-
-The call chain at that point leaves no room for doubt:
-
-  init/main.c:1008   vfs_caches_init_early()   last output
-  init/main.c:1009   sort_main_extable()
-  init/main.c:1010   trap_init() -> traps.c:2309 tlb_init()
-                       -> r4k_tlb_configure() -> r4k_tlb_uniquify()
-  init/main.c:1011   mm_init()                 would print "Memory: ..."
-
-Why only on a cold start: r4k_tlb_uniquify() works on whatever the bootloader
-left behind in the TLB. On power-up that is arbitrary; after a warm reset it is
-the already-uniquified content of the previous run. From the commit message of
-9f048fa48740:
-
-  "Depending on the particular CPU implementation a TLB shutdown may occur if
-   multiple matching entries are detected upon the execution of a TLBP or the
-   TLBWI/TLBWR instructions.  Given that we don't know what entries we have
-   been handed ..."
-
-That is exactly why these devices survive any number of sysupgrades and
-reboots and never come back after the first power cut.
-
-The 5.15.197 fix is present in 5.15.198 and is not sufficient on 74Kc; nothing
-further landed upstream up to 5.15.203. 35ad7e181541 addresses a boot failure
-on microAptiv/M5150 cores (7 in 1000 boots there). We do not deploy those
-cores, and for our hardware the previous behaviour was correct for a decade.
-
-Placing this under target/linux/generic/ rather than target/linux/ath79/ is
-deliberate. arch/mips/mm/tlb-r4k.c is not specific to 74Kc or to ath79; it is
-compiled for every r4k-class MIPS core. Our own fleet outage of March 2026
-makes the point: of the 57 nodes that went offline, every single one was MIPS,
-and they were spread over three OpenWrt targets.
-
-  count  model                       target  SoC        core
-     25  Archer C7 v5/v4, A7 v5,     ath79   qca9563    74Kc
-         C6 v2, UniFi AC LR/Pro/Mesh
-     20  TL-WR1043ND v2/v3,          ath79   qca9558    74Kc
-         Archer C7 v2, C5 v1
-      5  CPE210 v1, TL-WDR4300 v1,   ath79   ar9344     74Kc
-         TL-WDR3500 v1, TL-WDR3600 v1
-      4  UniFi AP                    ath79   ar7241     24Kc
-      2  AVM FRITZ!Box 7362 SL       lantiq  vr9        34Kc
-      1  Archer C50 v3               ramips  mt7628an   24KEc
-
-Not one aarch64 or x86 node was among them, although the fleet contains those
-and they kept running throughout. The FRITZ!Box 7362 SL (lantiq/vr9, 34Kc) and
-the Archer C50 v3 (ramips/mt7628an, 24KEc) are the reason for the generic
-placement in particular: an ath79-only patch would have left them exposed.
-ramips-mt7621 (1004Kc) runs the same code as well and is not proven safe.
-
-The core families above are taken from the SoC device trees, not from memory:
-ar934x.dtsi, qca955x.dtsi and qca956x.dtsi declare "mips,mips74Kc", ar724x.dtsi
-"mips,mips24Kc", vr9.dtsi "mips,mips34Kc" and mt7628an.dtsi "mips,mips24KEc".
-Cross-checked against a live TL-WDR3600 v1, which reports MIPS 74Kc V4.12.
-
-Verified on hardware, 2026-09-08, TP-Link Archer C25 v1 on a serial console.
-The patched image was loaded into RAM over TFTP and started with "bootm",
-without touching the flash. Same spot as before, now with a continuation:
-
-  [    0.000000] Inode-cache hash table entries: 4096 ...
-  [    0.000000] Writing ErrCtl register=00000000
-  [    0.000000] Memory: 55912K/65536K available (5714K kernel code, ...)
-
-The node boots all the way through to
-
-  [   57.369944] batman_adv: bat0: Interface activated: mesh0
-
-running the patched kernel from RAM against the unchanged rootfs of the old
-firmware in flash - same kernel version, same configuration, only tlb-r4k.c
-differs. That difference alone decides between "hangs on cold start" and
-"runs".
-
-A running node can be checked without a serial console: with the call gone the
-function is unused, the compiler drops it, and the symbol disappears.
-
-  grep -q r4k_tlb_uniquify /proc/kallsyms && echo unprotected || echo "fix present"
-
-Confirmed against four unpatched nodes (which show the symbol) and the patched
-one (which does not).
-
-Re-evaluate when moving to Gluon 2025.1, which carries a newer kernel.
+Drop this on Gluon 2025.1.1 or newer, whose 6.6.144 measured clean above - but
+not on v2025.1, which carries 6.6.119.
 
 --- a/arch/mips/mm/tlb-r4k.c
 +++ b/arch/mips/mm/tlb-r4k.c
