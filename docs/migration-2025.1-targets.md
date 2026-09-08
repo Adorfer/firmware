@@ -446,13 +446,39 @@ auf microAptiv/M5150, Kerne, die wir nicht einsetzen. Ein an einer Stelle
 falsch portierter Backport scheitert genau wie der Fehler selbst: tot beim
 Kaltstart, aus der Ferne nicht einzufangen.
 
+**Am Geraet gemessen, 2026-09-08.** Der Kaltstarttest wurde vorgezogen, weil
+der Archer C25 v1 ohnehin an der seriellen Konsole hing. Getestet mit dem
+offiziellen OpenWrt-24.10.8-initramfs-Image (`sha256` gegen `sha256sums`
+geprueft), also **Kernel 6.6.144 - demselben wie Gluon v2025.1.2/.3**. Per TFTP
+nach `0x82000000` ins RAM geladen und mit `bootm` gestartet, der Flash blieb
+unberuehrt. Echter Kaltstart, also zufaelliger TLB-Inhalt:
+
+```
+[    0.000000] Inode-cache hash table entries: 4096 ...      <- hier hing 5.15.198
+[    0.000000] Writing ErrCtl register=00000000
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 16240
+[    0.000000] Memory: 38992K/65536K available ...
+...
+[   12.686428] procd: - init -
+              Please press Enter to activate this console.
+[   21.673257] kmodloader: done loading kernel modules from /etc/modules.d/*
+```
+
+Vollstaendig durchgebootet. **6.6.144 ist auf 74Kc nicht betroffen.**
+
+Einschraenkung: das ist *ein* Kaltstart. Unser 5.15.198-Fehler war
+deterministisch - dasselbe Geraet hing bei jedem Versuch -, deshalb wiegt ein
+einzelner Erfolg hier schwer. Gegen einen sporadischen Fehler beweist er
+nichts; der urspruengliche Upstream-Fehler trat mit 7 von 1000 Starts auf. Fuer
+eine belastbare Zahl muesste die Sequenz oft wiederholt werden, was ein
+fernsteuerbares Netzteil voraussetzt.
+
 **Beim Umstieg zu tun:**
 
 1. Auf 2025.1.1 oder neuer gehen, nicht auf v2025.1.
-2. **Vor dem Ausrollen** ein 74Kc-Geraet mit serieller Konsole kaltstarten und
-   pruefen, ob nach `Inode-cache hash table entries` die Zeile
-   `Memory: …K/…K available` kommt. Zehn Minuten Aufwand, und die Alternative
-   waere ein Flottenausfall wie im Maerz 2026.
+2. Den Kaltstarttest aus obigem Kasten mit dem **tatsaechlichen** Gluon-Image
+   wiederholen, sobald es gebaut ist - gemessen wurde bisher nur der Kernel aus
+   OpenWrt 24.10.8, nicht ein fertiges Gluon-2025.1-Image.
 3. Erst danach unseren Patch streichen. Er ist an 5.15 gebunden und wuerde
    gegen die Neufassung ohnehin nicht mehr greifen.
 
