@@ -541,6 +541,76 @@ Gegenmaßnahmen noch gebraucht werden: der Backlog-Watchdog
 `patches/limit-wireless-buffers.patch` (Gluon 2025.1 bringt `8f38662f` selbst
 mit, aber nur bis 128 MB). Grundlage: `mt7915-analyse.md`.
 
+## 5. Die Site-Konfiguration
+
+Nachgetragen am 2026-09-08, erarbeitet am geklonten `v2025.1.3`.
+
+**Es ist genau ein Release-Sprung.** Zwischen 2023.2 und 2025.1 liegt kein
+2024er Zweig — `docs/releases/` springt von `v2023.2.5` direkt auf `v2025.1`.
+Die Release Notes zu 2025.1 sind damit die vollstaendige Migrationsanleitung,
+und es gibt keine Zwischenstation, an der man haette anhalten koennen.
+
+Gluon sagt dort ausserdem: *"Updates are only supported from v2022.1 and
+later."* Von 2023.2 aus ist der Weg also vorgesehen.
+
+### 5.1 Tunneldigger ist kein Kernbestandteil mehr
+
+Der schwerwiegendste Punkt fuer uns:
+
+> Tunneldigger Mesh VPN support has been dropped (#3109)
+
+Angekuendigt war es schon in 2023.2; jetzt ist es vollzogen. Der Ersatz liegt
+als `ff-mesh-vpn-tunneldigger` in den community-packages und ist dort
+vorhanden (Makefile, `check_site.lua`, `files`, `luasrc`).
+
+Betroffen sind drei Stellen bei uns:
+
+* `image-customization.lua` — das Feature heisst nicht mehr
+  `mesh-vpn-tunneldigger`, das Paket muss aus dem Community-Feed kommen.
+* `site.conf` — die Sektion `mesh_vpn.tunneldigger` mit MTU 1364 und den sechs
+  Brokern (`ganymed`, `kallisto`, `amalthea`, `himalia`, `elara`, `pasophae`)
+  wird dann vom `check_site.lua` des Community-Pakets geprueft statt von Gluon.
+* `templates/common/modules` — der Community-Feed steht auf
+  `PACKAGES_COMMUNITY_BRANCH=v2023.2.x`. Fuer 2025.1 ist der passende Zweig ein
+  anderer; das Repo fuehrt `main`, `master`, `v2023.1.x` und `v2023.2.x`.
+
+Das ist keine Formalie: es ist unser gesamter VPN-Transport. Ob das
+Community-Paket unter 2025.1 mit unserer Broker-Konfiguration laeuft, ist die
+erste Frage, die vor einem Umstieg zu beantworten ist.
+
+Ebenfalls entfallen, fuer uns aber ohne Folgen: die Unterstuetzung fuer das
+Babel-Routingprotokoll.
+
+### 5.2 Der ERX steht in Gluons eigenen Release Notes
+
+> The following devices can't be updated automatically due to breaking changes
+> in OpenWrt, requiring manual steps to adjust the flash layout:
+> Ubiquiti EdgeRouter-X (upgrade instructions: darkxst/erx-migration)
+
+Unsere ERX-Arbeit ist damit nicht Eigenbau, sondern der vorgesehene Weg — mit
+demselben Skript, das auch Freifunk Lippe und 4830.org verwenden. Einzelheiten
+in den Werkstattnotizen.
+
+### 5.3 Neues, das wir uns ansehen sollten
+
+* **Autoupdater ueber HTTPS**, wenn das Feature `tls` im Image aktiv ist. Wir
+  haben `tls` bereits fuer alles ausser `device_class('tiny')`.
+* **`include()` in `image-customization.lua`** — erlaubt es, unsere inzwischen
+  lange Datei aufzuteilen.
+* **`gluon-radvd`**: Prefix-Lifetime jetzt in der `site.conf` einstellbar.
+* Alte opkg-Schluessel werden beim Upgrade geloescht.
+
+### 5.4 Was hier noch fehlt
+
+Diese Aufstellung stammt aus den Release Notes, nicht aus einem Lauf gegen
+unsere Konfiguration. Den belastbaren Befund liefert erst Gluons eigenes
+`check_site` gegen `templates/common/site.conf` in einem 2025.1-Baum — das
+prueft jeden Schluessel semantisch und meldet, was fehlt oder nicht mehr
+zulaessig ist. Solange das nicht gelaufen ist, gilt: die Liste oben ist
+sicher unvollstaendig.
+
+---
+
 Nicht Teil dieser Aufstellung, aber ebenfalls offen: Tunneldigger aus
 `community-packages`, die Site-Feeds ohne 2025.1-Branch, die opkg-URLs auf `23.05.5`
 in der `site.conf` sowie die Verhaltens-Patches (`010-primary-mac`, `020-interfaces`,
