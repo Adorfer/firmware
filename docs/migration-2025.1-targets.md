@@ -600,6 +600,58 @@ in den Werkstattnotizen.
 * **`gluon-radvd`**: Prefix-Lifetime jetzt in der `site.conf` einstellbar.
 * Alte opkg-Schluessel werden beim Upgrade geloescht.
 
+### 5.5 Gebaut — und der Grund fuer die ERX-Migration sind 27 Kilobyte
+
+Am 2026-09-08 abends gebaut: Gluon v2025.1.3, `ramips-mt7621`,
+`GLUON_DEVICES=ubiquiti-edgerouter-x`, mit unserer `21_dias`-`site.conf`
+unveraendert. Der Bau laeuft durch.
+
+Gemessen am fertigen Sysupgrade-Archiv:
+
+| | Bytes | |
+| --- | ---: | --- |
+| Kernel 6.6 | **3 173 556** | 3,03 MB |
+| alter Slot (`kernel1`/`kernel2` je) | 3 145 728 | 3 MB |
+| **Ueberschuss** | **27 828** | **27 KB, 0,9 %** |
+| neuer Slot (`kernel`) | 6 291 456 | 6 MB, davon 2,97 MB frei |
+| Rootfs | 3 206 144 | 3,06 MB |
+
+**Die gesamte Migration existiert wegen 27 Kilobyte.** Dafuer muss ein Byte im
+Flash umgesetzt, ein Kernel ueber eine Slotgrenze geschrieben und jedes Geraet
+einzeln angefasst werden. Im neuen Slot bleiben danach 50 % frei, fuer kommende
+Kernel ist also reichlich Luft.
+
+Einschraenkung: unser Testimage hat eine schlanke Paketauswahl (kein mesh-vpn).
+Auf die Kernelgroesse wirkt sich das kaum aus — Module liegen im Rootfs, nicht
+im Kernelabbild —, aber die Zahl ist eine Untergrenze, keine Obergrenze.
+
+### 5.6 Der Build-Host braucht mehr als fuer 2023.2
+
+OpenWrt 24.10 uebersetzt BPF-Programme und verlangt dafuer clang und die
+LLVM-Werkzeuge auf dem Host; 23.05 tat das nicht. Ohne sie bricht der Bau ab:
+
+```
+bash: clang-not-found: command not found
+include/bpf.mk:82: *** ERROR: LLVM/clang version too old. Minimum required: 12, found: .
+```
+
+Der Baum setzt `CONFIG_BPF_TOOLCHAIN_HOST=y` und `CONFIG_USE_LLVM_HOST=y`.
+`CONFIG_BPF_TOOLCHAIN_NONE` ist **kein** Ausweg, weil zugleich
+`CONFIG_NEED_BPF_TOOLCHAIN=y` gesetzt ist; und
+`CONFIG_BPF_TOOLCHAIN_BUILD_LLVM` uebersetzte LLVM im Baum, was deutlich
+langsamer ist als die Systempakete.
+
+Gluon nennt die vollstaendige Liste in `docs/user/getting_started.rst`. Auf
+unserem Arbeitsplatz fehlten davon acht:
+
+```sh
+apt install clang llvm libelf-dev libssl-dev zlib1g-dev libncurses5-dev \
+            python3-dev python3-pyelftools
+```
+
+Fuer den Build-Host gehoert das vor den ersten 2025.1-Lauf, sonst scheitert er
+nach ueber hundert uebersetzten Paketen an einer Kleinigkeit.
+
 ### 5.4 check_site ist gelaufen — die site.conf passt unveraendert
 
 Nachgetragen am selben Abend. `tests/check-site-gluon2025.sh` fuehrt Gluons
