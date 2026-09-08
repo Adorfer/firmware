@@ -41,6 +41,12 @@ JEDEC-ID für einen Zbit-SPI-NOR ergänzt. Verdächtig — aber er liegt unter
 alarmierend. Beim Lesen: er ändert nur das zram-Init-Skript, und angewendet
 wird er ohnehin nicht.
 
+**Das Netzteil.** Die einzige der frühen Hypothesen, die der Betreiber sofort
+und sauber ausgeräumt hat: drei verschiedene Netzteile am Archer C25, darunter
+ein fabrikneues 12 V / 3 A, immer dasselbe Bild. Das kostete zehn Minuten und
+nahm eine ganze Klasse von Erklärungen vom Tisch. Die Reihenfolge stimmte hier:
+erst das billig Prüfbare ausschließen.
+
 **Die Lehre daraus:** wir haben nach einer *Ursache im Flash* gesucht, weil das
 Symptom "kommt nicht mehr hoch" danach aussah. Tatsächlich hatten wir zu diesem
 Zeitpunkt keinerlei Beleg dafür, wo das Gerät stehenbleibt. Wir hätten früher
@@ -218,8 +224,16 @@ gekippt:
 Beide betroffenen Geräte sind damit in beide Richtungen gemessen: sie booten
 ungepatcht nie und gepatcht immer. Beim WR1043ND lagen zwischen den beiden
 Armen 40 Minuten, gemessen wurde am selben Gerät über dieselbe geschaltete
-Steckdose, und der Kernel war in beiden Fällen 5.15.198 — der Unterschied war
-ausschließlich der Patch.
+Steckdose und **dasselbe Netzteil**, und der Kernel war in beiden Fällen
+5.15.198 — der Unterschied war ausschließlich der Patch.
+
+Das Netzteil ausdrücklich zu nennen lohnt, weil es die naheliegendste
+Rückfrage vorwegnimmt. Es ist seit dem Xiaomi eines mit PEN-Bezug; vorher
+hatten wir sporadische Aussetzer der seriellen Strecke, die Messreihen
+verdorben haben. Seither trat kein einziger leerer Mitschnitt mehr auf. Wer
+solche Reihen selbst fährt: eine eigene Ergebniskategorie für "nichts
+empfangen" ist Pflicht, sonst zählt man Störungen der Messstrecke als
+Gerätefehler — genau das ist uns beim Xiaomi einmal passiert.
 
 Der WDR3600 ist ein 74Kc wie die beiden betroffenen Geräte und bootet trotzdem
 durch. Wir hatten vorher schon „auf MIPS 74Kc hängt es" in den Patchkopf
