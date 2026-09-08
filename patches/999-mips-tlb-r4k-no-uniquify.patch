@@ -50,6 +50,23 @@ und fuer unsere Hardware war das Verhalten davor ein Jahrzehnt lang richtig.
 Der generische Ort ist Absicht: ath79 ist betroffen, ramips-mt7621 (1004Kc)
 benutzt denselben Code und ist nicht erwiesen sicher.
 
+Am Geraet verifiziert, 2026-09-08, TP-Link Archer C25 v1 an serieller Konsole.
+Das gepatchte Image per TFTP ins RAM geladen und mit "bootm" gestartet, ohne
+den Flash anzufassen. Dieselbe Stelle wie zuvor, jetzt mit Fortsetzung:
+
+  [    0.000000] Inode-cache hash table entries: 4096 ...
+  [    0.000000] Writing ErrCtl register=00000000
+  [    0.000000] Memory: 55912K/65536K available (5714K kernel code, ...)
+
+Der Knoten bootet vollstaendig durch bis
+
+  [   57.369944] batman_adv: bat0: Interface activated: mesh0
+
+und zwar mit dem gepatchten Kernel aus dem RAM und dem unveraenderten Rootfs
+der alten Firmware aus dem Flash - dieselbe Kernelversion und Konfiguration,
+nur tlb-r4k.c unterscheidet sich. Genau dieser Unterschied entscheidet
+zwischen "haengt beim Kaltstart" und "laeuft".
+
 Beim Umstieg auf Gluon 2025.1 mit neuerem Kernel neu bewerten.
 
 --- a/arch/mips/mm/tlb-r4k.c
