@@ -35,7 +35,9 @@ cores we do not deploy.
 Under target/linux/generic/ because tlb-r4k.c is built for every r4k-class MIPS
 core: our March 2026 outage hit 57 nodes across ath79 (74Kc and 24Kc), lantiq
 (34Kc) and ramips (24KEc), and no non-MIPS node at all. ramips-mt7621 (1004Kc)
-runs the same code and is untested.
+runs the same code but is not affected: 22 cold starts across two devices with
+different bootloaders (Ubiquiti EdgeRouter X, Xiaomi Mi Router 4A Gigabit), all
+of which booted.
 
 Drop this on Gluon 2025.1.1 or newer, whose 6.6.144 measured clean above - but
 not on v2025.1, which carries 6.6.119.
