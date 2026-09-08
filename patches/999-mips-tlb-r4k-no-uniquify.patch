@@ -1,0 +1,73 @@
+From: Freifunk im Neanderland <projekt@neanderfunk.de>
+Subject: MIPS: tlb-r4k: den Aufruf von r4k_tlb_uniquify() zuruecknehmen
+
+Ruecknahme des Aufrufs, den der Stable-Kernel 5.15.190 mit
+
+    35ad7e181541 ("MIPS: mm: tlb-r4k: Uniquify TLB entries on init")
+
+eingefuehrt hat, samt der Ueberarbeitung aus 5.15.197
+
+    9f048fa48740 ("MIPS: mm: Prevent a TLB shutdown on initial uniquification")
+
+Damit gilt wieder das Verhalten bis einschliesslich 5.15.189.
+
+Warum: auf MIPS 74Kc bleibt der Kernel beim Kaltstart in tlb_init() stehen.
+Serielle Konsole, zwei verschiedene SoCs, identische Stelle:
+
+  TP-Link TL-WR1043ND v2   QCA9558  "Scorpion"
+  TP-Link Archer C25 v1    QCA956X  "Dragonfly"
+
+  [    0.000000] Dentry cache hash table entries: 8192 ...
+  [    0.000000] Inode-cache hash table entries: 4096 ...
+  <keine weitere Ausgabe>
+
+Die Aufrufkette an dieser Stelle ist eindeutig:
+
+  init/main.c:1008   vfs_caches_init_early()   letzte Ausgabe
+  init/main.c:1009   sort_main_extable()
+  init/main.c:1010   trap_init() -> traps.c:2309 tlb_init()
+                       -> r4k_tlb_configure() -> r4k_tlb_uniquify()
+  init/main.c:1011   mm_init()                 wuerde "Memory: ..." drucken
+
+Warum nur beim Kaltstart: r4k_tlb_uniquify() arbeitet auf dem, was der
+Bootloader im TLB hinterlassen hat. Beim Einschalten ist das zufaellig, beim
+Warmstart der bereits bereinigte Inhalt des vorherigen Laufs. Aus dem
+Commit-Text von 9f048fa48740:
+
+  "Depending on the particular CPU implementation a TLB shutdown may occur if
+   multiple matching entries are detected upon the execution of a TLBP or the
+   TLBWI/TLBWR instructions.  Given that we don't know what entries we have
+   been handed ..."
+
+Genau deshalb ueberstehen die Geraete beliebig viele sysupgrades und reboots
+und kommen nach dem ersten Stromausfall nicht wieder.
+
+Der Fix aus 5.15.197 ist in 5.15.198 enthalten und reicht auf 74Kc nicht; bis
+5.15.203 kam upstream nichts nach. 35ad7e181541 behebt einen Startfehler auf
+microAptiv/M5150 (dort 7 von 1000 Starts). Diese Kerne setzen wir nicht ein,
+und fuer unsere Hardware war das Verhalten davor ein Jahrzehnt lang richtig.
+
+Der generische Ort ist Absicht: ath79 ist betroffen, ramips-mt7621 (1004Kc)
+benutzt denselben Code und ist nicht erwiesen sicher.
+
+Beim Umstieg auf Gluon 2025.1 mit neuerem Kernel neu bewerten.
+
+--- a/arch/mips/mm/tlb-r4k.c
++++ b/arch/mips/mm/tlb-r4k.c
+@@ -512,7 +512,7 @@ static int r4k_vpn_cmp(const void *a, co
+  * Initialise all TLB entries with unique values that do not clash with
+  * what we have been handed over and what we'll be using ourselves.
+  */
+-static void r4k_tlb_uniquify(void)
++static void __maybe_unused r4k_tlb_uniquify(void)
+ {
+ 	unsigned long tlb_vpns[1 << MIPS_CONF1_TLBS_SIZE];
+ 	int tlbsize = current_cpu_data.tlbsize;
+@@ -616,7 +616,6 @@ static void r4k_tlb_configure(void)
+ 	temp_tlb_entry = current_cpu_data.tlbsize - 1;
+ 
+ 	/* From this point on the ARC firmware is dead.	 */
+-	r4k_tlb_uniquify();
+ 	local_flush_tlb_all();
+ 
+ 	/* Did I tell you that ARC SUCKS?  */

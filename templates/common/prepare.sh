@@ -101,6 +101,7 @@ run_patch interface-role-migration21.sh "Migration 2021: Schnittstellen mit Clie
 run_patch interfaces-patch.sh          "primaere MACs und Schnittstellenzuordnung"
 run_patch patch-gluon-makefiles.sh     "Gluon-Makefile und Paketliste"
 run_patch limit-wireless-buffers.sh    "WLAN-Puffer nach RAM begrenzen (Backport Gluon 8f38662f)"
+run_patch revert-mips-tlb-uniquify.sh  "MIPS: r4k_tlb_uniquify() zuruecknehmen (Kaltstart-Haenger 74Kc)"
 
 # Reihenfolge beachten: moredetails fuegt direkt hinter der Modellzeile ein,
 # ssid und hwdetails setzen auf diesem Zustand auf.
