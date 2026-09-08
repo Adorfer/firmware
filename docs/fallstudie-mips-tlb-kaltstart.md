@@ -160,9 +160,13 @@ Temperatur oder Drift alle gleich treffen.
 Die beiden 5.15.198-Varianten stammen aus demselben Build-Baum und
 unterscheiden sich in einer gelöschten Zeile.
 
-**Der Fehler ist deterministisch.** Dass die 57 Knoten im März über Tage
-verteilt ausfielen, lag allein daran, wann sie Strom verloren — nicht daran,
-dass der Fehler mal zuschlug und mal nicht.
+**Auf diesem Gerät ist der Fehler deterministisch** — er trat in jedem
+einzelnen Durchgang auf, nicht in jedem zehnten. Dass die 57 Knoten im März
+über Tage verteilt ausfielen, lag also daran, wann sie Strom verloren, und
+nicht daran, dass der Fehler mal zuschlug und mal nicht.
+
+Die Einschränkung „auf diesem Gerät" ist wichtig und war uns an dieser Stelle
+noch nicht klar; siehe Kapitel 7.
 
 Drei Dinge, die diese Messreihe brauchbar gemacht haben:
 
@@ -199,21 +203,57 @@ Deshalb liegt unser Patch unter `target/linux/generic/` und nicht unter
 `target/linux/ath79/` — ein ath79-Patch hätte die beiden FRITZ!Box 7362 SL
 (lantiq) und den Archer C50 v3 (ramips) ungeschützt gelassen.
 
-**Nicht betroffen ist mt7621 (1004Kc):**
+**Welche Boards betroffen sind, lässt sich am CPU-Kern nicht ablesen.** Das war
+die Überraschung am Ende, und sie hat eine bereits fertig formulierte Aussage
+gekippt:
 
-| Gerät | Bootloader | Kaltstarts | durchgebootet |
-| --- | --- | ---: | ---: |
-| Ubiquiti EdgeRouter X | Ubiquiti | 11 | 11 |
-| Xiaomi Mi Router 4A Gigabit | Xiaomi | 11 | 11 |
+| Gerät | SoC | Kern | RAM | ungepatchtes 5.15.198 |
+| --- | --- | --- | ---: | --- |
+| TP-Link Archer C25 v1 | QCA956X | 74Kc | 64 MB | **0 von 21** gebootet |
+| TP-Link TL-WR1043ND v2 | QCA9558 | 74Kc | 64 MB | hängt (seriell belegt) |
+| TP-Link TL-WDR3600 v1 | AR9344 | 74Kc | 128 MB | 11 von 11 gebootet |
+| Ubiquiti EdgeRouter X | MT7621 | 1004Kc | 256 MB | 11 von 11 gebootet |
+| Xiaomi Mi Router 4A Gigabit | MT7621 | 1004Kc | 128 MB | 11 von 11 gebootet |
 
-Zwei verschiedene Bootloader auf demselben SoC zeigen dasselbe Verhalten —
-damit liegt es am Kern und nicht daran, was der Bootloader zufällig im TLB
-hinterlässt. Das deckt sich mit der Feldbeobachtung, dass im März kein einziger
-EdgeRouter X ausfiel.
+Der WDR3600 ist ein 74Kc wie die beiden betroffenen Geräte und bootet trotzdem
+durch. Wir hatten vorher schon „auf MIPS 74Kc hängt es" in den Patchkopf
+geschrieben — das war falsch, und nur weil der Betreiber auf einer dritten
+Messung bestand, ist es nicht so veröffentlicht worden.
 
-Die Gegenprobe mit dem zweiten Gerät war den Aufwand wert: bei nur einem
-Gerät wäre offengeblieben, ob der Kern oder der Bootloader die Ursache ist —
-und „mt7621 ist sicher" wäre eine gefährliche Verallgemeinerung gewesen.
+Richtig ist: **deterministisch je Gerät, aber nicht je Kern.** Das passt zum
+Mechanismus, denn `r4k_tlb_uniquify()` arbeitet auf dem, was der Bootloader im
+TLB hinterlassen hat, und das unterscheidet sich von Board zu Board.
+
+Auffällig, aber mit fünf Geräten nicht belegt: beide betroffenen haben 64 MB
+RAM, alle nicht betroffenen mehr. Das ist eine Beobachtung, keine Erklärung.
+
+### Zwei Alternativen, die wir geprüft und ausgeschlossen haben
+
+**Stack-Überlauf.** Upstream gibt es im 6.6-Zweig einen Commit
+`231ac951faba` („kmalloc tlb_vpn array to avoid stack overflow"), der 5.15 nie
+erreicht hat. Unsere Fassung legt das Feld mit fester Größe auf dem Stack an:
+
+```c
+unsigned long tlb_vpns[1 << MIPS_CONF1_TLBS_SIZE];   // 64 Einträge
+int tlbsize = current_cpu_data.tlbsize;              // kann über Config4 wachsen
+```
+
+Wäre `tlbsize` größer als 64, liefe die Schleife über das Feld hinaus — und ein
+zerschossener Stack erklärt Geräteabhängigkeit sehr gut. Gemessen an allen drei
+Geräten über `/proc/cpuinfo`: `tlb_entries: 32`. Das Feld ist doppelt so groß
+wie nötig. Ausgeschlossen.
+
+**Konsolenübergabe.** Es gibt einen bekannten ar71xx-Fehler von 2016
+(„fix nondeterministic hangs during boot"), bei dem die Early Console
+abgeschaltet wurde, bevor der UART fertig gesendet hatte — ein Timing-Fehler,
+der je nach Alignment des Compilats auftrat oder nicht. Das Muster passt
+verblüffend gut. Es passt nur nicht zur Stelle: die Übergabe liegt im
+erfolgreichen Bootlog bei `0.297` bis `0.320` Sekunden, unser Hänger dagegen
+noch bei `0.000000`, während die Early Console die einzige ist. Ausgeschlossen.
+
+Beide Hypothesen kamen vom Betreiber und waren gut begründet. Sie zu prüfen hat
+je zehn Minuten gekostet und beide Male eine Zahl geliefert statt einer
+Meinung — das ist der Unterschied zwischen Ausschließen und Abtun.
 
 ## 8. Prüfen, was auf einem Knoten wirklich läuft
 
