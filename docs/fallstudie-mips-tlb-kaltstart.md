@@ -207,13 +207,19 @@ Deshalb liegt unser Patch unter `target/linux/generic/` und nicht unter
 die Überraschung am Ende, und sie hat eine bereits fertig formulierte Aussage
 gekippt:
 
-| Gerät | SoC | Kern | RAM | ungepatchtes 5.15.198 |
-| --- | --- | --- | ---: | --- |
-| TP-Link Archer C25 v1 | QCA956X | 74Kc | 64 MB | **0 von 21** gebootet |
-| TP-Link TL-WR1043ND v2 | QCA9558 | 74Kc | 64 MB | hängt (seriell belegt) |
-| TP-Link TL-WDR3600 v1 | AR9344 | 74Kc | 128 MB | 11 von 11 gebootet |
-| Ubiquiti EdgeRouter X | MT7621 | 1004Kc | 256 MB | 11 von 11 gebootet |
-| Xiaomi Mi Router 4A Gigabit | MT7621 | 1004Kc | 128 MB | 11 von 11 gebootet |
+| Gerät | SoC | Kern | RAM | ungepatcht | gepatcht |
+| --- | --- | --- | ---: | --- | --- |
+| TP-Link Archer C25 v1 | QCA956X | 74Kc | 64 MB | **0 von 21** | 21 von 21 |
+| TP-Link TL-WR1043ND v2 | QCA9558 | 74Kc | 64 MB | **0 von 20** | 20 von 20 |
+| TP-Link TL-WDR3600 v1 | AR9344 | 74Kc | 128 MB | 11 von 11 | — |
+| Ubiquiti EdgeRouter X | MT7621 | 1004Kc | 256 MB | 11 von 11 | — |
+| Xiaomi Mi Router 4A Gigabit | MT7621 | 1004Kc | 128 MB | 11 von 11 | — |
+
+Beide betroffenen Geräte sind damit in beide Richtungen gemessen: sie booten
+ungepatcht nie und gepatcht immer. Beim WR1043ND lagen zwischen den beiden
+Armen 40 Minuten, gemessen wurde am selben Gerät über dieselbe geschaltete
+Steckdose, und der Kernel war in beiden Fällen 5.15.198 — der Unterschied war
+ausschließlich der Patch.
 
 Der WDR3600 ist ein 74Kc wie die beiden betroffenen Geräte und bootet trotzdem
 durch. Wir hatten vorher schon „auf MIPS 74Kc hängt es" in den Patchkopf
@@ -269,6 +275,29 @@ misst die *Abwesenheit* eines Symbols und taugt nur dort, wo man genau weiß,
 warum es fehlen sollte — auf einer Firmware, die den Aufruf noch enthält (etwa
 Gluon 2025.1), meldet dieselbe Prüfung fälschlich „ungeschützt".
 
+**Am Image lässt sich das nicht prüfen, und der Umweg lohnt nicht.** Wir haben
+es versucht: Kernel aus dem Sysupgrade-Image herausgelöst (LZMA-Kopf bei
+`0x200`, Properties-Byte `0x6d` — nicht `0x5d`, worauf die übliche Suche
+anspringt), sauber entpackt, und dann `strings` darauf losgelassen. Ergebnis:
+`r4k_tlb_uniquify` findet sich auch im nachweislich **ungepatchten** Kernel
+nicht. Der Grund ist kallsyms selbst: die Namenstabelle liegt tokenkomprimiert
+im Abbild, nicht als Klartext. Erst `/proc/kallsyms` dekodiert sie zur
+Laufzeit.
+
+Auch die naheliegenden Ersatzmerkmale tragen nicht. Die OpenWrt-Revision im
+TP-Link-Header (`r24256+14-…`) ist bei gepatchtem und ungepatchtem Build
+identisch — sie zählt die Commits des OpenWrt-Baums, und der Patch landet über
+`copy_into_tree` in `target/linux/generic/hack-5.15/`, ohne sie zu verändern.
+Und die entpackten Kernel sind exakt gleich groß, obwohl ihr Inhalt sich ab
+Byte 1027 unterscheidet.
+
+Praktische Folge: **plane die Verifikation auf einem laufenden Gerät ein, nicht
+auf der Datei.** Wer den Build nicht selbst angestoßen hat, kann einem fremden
+Image nicht ansehen, ob der Patch drin ist. Eine veröffentlichte Patchliste
+neben den Images (`site/build-info.txt`) schließt diese Lücke — unser
+Build-Host legt sie unter `running/` nicht mit ab, und genau dort hätte sie die
+Frage in zehn Sekunden beantwortet.
+
 ## 9. Was davon übertragbar ist
 
 **Erst lokalisieren, dann erklären.** Wir haben Stunden mit Hypothesen
@@ -294,9 +323,23 @@ Fernschaltbarer Strom macht das aus einer Tagesaufgabe eine halbe Stunde.
 Untersuchung hätten sich vermeiden lassen, wenn jemand sie vorher notiert
 hätte.
 
+**Den Rohmitschnitt lesen, nicht den Zustandszähler.** Beim Flashen des
+WR1043ND blieb das Skript viermal in Folge stecken, weil es auf den Prompt
+`ath>` wartete. Das Board meldet sich mit `ap135>` — und im Rohmitschnitt stand
+die ganze Zeit `<INTERRUPT>`, der Beweis, dass Ctrl-C längst ankam. Aus den
+Fehlschlägen wurde stattdessen auf eine gebrochene TX-Ader geschlossen, was den
+Betreiber zweimal an den Aufbau schickte. Ein Blick in die Rohdaten statt auf
+das Ergebnisfeld hätte das beim ersten Versuch erledigt.
+
+**Ein Loopback-Test prüft nicht, was man glaubt.** Die Brücke zwischen den
+beiden Steckerbuchsen bestätigt Adapter, Kabel und Crimp — aber gerade nicht
+den Übergang Buchse → Pin auf der Platine, denn dafür sind die Buchsen ja
+abgezogen. Genau diese Stelle war verdächtig.
+
 ## 10. Ergebnis
 
 `patches/999-mips-tlb-r4k-no-uniquify.patch` nimmt den Aufruf zurück und
 stellt das Verhalten bis 5.15.189 wieder her. Begründung und Messwerte stehen
-im Kopf der Patchdatei. Beim Umstieg auf Gluon 2025.1.1 oder neuer kann er weg,
+im Kopf der Patchdatei. Über beide betroffenen Geräte hinweg sind das
+**0 von 41** Kaltstarts ungepatcht gegen **41 von 41** gepatcht. Beim Umstieg auf Gluon 2025.1.1 oder neuer kann er weg,
 siehe Kapitel 4.4 in `migration-2025.1-targets.md`.
