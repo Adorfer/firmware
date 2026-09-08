@@ -600,14 +600,50 @@ in den Werkstattnotizen.
 * **`gluon-radvd`**: Prefix-Lifetime jetzt in der `site.conf` einstellbar.
 * Alte opkg-Schluessel werden beim Upgrade geloescht.
 
-### 5.4 Was hier noch fehlt
+### 5.4 check_site ist gelaufen — die site.conf passt unveraendert
 
-Diese Aufstellung stammt aus den Release Notes, nicht aus einem Lauf gegen
-unsere Konfiguration. Den belastbaren Befund liefert erst Gluons eigenes
-`check_site` gegen `templates/common/site.conf` in einem 2025.1-Baum — das
-prueft jeden Schluessel semantisch und meldet, was fehlt oder nicht mehr
-zulaessig ist. Solange das nicht gelaufen ist, gilt: die Liste oben ist
-sicher unvollstaendig.
+Nachgetragen am selben Abend. `tests/check-site-gluon2025.sh` fuehrt Gluons
+eigene `check-site.lua` aus einem 2025.1-Baum gegen unsere assemblierte
+`site.conf` aus, ohne dafuer zu bauen: Lua 5.1 genuegt (`site_config.lua`
+braucht `setfenv`), das fehlende `jsonc` aus libubox liegt als reine
+Lua-Fassung in `tests/lib/`.
+
+Ergebnis gegen `21_dias`, Gluon v2025.1.3 plus die Feeds community,
+neanderfunk und ffac:
+
+```
+  ohne Beanstandung: 34    mit Meldung: 12
+```
+
+**Alle zwoelf Meldungen betreffen Pakete, die wir nicht auswaehlen** — fastd,
+Wireguard, Hoodselector, Layer3, Logging, Node-Role, Parker, OpenVPN,
+ffgraz-*, ffmuc-Wireguard-VXLAN. Sie sagen nur, was diese Pakete braeuchten,
+wenn man sie einschaltete.
+
+Unsere eigenen Pakete aus `neanderfunk` und `ffac` melden nichts. Und der
+Ersatz fuer Tunneldigger, `ff-mesh-vpn-tunneldigger` aus den
+community-packages, ist mit unserer Konfiguration zufrieden: er verlangt
+`mesh_vpn.tunneldigger.brokers` als String-Array und `.mtu` als Zahl, genau
+das haben wir.
+
+**Damit ist die site.conf kein Migrationsaufwand.** Der Aufwand liegt beim
+Feed-Pin und bei der Frage, ob die Pakete unter 2025.1 *laufen* — was
+check_site ausdruecklich nicht prueft.
+
+Grenzen des Befunds, damit er nicht ueberdehnt wird:
+
+* Geprueft ist die **Konfiguration**, nicht das Verhalten. Dass
+  `ff-mesh-vpn-tunneldigger` unsere Broker akzeptiert, heisst nicht, dass der
+  Tunnel steht.
+* Die Pruefdateien der Feeds stammen aus unseren **2023.2-Auschecks**; fuer
+  2025.1 gehoert der Community-Feed auf einen anderen Zweig, und dessen
+  Pruefdateien koennen abweichen. Allein `ff-mesh-vpn-tunneldigger` wurde aus
+  `main` geholt.
+* Einzeldomain-Betrieb (kein `/lib/gluon/domains/`), so wie wir bauen.
+
+Das Skript enthaelt einen Selbsttest: es entfernt vorab `site_code` und bricht
+ab, wenn das *nicht* beanstandet wird. Ein Pruefstand, der nicht fehlschlagen
+kann, beweist nichts.
 
 ---
 
