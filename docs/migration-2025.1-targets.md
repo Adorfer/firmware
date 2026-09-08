@@ -390,6 +390,83 @@ Drei Nebenbefunde aus der Umstellung:
 Für die Migration heißt das: ein Patch, der gegen 2025.1 nicht mehr passt, hält den Bau
 an der Stelle an, an der er scheitert, statt ihn stillschweigend weiterlaufen zu lassen.
 
+### 4.4 Der MIPS-TLB-Patch — zu pruefen, nicht blind fallenzulassen
+
+`patches/999-mips-tlb-r4k-no-uniquify.patch` nimmt in 5.15.198 den Aufruf von
+`r4k_tlb_uniquify()` aus `r4k_tlb_configure()` heraus. Ohne ihn bleibt der
+Kernel auf MIPS 74Kc beim **Kaltstart** in `tlb_init()` stehen — Warmstarts und
+sysupgrades ueberstehen die Geraete, der erste Stromausfall nicht. Belegt an
+serieller Konsole auf TL-WR1043ND v2 (QCA9558) und Archer C25 v1 (QCA956X),
+Begruendung und Messwerte stehen im Kopf der Patchdatei.
+
+**Recherchiert am 2026-09-08.** Der 6.6-Zweig hat nach dem Ausloeser fuenf
+Nacharbeiten bekommen, 5.15 nur die erste:
+
+```
+d98b34c40dc7  2025-06-07  Uniquify TLB entries on init                    Ausloeser
+135713cd0751  2025-11-13  Prevent a TLB shutdown on initial uniquification  auch in 5.15
+231ac951faba  2025-11-28  kmalloc tlb_vpn array to avoid stack overflow     nur 6.6
+43fa022b56dc  2026-03-10  Allocate tlb_vpn array atomically                 nur 6.6
+591f030449ad  2026-04-10  Suppress TLB uniquification on EHINV hardware     nur 6.6
+811b3dccfb0a  2026-04-10  Rewrite TLB uniquification for the hidden bit …   nur 6.6
+```
+
+Genau deshalb haengt 5.15.198 trotz des enthaltenen "Fix" weiter.
+
+**Innerhalb der 2025.1-Serie unterscheiden sich die Kernel erheblich:**
+
+| Gluon | OpenWrt-Pin | Kernel | Shutdown-Fix | kmalloc | EHINV | Neufassung |
+| --- | --- | --- | --- | --- | --- | --- |
+| v2025.1 | `b023a06cfb88` | 6.6.119 | ja | ja | **nein** | **nein** |
+| v2025.1.1 | `14a27ac99d62` | 6.6.137 | ja | ja | ja | ja |
+| v2025.1.2 / .3 | `5204715d1420` | 6.6.144 | ja | ja | ja | ja |
+
+**Ziel ist damit 2025.1.1 oder neuer.** v2025.1 selbst traegt dieselbe
+Generation wie unser 5.15.198 plus die kmalloc-Korrektur — also gerade die
+Fassung, die bei uns nachweislich haengt.
+
+**Die EHINV-Abkuerzung rettet uns nicht.** `591f030449ad` ueberspringt die
+Uniquifizierung auf Hardware mit EHINV. Aus dem Quelltext von 6.6.144:
+
+> "This size might not be supported with R6, but EHINV is mandatory for R6, so
+> we won't ever be called in that case."
+
+EHINV ist ein R6-Merkmal, unsere 74Kc sind MIPS32r2. Auf 2025.1 laufen unsere
+Geraete also **weiterhin durch den Uniquify-Pfad**, nur durch eine reifere
+Fassung — nicht daran vorbei.
+
+**Kein Backport nach 5.15.** Geprueft und verworfen: die Neufassung stuetzt
+sich auf `current_cpu_data.vmbits` (5.15 hat `cpu_vmbits`), `VPN2_SHIFT`,
+einen eigenen `struct tlbent`, `memblock_alloc_raw` und `slab_is_available` —
+nichts davon steht in der 5.15-Fassung der Datei. Aus 64 Zeilen in einer
+Funktion sind drei Funktionen geworden. Fuenf Commits samt fehlender
+Hilfsmittel mitten in die TLB-Initialisierung zu portieren, testbar auf drei
+Geraeten, bei einem Nutzen von null — der Codepfad behebt einen Startfehler
+auf microAptiv/M5150, Kerne, die wir nicht einsetzen. Ein an einer Stelle
+falsch portierter Backport scheitert genau wie der Fehler selbst: tot beim
+Kaltstart, aus der Ferne nicht einzufangen.
+
+**Beim Umstieg zu tun:**
+
+1. Auf 2025.1.1 oder neuer gehen, nicht auf v2025.1.
+2. **Vor dem Ausrollen** ein 74Kc-Geraet mit serieller Konsole kaltstarten und
+   pruefen, ob nach `Inode-cache hash table entries` die Zeile
+   `Memory: …K/…K available` kommt. Zehn Minuten Aufwand, und die Alternative
+   waere ein Flottenausfall wie im Maerz 2026.
+3. Erst danach unseren Patch streichen. Er ist an 5.15 gebunden und wuerde
+   gegen die Neufassung ohnehin nicht mehr greifen.
+
+**Achtung beim Feldtest:** die Pruefung
+
+```sh
+grep -q r4k_tlb_uniquify /proc/kallsyms && echo ungeschuetzt || echo "Fix drin"
+```
+
+gilt **nur fuer unseren 5.15-Rueckbau**. Dort verschwindet das Symbol, weil die
+Funktion unbenutzt wird. Auf 2025.1 bleibt der Aufruf bestehen, das Symbol ist
+also vorhanden — ein Knoten dort meldet faelschlich "ungeschuetzt". Auf 2025.1
+zaehlt allein der Kaltstarttest.
+
 ## 5. Vorschlag zur Reihenfolge
 
 Der Feldabgleich in Kapitel 0 hat den Pflichtteil klein gemacht.
@@ -404,6 +481,8 @@ Der Feldabgleich in Kapitel 0 hat den Pflichtteil klein gemacht.
    gegenprüfen. `mi4ag-migration.patch` prüfen (4.2).
 5. Bauen. Danach das erzeugte Manifest gegen das alte diffen: jeder Name, der
    verschwindet, ist ein Gerät ohne Update-Pfad.
+6. **Kaltstarttest auf einem 74Kc-Gerät mit serieller Konsole, bevor irgendetwas
+   ausgerollt wird** (4.4). Und auf 2025.1.1 oder neuer zielen, nicht auf v2025.1.
 
 **Nach Bedarf, kein Migrationsblocker**
 
