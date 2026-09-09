@@ -38,3 +38,10 @@ feel free to add things
         cat /sys/class/net/eth0/address
       Stimmt primary_mac mit phy0 ueberein und weicht vom Aufkleber ab, ist es
       das. Behebung waere ein Eintrag fuer den C6 v2 im passenden Block.
+- [ ] Offline-SSID-Anzeige nach v2023.2.x zurueckportieren. Auf dem Branch
+      v2025.1.x zeigt die Statusseite hinter der Radio-Tabelle, ob der
+      neanderfunk-ssid-changer den Knoten zuletzt als offline eingestuft hat
+      (/tmp/ssid-changer-offline, 0 oder 1), siehe patches/statuspage-ssid.patch
+      dort. Hier muss der Teil in einen eigenen Patch, weil statuspage-ssid.patch
+      auf 2023.2.x noch SSID und HT-Modus liefert - die kommen erst mit 2025.1
+      von Upstream.
