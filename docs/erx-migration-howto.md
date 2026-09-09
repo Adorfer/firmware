@@ -336,6 +336,22 @@ Genau das ist der halb migrierte Zustand.
 Und danach der uebliche Blick: bootet er kalt, ist er im Mesh, kommt der
 VPN-Tunnel hoch.
 
+Am 09.09.2026 ein zweites Mal durchgefuehrt, diesmal aus dem Zustand "Knoten
+laeuft auf Slot 2" heraus — also mit dem Umsetzen des Boot-Index, das beim
+ersten Durchlauf uebersprungen worden war. Gemessen:
+
+| | vorher | nachher |
+|---|---|---|
+| Firmware | 2023.2, Kernel 5.15.198 | 2025.1, Kernel 6.6.144 |
+| Partitionen | `kernel1` 3 MB + `kernel2` 3 MB | ein `kernel` mit 6 MB |
+| Boot-Index | `0x01` | `0x00` |
+| `compat_version` | 1.1 | 2.0, selbsttaetig |
+| Hostname, primaere MAC | | unveraendert |
+| Mesh | | 69 Originators, Gateway ueber mesh-vpn |
+
+Ein Durchgang, keine Eingriffe, gut anderthalb Minuten. Beim ersten Mal waren
+es sieben Anlaeufe.
+
 ## Was passiert, wenn ein migrierter Knoten ein altes Image bekommt
 
 Zwei Faelle, beide am migrierten Geraet gemessen (09.09.2026):
@@ -392,15 +408,93 @@ Deshalb hebt das Migrationsskript die `compat_version` in der gesicherten
 Konfiguration selbst an, bevor sie zurueckgespielt wird — der Zielwert kommt
 aus den Metadaten des Images, gelesen mit `fwtool -q -i`.
 
+## Zum Ausprobieren: den Ausgangszustand wiederherstellen
+
+Wer die Migration in der eigenen Gemeinde einfuehren will, wird sie erst an
+einem Testgeraet durchspielen wollen — und dazu gehoert, hinterher wieder von
+vorn anfangen zu koennen. Das geht, und zwar vollstaendig. Am 09.09.2026
+durchgefuehrt und gemessen.
+
+**Der entscheidende Punkt vorweg:** es gibt keine Partitionstabelle im Flash.
+Das Layout steht ausschliesslich in der DTS des laufenden Kernels. Sobald
+wieder ein 5.15-Kernel laeuft, sind `kernel1` und `kernel2` von selbst zurueck,
+ohne dass irgendetwas zurueckpartitioniert werden muesste.
+
+### 1. Zurueck auf die alte Firmware
+
+```sh
+sysupgrade -F /tmp/alt.bin
+```
+
+`-F` ist noetig, weil `fwtool` sonst wegen der `compat_version` ablehnt (2.0
+gegen 1.1) — genau der Schutz, den die Migration aufbaut. Der laufende
+24.10-Kernel schreibt den alten Kernel an den Anfang des Slots (0x140000, also
+das spaetere `kernel1`) und laesst den Boot-Index auf `0`. Danach laeuft wieder
+5.15, und `/proc/mtd` zeigt sechs Partitionen statt fuenf.
+
+### 2. Den Zustand eines Knotens auf Slot 2 herstellen
+
+Ohne diesen Schritt steht der Boot-Index schon auf `0x00`, und die Migration
+ueberspringt beim naechsten Durchlauf ihren interessantesten Teil ("Boot-Index
+steht bereits auf Slot 1, nichts zu tun"). Wer wirklich testen will, stellt
+Slot 2 her:
+
+```sh
+# compat_version zuruecksetzen, sonst wehrt sich fwtool spaeter
+uci set system.@system[0].compat_version=1.1 && uci commit system
+
+# Kernel nach kernel2 kopieren
+dd if=/dev/mtd3 of=/tmp/k1.bin bs=64k
+mtd write /tmp/k1.bin kernel2
+```
+
+### 3. Den Boot-Index auf 0x01 zuruecksetzen
+
+Das ist der Schritt, der lange als nicht machbar galt: `0` nach `1` heisst auf
+NAND ein Bit setzen, und das geht nur ueber ein Loeschen des Eraseblocks — in
+dem auch die MAC-Adressen stehen. Es funktioniert trotzdem, weil `mtd write`
+genau dieses Loeschen mitbringt und die MACs aus der Sicherung zurueckschreibt:
+
+```sh
+# ZUERST sichern, und die Sicherung auch vom Geraet herunterholen -
+# /tmp ist tmpfs und ueberlebt keinen Neustart
+dd if=/dev/mtd2 of=/tmp/factory-backup.bin bs=64k
+
+# ein Byte aendern
+dd if=/tmp/factory-backup.bin of=/tmp/factory-neu.bin bs=64k
+printf '\001' | dd of=/tmp/factory-neu.bin bs=1 seek=160 count=1 conv=notrunc
+
+# und zurueckschreiben
+mtd write /tmp/factory-neu.bin factory
+```
+
+Vor dem Schreiben pruefen, dass sich wirklich nur das eine Byte unterscheidet:
+die Bereiche davor (`bs=1 count=160`) und danach (`bs=1 skip=161`) muessen
+dieselbe Pruefsumme haben wie im Original, und am Anfang der Partition muessen
+weiterhin die MACs stehen. Bei uns war die geschriebene Partition hinterher
+bitgenau wie die Vorlage.
+
+Danach neu starten. Die serielle Konsole zeigt den Erfolg:
+
+```
+UBNT BD type=e50, mac=F09FC20C3DDD, mrev=18, k_idx=1
+## Booting image at c0040000 ...
+```
+
+`k_idx=1` und die Adresse `0xc0040000` statt `0xbfd40000`: der Knoten laeuft
+jetzt aus Slot 2, wie ein Geraet, das zuletzt regulaer per Autoupdater
+aktualisiert wurde. Von hier aus laesst sich die Migration vollstaendig
+durchspielen — bei uns lief sie danach in einem Zug durch, in gut anderthalb
+Minuten.
+
+**Ein Rettungsweg sollte dabei bereitliegen.** Wir hatten die serielle Konsole
+angeschlossen; geht beim Schreiben der `factory`-Partition etwas schief, sind
+die MAC-Adressen betroffen, und die Reparatur laeuft ueber U-Boot und TFTP.
+
 ## Noch offen
 
 * **Vollautomatisch aus der Ferne**, ausgeloest ueber den Autoupdater. Die
   Bausteine stehen; was fehlt, ist die Ausloesung ohne Handgriff am Knoten.
-* **Rueckweg auf das alte Layout.** Von `0x00` zurueck auf `0x01` muesste ein
-  Bit von 0 auf 1 — auf NAND geht das nur mit Loeschen des ganzen
-  Eraseblocks, und in dem stehen auch die MAC-Adressen. Der gangbare Weg ist
-  ein Rueckweg, der mit Index `0` auskommt: den alten Kernel nach Slot 1
-  schreiben und `kernel2` unbenutzt lassen. Ungeprueft.
 * **Bad Blocks.** `mtd write` ueberspringt sie. Liegt einer in `kernel1`,
   passen die ersten 3 MB nicht mehr hinein und der Kernel wird still
   zerschnitten. Mit den Werkzeugen im Gluon-Image laesst sich die Markierung
