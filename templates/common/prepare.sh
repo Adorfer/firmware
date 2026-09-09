@@ -98,7 +98,6 @@ run_patch add-cudy-3000.sh             "Cudy-3000-Serie im Target mediatek-filog
 run_patch additionaltargets.sh         "zusaetzliche Targets und Geraete aus OpenWrt"
 run_patch erx-ka-imagename.sh          "EdgeRouter X: eigener Imagename -ka (Flash-Layout)"
 run_patch add-cellular.sh              "Mobilfunkgeraet ZTE MF286R"
-run_patch interface-role-migration21.sh "Migration 2021: Schnittstellen mit Client-Netz"
 run_patch interfaces-patch.sh          "primaere MACs und Schnittstellenzuordnung"
 run_patch patch-gluon-makefiles.sh     "Gluon-Makefile und Paketliste"
 run_patch limit-wireless-buffers.sh    "WLAN-Puffer oberhalb 128 MB RAM deckeln"
