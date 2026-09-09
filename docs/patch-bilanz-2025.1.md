@@ -1,7 +1,11 @@
 # Unsere Patches gegen Gluon 2025.1 — Bestandsaufnahme
 
 Stand 2026-09-09, geprueft gegen Gluon v2025.1.3 (OpenWrt 24.10, Kernel 6.6)
-mit `patch --dry-run`. Anlass: der erste 2025.1-Bau fuer den ERX lief ohne
+mit `patch --dry-run --ignore-whitespace` — also mit denselben Optionen, die
+`apply_patch` in `patches/lib-patch.sh` verwendet. Ohne `--ignore-whitespace`
+faellt die Bilanz zu pessimistisch aus: Gluon hat den Baum durch shellcheck
+geschickt, wodurch sich Einrueckungen verschoben haben, ohne dass sich
+inhaltlich etwas geaendert haette. Anlass: der erste 2025.1-Bau fuer den ERX lief ohne
 unsere `patches/`, wodurch auf der Statusseite die Hardware-Angaben fehlten.
 
 Dieser Branch (`v2025.1.x`) existiert, weil die Patches nicht auf beiden
@@ -11,16 +15,17 @@ Gluon-Staenden gleichzeitig gepflegt werden koennen.
 
 | | Anzahl |
 |---|---:|
-| passt unveraendert | 5 |
-| passt mit Versatz | 10 |
-| scheitert, muss neu geschrieben werden | 14 |
+| passt unveraendert | 9 |
+| passt mit Versatz | 11 |
+| scheitert, muss neu geschrieben werden | 12 |
 | keine anwendbaren Patches (Dateien zum Ablegen) | 5 |
 
 ## Passt unveraendert
 
-`010-primary-mac`, `ffac-packages`, `gluon-packages`,
-`targets-ath79-mikrotik`, `targets-ipq40xx-chromium`,
-`targets-ipq40xx-generic`, `targets-ipq807x-generic`
+`010-primary-mac`, `ffac-packages`, `fix-respondd-rsk` (fuer 2025.1 neu
+geschrieben), `gluon-packages`, `targets-ath79-mikrotik`,
+`targets-ipq40xx-chromium`, `targets-ipq40xx-generic`,
+`targets-ipq807x-generic`
 
 ## Passt mit Versatz
 
@@ -28,7 +33,8 @@ Laeuft durch, die Zeilennummern haben sich nur verschoben. Vor der Uebernahme
 trotzdem ansehen, ob der Kontext noch dasselbe bedeutet:
 
 `add-cudy-3000-gluon`, `add-mercusys-mr90x-gluon`, `add-totolink-x5000r`,
-`gluon-makefile`, `targets-ath79-generic`, `targets-ath79-nand`,
+`gluon-makefile`, `mi4ag-migration`, `targets-ath79-generic`,
+`targets-ath79-nand`,
 `targets-ipq40xx-mikrotik`, `targets-ipq40xx-mirotik`,
 `targets-lantiq-xrx200-devices`, `targets-mediatek-mt7622`,
 `targets-ramips-mt7621`
@@ -37,27 +43,29 @@ trotzdem ansehen, ob der Kontext noch dasselbe bedeutet:
 
 | Patch | Baum | fehlgeschlagene Hunks |
 |---|---|---:|
-| `statuspage-moredetails` | gluon | 4 |
 | `interface-role-migration21` | gluon | 3 |
+| `statuspage-moredetails` | gluon | 3 |
 | `statuspage-ssid` | gluon | 3 |
 | `020-interfaces` | gluon | 2 |
 | `add-nanopi-r2c` | gluon | 2 |
 | `cellular` | gluon | 2 |
-| `fix-respondd-rsk` | gluon | 2 |
 | `limit-wireless-buffers` | gluon | 2 |
 | `statuspage-hwdetails` | gluon | 2 |
 | `targets-mk` | gluon | 2 |
 | `add-cudy-3000-openwrt` | openwrt | 2 |
 | `add-cudy-3000-singleeth-openwrt` | openwrt | 2 |
 | `kernelswapon-openwrt` | openwrt | 2 |
-| `mi4ag-migration` | openwrt | 2 |
 
-Die drei Statuspage-Patten haben Vorrang: ohne sie fehlen auf der Statusseite
-die Angaben zu RAM und Flash, und das faellt sofort auf.
+**Erledigt:** `fix-respondd-rsk` ist neu geschrieben (Commit a978467). Er hatte
+Vorrang vor allem anderen, weil ohne ihn respondd nicht auf `ff02::1` hoert und
+die Knoten auf der Karte faelschlich als offline erscheinen.
 
-Bei `mi4ag-migration` gleich die ERX-Ausnahme mit reparieren — sie prueft auf
-`ubnt-erx` statt `ubnt,edgerouter-x` und war schon unter 23.05 wirkungslos
-(siehe TODO.md).
+Danach kommen die drei Statuspage-Patches: ohne sie fehlen die Angaben zu RAM
+und Flash, was sofort auffaellt.
+
+`mi4ag-migration` passt mit Versatz. Beim Uebernehmen gleich die ERX-Ausnahme
+reparieren — sie prueft auf `ubnt-erx` statt `ubnt,edgerouter-x` und war schon
+unter 23.05 wirkungslos (siehe TODO.md).
 
 ## Keine anwendbaren Patches
 
