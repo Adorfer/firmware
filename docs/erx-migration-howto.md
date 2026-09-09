@@ -312,6 +312,62 @@ Genau das ist der halb migrierte Zustand.
 Und danach der uebliche Blick: bootet er kalt, ist er im Mesh, kommt der
 VPN-Tunnel hoch.
 
+## Was passiert, wenn ein migrierter Knoten ein altes Image bekommt
+
+Zwei Faelle, beide am migrierten Geraet gemessen (09.09.2026):
+
+**Er bekommt das Migrationsimage noch einmal.** Unkritisch. Das Skript liest
+den Boot-Index und die Partitionsnamen, erkennt am Namen `kernel` das neue
+Layout und schreibt einfach in denselben 6-MB-Slot. Der Index steht schon auf
+`0x00`, `ubnt_update_kernel_flag()` steigt frueh aus, ohne den Flash
+anzufassen. Ein Reflash desselben Zustands.
+
+**Er bekommt ein 2023.2-sysupgrade.** Wird abgelehnt, bevor irgendetwas
+geschrieben wird — von OpenWrts eigener Maschinerie, nicht von uns:
+
+```
+upgrade: The device is supported, but this image is incompatible for sysupgrade
+         based on the image version (2.0->1.1).
+upgrade: Config cannot be migrated from swconfig to DSA
+Image check failed.
+```
+
+`fwtool_check_image()` vergleicht die Hauptversionen von Geraet und Image und
+verweigert bei Ungleichheit. Das Geraet meldet nach der Migration `2.0` (aus
+`ubnt_edgerouter_common` in OpenWrts `mt7621.mk`), das alte Image traegt `1.1`.
+Der Knoten lief waehrend des Versuchs ununterbrochen weiter, Boot-Index und
+Kernel-Slot unveraendert.
+
+**Eine Ewigkeitslast entsteht daraus nicht.** Wir setzen die `compat_version`
+nirgends selbst — sie kommt aus dem 24.10-Baum. Steigt sie dort irgendwann auf
+3.0, geht das genauso von allein mit.
+
+### Die Falle dabei: der Konfigurationserhalt
+
+Der Schutz haengt daran, dass das Geraet die `2.0` auch wirklich meldet. Und
+genau da hat der Konfigurationserhalt ein Loch: `/etc/config/system` liegt im
+Overlay, wandert also in `sysupgrade -b`, und `/bin/config_generate` schreibt
+seine eigene `compat_version` nur, wenn die Datei fehlt oder leer ist
+(`[ ! -s /etc/config/system ]`). Die wiederhergestellte Datei gewinnt — ein
+migrierter Knoten stuende danach wieder auf `1.1`.
+
+Gemessen, mit `uci set` ohne `commit` (also ohne einen einzigen
+Flash-Schreibvorgang):
+
+| Geraet meldet | `sysupgrade` mit dem 2023.2-Image |
+|---|---|
+| `compat_version 2.0` | `Image check failed`, Exitcode 1 |
+| `compat_version 1.1` | **Exitcode 0** — das Image wuerde geschrieben |
+
+Was dann folgt, ist die eigentliche Falle: ein 3-MB-Kernel landet im 6-MB-Slot
+bei Index `0`, das alte Rootfs erwartet aber wieder A/B-Slots und schreibt beim
+naechsten Update auf `kernel2`, das es nicht mehr gibt. Auffallen wuerde das
+erst beim uebernaechsten Boot.
+
+Deshalb hebt das Migrationsskript die `compat_version` in der gesicherten
+Konfiguration selbst an, bevor sie zurueckgespielt wird — der Zielwert kommt
+aus den Metadaten des Images, gelesen mit `fwtool -q -i`.
+
 ## Noch offen
 
 * **Vollautomatisch aus der Ferne**, ausgeloest ueber den Autoupdater. Die
