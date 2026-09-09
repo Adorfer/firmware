@@ -73,7 +73,40 @@ run_patch ()
     || abort "patches/$script fehlgeschlagen ($description)."
 }
 
+# Liegengebliebene .rej und .orig aus frueheren Laeufen wegraeumen, bevor
+# irgendetwas gepatcht wird.
+#
+# lib-patch.sh raeumt sie nur fuer die Patches auf, die es gleich anwendet.
+# Faellt ein Patch weg - weil er unter 2025.1 redundant geworden ist - bleibt
+# sein Rest fuer immer liegen: "git reset --hard" fasst unversionierte Dateien
+# nicht an. Und Gluon kopiert package/*/files/. und luasrc/. vollstaendig ins
+# Image, also landet so ein Rest in der Firmware.
+#
+# Aufgefallen an interface-role-migration21: dessen 021-interface-roles.rej
+# blieb liegen, nachdem der Patch entfernt war. luasrcdiet versuchte, die
+# Ablehnungsdatei als Lua zu minifizieren, und gluon-core liess sich nicht
+# mehr bauen ("unexpected symbol near '+'").
+sweep_patch_leftovers ()
+{
+  local leftover
+  local -i count=0
+
+  # Kein "-delete": das schaltet implizit -depth ein, womit -prune wirkungslos
+  # wird und der Lauf durch das ganze build_dir liefe.
+  while IFS= read -r leftover; do
+    [ -n "$leftover" ] || continue
+    if (( count == 0 )); then
+      echo "  Liegengebliebene .rej/.orig aus frueheren Laeufen werden entfernt:"
+    fi
+    echo "    $leftover"
+    rm -f "$leftover"
+    count+=1
+  done < <( find "$GLUON_DIR" -path "$GLUON_DIR/openwrt/build_dir" -prune -o \
+                              -type f \( -name '*.rej' -o -name '*.orig' \) -print 2>/dev/null )
+}
+
 echo "Patches aus patches/ anwenden, Phase $PHASE ..."
+sweep_patch_leftovers
 
 if [ "$PHASE" = "pre-update" ]; then
 
