@@ -10,8 +10,8 @@
 
 . "$(dirname "${BASH_SOURCE[0]}")/lib-patch.sh"
 
-echo "Gluon-Statuspage: weitere MACs und Gluon-Version"
+echo "Gluon-Statuspage: ImageName, Mesh-MAC und Sitecode"
 
 apply_patch "$PATCH_DIR/statuspage-moredetails.patch" \
   "package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html" \
-  'Gluon Version'
+  'Sitecode'

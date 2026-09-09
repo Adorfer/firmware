@@ -1,70 +1,22 @@
-Gluon-Statuspage: CPU-Typ, Kernzahl und BIOS anzeigen
+Statusseite: CPU-Modell, BIOS und RAM/Flash.
 
-Hintergrund: auf generischen x86-Boards liefert DMI haeufig keinen brauchbaren
-Modellnamen. Auf dem Testknoten 24_dusukw stehen *saemtliche* identifizierenden
-DMI-Felder auf "Default string" - sys_vendor, product_name, product_version,
-product_family, board_vendor, board_name, board_version, chassis_vendor.
-Gefuellt sind allein bios_vendor ("American Megatrends Inc.") und bios_version
-("5.12").
+Fuer Gluon 2025.1 neu geschrieben. Die Aenderung an der Model-Zeile ist
+entfallen: Upstream zeigt die Kernzahl inzwischen selbst als
+"model (n CPUs)". Unsere Fassung war robuster - sie prueft auf nil und
+schreibt "1 CPU" statt "1 CPUs" -, aber das ist kosmetisch und keinen
+dauerhaften Abweichungspunkt wert.
 
-Daran ist per Backport nichts zu machen: die Datenerhebung ist zwischen
-v2023.2.x und main byte-identisch - package/gluon-respondd/src/respondd-nodeinfo.c
-ebenso wie libplatforminfo (x86.c, template/subtarget.c, common.c) und dessen
-Paket-Makefile im gepinnten Feed. platforminfo_get_model() liest auf x86 nur
-/tmp/sysinfo/model, das OpenWrt aus DMI befuellt. Der Wert ist eine Eigenschaft
-des Boards, nicht der Gluon-Version. Ein Fallback auf board_vendor/board_name
-waere folgenlos, weil auch die auf "Default string" stehen.
-
-Der Modellstring bleibt daher unveraendert stehen. Ergaenzt wird, was
-verlaesslich vorhanden ist:
-
-  - die Kernzahl hinter dem Modell, wie Gluon es ab v2025.1 tut
-    (Upstream 7c040c2d04ee). nodeinfo.hardware.nproc liefert respondd bereits in
-    v2023.2.x, es fehlte allein die Anzeige.
-  - eine Zeile "CPU" mit dem "model name" aus /proc/cpuinfo, auf dem Testknoten
-    "Intel(R) Pentium(R) CPU 4405U @ 2.10GHz".
-  - eine Zeile "BIOS" mit Hersteller und Version aus /sys/class/dmi/id,
-    zusammen in einer Zeile.
-  - eine Zeile "RAM/Flash" mit beiden Groessen hintereinander, z. B.
-    "1.9 GiB / 128 MiB": links MemTotal aus /proc/meminfo, also der physische
-    Arbeitsspeicher ohne Swap, rechts der groesste zusammenhaengende
-    Dauerspeicher, der Baustein mit dem Boot-Image. Fehlt einer der beiden
-    Werte ausnahmsweise, steht dort ein Fragezeichen, damit die Zuordnung zur
-    Beschriftung erhalten bleibt.
-
-Zur Flash-Ermittlung: bei MTD ist das *nicht* die Summe der Partitionen.
-Auf dem D-Link COVR-X1860 steht neben den elf physischen Partitionen ein
-zwoelftes Geraet "ubi" mit Offset 0 und 74 MiB - eine Verkettung von
-fwconcat0 und fwconcat1, also bereits gezaehlter Bereiche. Aufsummieren
-ergaebe 74 MiB zu viel, und /proc/partitions liefert genau diese Dublette als
-groesstes Blockgeraet. Verwendet wird daher das groesste Partitionsende aus
-/sys/class/mtd/mtdN/{offset,size}: Verkettungen beginnen bei Offset 0 und
-koennen den Chip nicht ueberschreiten. Ergibt korrekt 128 MiB.
-Ohne MTD - x86, virtio, SATA, eMMC - gewinnt das groesste Blockgeraet aus
-/proc/partitions, unter Auslassung von loop* und ram*.
-
-Die Verzeichnisse werden dabei nicht aufgelistet, sondern mtd0, mtd1, ...
-durchgezaehlt, bis keines mehr existiert: das Lua der Knoten ist 5.1 und kann
-Verzeichnisse nicht auflisten.
-
-Alle drei Ergaenzungen stehen unter einer Bedingung. Fehlt /proc/cpuinfo oder
-hat es keine "model name"-Zeile, und fehlt /sys/class/dmi wie auf den
-ARM-Targets, faellt jeweils nur die betroffene Zeile weg. Auf Nicht-x86-Geraeten
-aendert sich damit nichts.
-
-Abweichung von Upstream: dort steht fest " CPUs". Bei genau einem Kern wird
-hier "1 CPU" ausgegeben.
-
-Reihenfolge: dieser Patch setzt auf dem Stand NACH statuspage-moredetails.patch
-auf, weil jener direkt hinter der Modellzeile Eintraege einfuegt und damit den
-Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
+Alle drei Angaben entfallen einzeln, wenn ihre Quelle fehlt: kein
+"model name" in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb
+von x86.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -39,6 +39,98 @@
- 		return interfaces
+@@ -60,6 +60,109 @@
+ 		return v
  	end
  
++	-- Erste nicht-leere Zeile einer Datei, sonst nil.
 +	local function read_first_line(path)
 +		local f = io.open(path)
 +		if not f then return nil end
@@ -157,32 +109,23 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +		return string.format('%.0f MiB', n / (1024 * 1024))
 +	end
 +
++	local cpu_model = get_cpu_model()
++	local bios = get_bios()
++	local ram_flash
++	do
++		local r = format_bytes(get_ram_bytes())
++		local fl = format_bytes(get_flash_bytes())
++		if r and fl then ram_flash = r .. ' / ' .. fl
++		else ram_flash = r or fl end
++	end
++
  	local function get_radios()
  		local ret = {}
  
-@@ -85,6 +177,16 @@
- 	ubus.close(uconn)
- 
- 	local radios = get_radios()
-+	local cpu_model = get_cpu_model()
-+	local bios = get_bios()
-+	local ram_total = format_bytes(get_ram_bytes())
-+	local flash_total = format_bytes(get_flash_bytes())
-+	-- Beides steht in einer Zeile "RAM/Flash". Fehlt ausnahmsweise einer der
-+	-- Werte, haelt das Fragezeichen die Zuordnung zur Beschriftung aufrecht.
-+	local ram_flash
-+	if ram_total or flash_total then
-+		ram_flash = (ram_total or '?') .. ' / ' .. (flash_total or '?')
-+	end
- 
- 	local function sorted(t)
- 		t = {unpack(t)}
-@@ -158,7 +260,16 @@
- 							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
- 						</a></dd>
+@@ -182,6 +285,15 @@
  					<%- end %>
--					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %></dd>
-+					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %><% if nodeinfo.hardware.nproc then %> (<%| nodeinfo.hardware.nproc %> <%| nodeinfo.hardware.nproc == 1 and 'CPU' or 'CPUs' %>)<% end %></dd>
+ 					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %> (<%| nodeinfo.hardware.nproc %> CPUs)</dd>
+ 					<dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
 +					<% if cpu_model then -%>
 +						<dt><%:CPU%></dt><dd><%| cpu_model %></dd>
 +					<%- end %>
@@ -192,6 +135,6 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +					<% if ram_flash then -%>
 +						<dt><%:RAM/Flash%></dt><dd><%| ram_flash %></dd>
 +					<%- end %>
-                                         <dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %>/<%| nodeinfo.software.firmware.subtarget %></dd>
-                                         <dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
  					<dt><%:Primary MAC address%></dt><dd><%| nodeinfo.network.mac %></dd>
+ 					<dt><%:Mesh MAC-Adresse%></dt><dd><%| nodeinfo.network.mesh.bat0.interfaces.other[1] %></dd>
+ 					<dt><%:IP address%></dt><dd><%= pcdata(table.concat(sorted(nodeinfo.network.addresses), '\n')):gsub('\n', '<br>') %></dd>

@@ -1,62 +1,60 @@
-Gluon-Statuspage: SSID und HT-Modus je Radio anzeigen
+Statusseite: Zustand des neanderfunk-ssid-changer anzeigen.
 
-Backport von Gluon-Upstream nach v2023.2.x.
+Der alte Inhalt dieses Patches - SSID und HT-Modus je Radio - ist
+vollstaendig in Gluon 2025.1 angekommen und hier entfallen.
 
-  Upstream: 7c040c2d04ee "gluon-status-page: add ssid, htmode, base version
-            and firmware target to overview" (Florian Maurer, 2026-01-04),
-            enthalten ab Gluon v2025.1.
+Stattdessen zeigt die Radio-Tabelle jetzt, ob der ssid-changer den Knoten
+beim letzten Fenster als offline eingestuft hat. Die Zeile steht NACH der
+Radio-Schleife und innerhalb von "if radios[1]": der Zustand gilt fuer den
+ganzen Knoten, nicht je Radio, und auf Geraeten ohne Radio erscheint er
+gar nicht.
 
-Uebernommen wird nur der Radio-Teil. Die uebrigen Angaben jenes Commits -
-Basisversion und Firmware-Target - ergaenzt bei uns bereits
-statuspage-moredetails.patch.
-
-Die SSID wird nicht aus der site.conf gelesen, sondern zur Anzeigezeit per
-iwinfo/nl80211 vom Client-Interface (client0, client1 ...) abgefragt. Sie
-zeigt also, was der Knoten tatsaechlich funkt - bei aktivem Offline-SSID-
-Wechsel entsprechend die geaenderte SSID.
-
-Zwei Abweichungen von Upstream, bewusst:
-
-  - suffix wird geprueft, bevor daraus 'client' .. suffix gebildet wird.
-    Upstream verkettet ungeprueft; heisst eine wifi-device-Sektion nicht
-    radioN, ist suffix nil und Lua bricht die ganze Statusseite ab.
-  - SSID- und htmode-Ausgabe stehen unter einer Bedingung. Fehlt das
-    Client-Interface oder ist htmode nicht gesetzt, faellt nur die jeweilige
-    Zeile weg statt die Seite zu zerlegen.
+Faellt weg, wenn das Paket nicht installiert ist: io.open liefert dann
+nil, die Funktion gibt nil zurueck und der if-Block wird uebersprungen.
+Dasselbe Muster benutzt Gluon selbst fuer mesh.lua und gluon.mesh-vpn.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -44,10 +44,15 @@
+@@ -45,6 +45,21 @@
+ 		return interfaces
+ 	end
  
- 		wireless.foreach_radio(uci, function(radio)
- 			local channel = iwinfo.nl80211.channel(wireless.find_phy(radio))
-+			local radio_name = radio['.name']
-+			local suffix = radio_name:match('^radio(%d+)$')
-+			local ssid = suffix and iwinfo.nl80211.ssid('client' .. suffix)
- 			if channel then
- 				table.insert(ret, {
--					name = radio['.name'],
-+					name = radio_name,
- 					channel = channel,
-+					ssid = ssid,
-+					htmode = radio.htmode,
- 				})
- 			end
- 		end)
-@@ -235,7 +240,16 @@
- 								<tr>
- 									<th><%| radio.name %></th>
- 									<td><%| translatef('Channel %u', radio.channel) %></td>
-+									<% if radio.htmode then -%>
-+										<td>(<%| radio.htmode %>)</td>
-+									<%- end %>
++	-- Der neanderfunk-ssid-changer schreibt seinen Zustand minuetlich nach
++	-- /tmp/ssid-changer-offline: "1", wenn der Knoten beim letzten Fenster als
++	-- offline eingestuft wurde, sonst "0". Der Wert ist dort ausdruecklich nur
++	-- diagnostisch gemeint und wird fuer keine Entscheidung zurueckgelesen -
++	-- genau richtig, um ihn hier zu zeigen. Fehlt die Datei (Paket nicht
++	-- installiert), bleibt der Rueckgabewert nil und die Zeile entfaellt.
++	local function get_offline_ssid_triggered()
++		local f = io.open("/tmp/ssid-changer-offline")
++		if not f then return nil end
++		local v = f:read("*l")
++		f:close()
++		if v then v = v:match("^%s*(%d)") end
++		return v
++	end
++
+ 	local function get_radios()
+ 		local ret = {}
+ 
+@@ -91,6 +106,7 @@
+ 	ubus.close(uconn)
+ 
+ 	local radios = get_radios()
++	local offline_ssid_triggered = get_offline_ssid_triggered()
+ 
+ 	local function sorted(t)
+ 		t = {unpack(t)}
+@@ -260,6 +276,12 @@
+ 									<td><%| translate('SSID') %>: <%| radio.ssid %></td>
  								</tr>
-+								<% if radio.ssid then -%>
-+									<tr>
-+										<th></th>
-+										<td><%| translate('SSID') %>: <%| radio.ssid %></td>
-+									</tr>
-+								<%- end %>
  							<%- end %>
++							<% if offline_ssid_triggered then -%>
++								<tr>
++									<th><%:Offline-SSID%></th>
++									<td>triggered: <%| offline_ssid_triggered %></td>
++								</tr>
++							<%- end %>
  						</tbody>
  					</table>
+ 				<%- end %>
