@@ -9,7 +9,8 @@ Du brauchst drei Dateien auf deinem Rechner:
 
 * `erx-migrate.sh`
 * `erx-migrate-stage2.sh`
-* das neue Image, zum Beispiel `gluon-...-ubiquiti-edgerouter-x-sysupgrade.bin`
+* das neue Image, zum Beispiel `gluon-...-ubiquiti-edgerouter-x-ka-sysupgrade.bin`
+  (beim EdgeRouter X SFP: `...-ubiquiti-edgerouter-x-sfp-ka-...`)
 
 Rechne mit 5 Minuten. Der Knoten ist dabei etwa 2 Minuten nicht erreichbar.
 
@@ -23,7 +24,7 @@ geht so:
 ```sh
 ssh root@NODE 'cat > /tmp/erx-migrate.sh'       < erx-migrate.sh
 ssh root@NODE 'cat > /tmp/erx-migrate-stage2.sh' < erx-migrate-stage2.sh
-ssh root@NODE 'cat > /tmp/erx-2025.bin'          < gluon-*-ubiquiti-edgerouter-x-sysupgrade.bin
+ssh root@NODE 'cat > /tmp/erx-2025.bin'          < gluon-*-ubiquiti-edgerouter-x-ka-sysupgrade.bin
 ```
 
 Prüfen, ob alles angekommen ist:
@@ -138,10 +139,10 @@ Drei Dinge müssen stimmen:
 Zum Schluss:
 
 ```sh
-ssh root@NODE 'uci get system.@system[0].compat_version'
+ssh root@NODE 'uci get system.@system[0].compat_version; cat /tmp/sysinfo/model'
 ```
 
-Muss `2.0` ausgeben.
+Muss `2.0` ausgeben und darunter `Ubiquiti EdgeRouter X KA`.
 
 ---
 
@@ -161,5 +162,8 @@ Gluon-Knoten im Config-Mode und ist dann unter `192.168.1.1` erreichbar.
 
 * Der Knoten läuft auf Gluon 2025.1 mit Kernel 6.6.
 * Hostname, Position, Kontakt und die Mesh-Adressen bleiben unverändert.
-* Künftige Updates laufen wieder als normales `sysupgrade`.
+* Künftige Updates laufen wieder als normales `sysupgrade`, auch automatisch.
 * Ein Image für Gluon 2023.2 nimmt der Knoten nicht mehr an. Das ist Absicht.
+* Das Modell heißt jetzt **Ubiquiti EdgeRouter X KA**, auf der Statusseite und
+  auf der Karte. Das `KA` steht für das neue Flash-Layout. Ein EdgeRouter X
+  ohne `KA` ist ein Knoten, der die Migration noch vor sich hat.
