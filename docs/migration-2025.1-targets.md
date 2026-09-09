@@ -211,6 +211,11 @@ Neu in 2025.1 und für euch bisher ohne Bedeutung: `kirkwood-generic`,
 
 ### 2.2 Nachzuziehen — 15 Geräte, alle in OpenWrt 24.10 vorhanden
 
+> **Erledigt am 2026-09-09.** Alle 15 stehen im gepatchten Baum; geprüft mit
+> `grep "device('<name>'" targets/` nach einem vollständigen `build.sh`-Lauf.
+> Was dabei aus den Patches wurde — welche entfielen, welche schrumpften —
+> steht in `docs/patch-bilanz-2025.1.md`, Abschnitt „Abarbeitung".
+
 | Target | Gerät | OpenWrt-Board |
 |---|---|---|
 | ath79-generic | tp-link-eap225-wall-v2 | `tplink_eap225-wall-v2` |
@@ -658,6 +663,21 @@ LLVM-Werkzeuge auf dem Host; 23.05 tat das nicht. Ohne sie bricht der Bau ab:
 bash: clang-not-found: command not found
 include/bpf.mk:82: *** ERROR: LLVM/clang version too old. Minimum required: 12, found: .
 ```
+
+Zweite Anforderung, am 2026-09-09 auf dem WSL-Host gefunden: OpenWrts
+Prereq-Check verlangt **GNU `install`**. Auf diesem Rechner ist
+`coreutils-from-uutils` installiert, `/usr/bin/install` zeigt auf
+`../lib/cargo/bin/coreutils/install`, und der Check bricht ab:
+
+```
+Build dependency: Please install GNU 'install'
+Prerequisite check failed. Use FORCE=1 to override.
+```
+
+Bereits gebaute Bäume laufen weiter, weil der Stempel
+`staging_dir/host/.prereq-build` existiert und der Check dann übersprungen
+wird. Ein **frischer** Baum kommt hier nicht durch. Deshalb wurde der
+2025.1-Baum beim Anlegen des Worktrees verschoben und nicht neu geklont.
 
 Der Baum setzt `CONFIG_BPF_TOOLCHAIN_HOST=y` und `CONFIG_USE_LLVM_HOST=y`.
 `CONFIG_BPF_TOOLCHAIN_NONE` ist **kein** Ausweg, weil zugleich
