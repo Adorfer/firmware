@@ -83,6 +83,7 @@ if [ "$PHASE" = "pre-update" ]; then
   run_patch add-gluon-package-patches.sh  "Paketpatch fuer packages/gluon bereitlegen"
   run_patch add-lantiq-xrx200-devices.sh  "AVM FRITZ!Box 7430 und 3390, mit OpenWrt-Patch"
   run_patch add-ffac-package-patches.sh   "Paketpatch fuer packages/ffac bereitlegen"
+  run_patch add-openwrt-package-patches.sh "Paketpatch fuer packages/packages bereitlegen"
 
   echo
   echo "Phase pre-update abgeschlossen."

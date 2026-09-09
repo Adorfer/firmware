@@ -1,0 +1,41 @@
+diff -Naur a/patches/packages/packages/0001-perl-host-build-with-GCC-14-and-later.patch b/patches/packages/packages/0001-perl-host-build-with-GCC-14-and-later.patch
+--- a/patches/packages/packages/0001-perl-host-build-with-GCC-14-and-later.patch	1970-01-01 01:00:00.000000000 +0100
++++ b/patches/packages/packages/0001-perl-host-build-with-GCC-14-and-later.patch	2026-09-10 00:14:34.973762224 +0200
+@@ -0,0 +1,37 @@
++From 2e016b18df0f28422ba7aff1d956950b17c29c8c Mon Sep 17 00:00:00 2001
++From: Neanderfunk <noreply@ffnef.de>
++Date: Thu, 10 Sep 2026 00:14:26 +0200
++Subject: [PATCH] perl: host build with GCC 14 and later
++
++Perl 5.28.1 does not compile with a current host compiler. Since GCC 14
++-Wincompatible-pointer-types is an error rather than a warning, and
++SDBM_File.xs hands a SDBM_File to Perl_safesysfree:
++
++  SDBM_File.xs:72:22: error: passing argument 1 of 'Perl_safesysfree'
++  from incompatible pointer type [-Wincompatible-pointer-types]
++
++Configure -der derives its own ccflags, so the flag has to go in through
++-Accflags. Host tool only; the target perl build is untouched.
++
++This is a build-host fix for OpenWrt 23.05, whose package feed still
++carries perl 5.28.1.
++---
++ lang/perl/Makefile | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/lang/perl/Makefile b/lang/perl/Makefile
++index 7468e6db8..ce25db6ac 100644
++--- a/lang/perl/Makefile
+++++ b/lang/perl/Makefile
++@@ -83,7 +83,7 @@ endef
++ 
++ # Static host perl
++ define Host/Configure
++-	( cd $(HOST_BUILD_DIR); ./Configure -der -Uusedl -Duserelocatableinc -Dprefix=$(HOST_PERL_PREFIX) $(if $(CONFIG_PERL_THREADS),-Dusethreads,))
+++	( cd $(HOST_BUILD_DIR); ./Configure -der -Uusedl -Duserelocatableinc -Dprefix=$(HOST_PERL_PREFIX) -Accflags='-Wno-incompatible-pointer-types' $(if $(CONFIG_PERL_THREADS),-Dusethreads,))
++ endef
++ 
++ define Host/Install
++-- 
++2.53.0
++
