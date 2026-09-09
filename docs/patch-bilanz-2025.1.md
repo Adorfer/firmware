@@ -79,6 +79,52 @@ trotzdem ansehen, ob der Kontext noch dasselbe bedeutet:
 **Erledigt:** `fix-respondd-rsk` (Commit a978467) und die drei
 Statuspage-Patches (Commit 75a6075), dazu `statuspage-ethlinks` (4381b89).
 
+### Abarbeitung, Stand 2026-09-09
+
+Die Liste oben ist per Dry-Run erhoben und deshalb an zwei Stellen
+irrefuehrend: sie zaehlt Hunks, nicht Ursachen, und sie erfasst die per
+`copy_into_tree` abgelegten Dateien gar nicht. Der erste vollstaendige
+`build.sh`-Lauf auf diesem Branch hat die tatsaechlichen Ursachen geliefert.
+Bestaetigt hat er vor allem eines: der Grossteil unserer Patches waren
+Backports aus 2025 nach 2023, und die kommen jetzt von upstream zurueck.
+
+| Patch | Ergebnis |
+|---|---|
+| `add-lantiq-xrx200-devices` | FRITZ!Box 7430 und der ath9k-eeprom-Patch sind upstream; nur die 3390 bleibt. Der ath9k-Patch brach `make update` ab |
+| `412-…-zb25vq128`, `486-02-…-F50L1G41LC`, `999-mips-tlb-…` | alle drei zielten auf `*-5.15/`-Verzeichnisse, die es unter 6.6 nicht gibt. Entfallen, die Dateien bleiben als Beleg liegen |
+| `add-nanopi-r2c` | R2C fehlt upstream weiterhin, neu geschrieben |
+| `limit-wireless-buffers` | 8f38662f ist Vorfahr von v2025.1.3. Vom Backport bleibt eine Zeile: der Deckel oberhalb 128 MB RAM |
+| `add-cudy-3000` (4 Teile) | DTS, `filogic.mk`, `11_fix_wifi_mac` und `05_set_preinit_iface` sind vollstaendig upstream; Gluon fuehrt acht Cudy-Geraete, davon legte unser Patch fuenf doppelt an. Bleiben `cudy-ap3000-v1` und `cudy-tr3000-256mb-v1` |
+| `targets-mk` | `ipq40xx,chromium` steht upstream im BROKEN-Block, `ipq807x,generic` gibt es nicht mehr. Entfaellt |
+| `targets-ipq807x-generic` | Target heisst jetzt `qualcommax-ipq807x` und fuehrt den AX3600 mit denselben Paketausschluessen wie wir. Bleibt die Netgear WAX218 |
+| `targets-ipq40xx-chromium` | Von Neuanlage auf Aenderung umgestellt, siehe unten. Der ath10k-non-CT-Tausch bleibt |
+| `cellular` | ZTE MF286R fehlt upstream, neu geschrieben |
+| `interface-role-migration21` | Gluon hat die 2021-Migration ersatzlos entfernt, `network_gluon-old` kommt nicht mehr vor. Entfaellt — von 2021.x fuehrt kein direkter Weg auf 2025.1 |
+| `020-interfaces` | Der 7530-Block ist upstream; die sechs AVM-Geraete wandern in upstreams 7430-Block; TD-W8970/8980 liegen jetzt im Subtarget `xrx200_legacy` |
+| `kernelswapon-openwrt` | wurde von keinem Skript aufgerufen, auf keinem Branch. Entfernt |
+
+### Zwei Funde ausserhalb der Patches
+
+**`lib-patch.sh` loeschte versionierte Dateien.** `targets-ipq40xx-chromium.patch`
+legt die Targetdatei als `new file` an; Gluon fuehrt sie seit 2025.1 selbst.
+`remove_created_files` hielt die upstream-Datei fuer den Rest eines frueheren
+Laufs und raeumte sie weg, bevor unsere daraufgelegt wurde. Dass unsere Fassung
+dasselbe Geraet enthielt, war Glueck. `apply_patch` bricht jetzt ab, sobald die
+Datei im Baum versioniert ist. Gehoert auf `v2023.2.x` genauso hinein.
+
+**`build.sh` quotete `GLUONDEVICES` nicht.** `MAKE_CMD` laeuft durch `eval`;
+bei mehr als einem Geraet zerfiel die Liste in Woerter, und make las jedes
+weitere als Ziel. Mit einem einzelnen Geraet fiel es nie auf.
+
+### Offen auf `v2023.2.x`
+
+Der Cudy AP3000 Outdoor traegt in unserer DTS `model = "Cudy AP3000 Outdoor v1"`,
+woraus libplatforminfo `cudy-ap3000-outdoor-v1` macht — unser `device()` heisst
+aber `cudy-ap3000outdoor-v1`. Der Manifestkey passt damit nicht zu dem Namen,
+den der Knoten meldet: ein solcher Knoten findet seine Zeile nicht und
+aktualisiert nie. `manifest_aliases` gibt es dort nicht. Upstream schreibt es
+richtig, unter 2025.1 ist es damit erledigt.
+
 `fix-respondd-rsk` ist am 09.09.2026 im Feld bestaetigt: der migrierte ERX ist
 mit dem neuen Image auf der Karte erschienen
 (map.eulenfunk.de, Knoten f09fc20c3ddd). Der Patch war der kritischste der
