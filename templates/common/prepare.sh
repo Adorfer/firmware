@@ -101,6 +101,7 @@ run_patch add-cellular.sh              "Mobilfunkgeraet ZTE MF286R"
 run_patch interface-role-migration21.sh "Migration 2021: Schnittstellen mit Client-Netz"
 run_patch interfaces-patch.sh          "primaere MACs und Schnittstellenzuordnung"
 run_patch patch-gluon-makefiles.sh     "Gluon-Makefile und Paketliste"
+run_patch limit-wireless-buffers.sh    "WLAN-Puffer oberhalb 128 MB RAM deckeln"
 
 # Reihenfolge beachten: moredetails fuegt direkt hinter der Modellzeile ein,
 # ssid und hwdetails setzen auf diesem Zustand auf.

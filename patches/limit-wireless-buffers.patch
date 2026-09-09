@@ -1,0 +1,42 @@
+gluon-core: WLAN-Puffer auch oberhalb 128 MB RAM deckeln
+
+Unter 2023.2 war dieser Patch ein vollstaendiger Backport des
+Gluon-Commits 8f38662f (David Bauer, 2025-11-26). 8f38662f ist Vorfahr
+von v2025.1.3; die Staffelung, die Variable LIMIT und der zusaetzliche
+"iw phy ... set txq memory_limit" stehen dort im Baum. Uebrig bleibt
+allein die Abweichung, die wir schon 2023.2 bewusst hatten.
+
+Upstream setzt oberhalb von 128 MB RAM gar kein Limit; dann gilt die
+Kernelvorgabe von 4 MB je 11n- und 16 MB je 11ac+-PHY.
+
+     <=  64 MB RAM ->  512 kB   (upstream, unveraendert)
+     <= 128 MB RAM ->    2 MB   (upstream, unveraendert)
+     >  128 MB RAM ->    2 MB   (upstream: kein Limit)
+
+Bauers Grund ist der Schutz vor OOM auf kleinen Geraeten, deshalb waechst
+sein Limit mit dem Arbeitsspeicher. Unser Engpass ist ein anderer: viele
+Clients (10 bis 40) bei wenig Bandbreite (nie mehr als 200 MBit/s gesamt),
+dafuer staendiges Roaming zu Nachbar-APs mit gleicher SSID. Dabei bleiben
+Frames fuer abgewanderte Stationen im Power-Save-Zustand haengen und
+fuellen den TX-Backlog. Dagegen hilft ein enger Deckel, nicht ein weiter:
+
+     200 MBit/s = 25 MB/s
+     2 MB Puffer  ->  80 ms Pufferung   <- gewaehlt
+     4 MB         -> 160 ms
+     8 MB         -> 320 ms
+    16 MB (Kernelvorgabe) -> 640 ms
+
+Betrifft unter 2025.1 die Geraete mit mehr als 128 MB RAM, also die
+mt7915-Generation (Cudy AX3000, MERCUSYS MR90X).
+
+--- a/package/gluon-core/files/etc/hotplug.d/ieee80211/01-gluon-core-codel-memusage
++++ b/package/gluon-core/files/etc/hotplug.d/ieee80211/01-gluon-core-codel-memusage
+@@ -6,7 +6,7 @@
+ 	RAM=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
+ 	if [ "$RAM" -le $((64*1024)) ]; then
+ 		LIMIT=524288
+-	elif [ "$RAM" -le $((128*1024)) ]; then
++	else
+ 		LIMIT=2097152
+ 	fi
+ 
