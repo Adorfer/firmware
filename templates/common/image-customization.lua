@@ -258,23 +258,9 @@ if target('bcm27xx') then
     packages(pkgs_hid)
 end
 
--- mt7622 ist bei Gluon ein eigenes Board (targets/mediatek-mt7622), kein
--- ramips-Subtarget: target() vergleicht das erste Argument gegen env.BOARD,
--- 'ramips','mt7622' traf also nie.
-if target('ramips', 'mt7621') or target('mediatek', 'mt7622') or target('mediatek', 'filogic') then
-        packages {
-                -- Setzt max_inactivity auf den client_*-Interfaces. Ohne das
-                -- gilt hostapds Vorgabe von 300 s: ein Client, der zum
-                -- Nachbar-AP roamt, bleibt fuenf Minuten in der
-                -- Stationstabelle, und die Hardware puffert weiter Frames fuer
-                -- ihn. Genau das fuellt den Backlog (openwrt/mt76#1009).
-                -- hostapd pollt vor dem Rauswurf (skip_inactivity_poll=0),
-                -- anwesende, aber stille Clients fliegen also nicht raus.
-                'ffac-mt7915-maxinactivity',  -- ffac
-                -- Symptombehandlung dazu: startet WLAN neu, wenn der Backlog
-                -- trotzdem hochlaeuft.
-                'neanderfunk-mt7915-backlog', -- neanderfunk
-        }
-end
+-- Das mt7915-Backlog-Problem (openwrt/mt76#1009) ist unter Gluon 2025.1
+-- upstream behoben. Weder die Vorbeugung ueber max_inactivity noch die
+-- Symptombehandlung durch neanderfunk-mt7915-backlog werden hier noch
+-- gebraucht; auf v2023.2.x bleiben beide.
 
 
