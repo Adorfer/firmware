@@ -7,6 +7,30 @@ Ergebnis; die Fallstricke stehen dabei, weil sie sich alle wiederholen werden.
 Gemeindespezifisches ist bewusst herausgelassen. Wo eure Pakete betroffen sein
 koennten, steht es als Frage, nicht als Anweisung.
 
+## Gilt auch fuer den ERX-SFP
+
+Beides, `ubnt,edgerouter-x` und `ubnt,edgerouter-x-sfp`, teilt sich alles, was
+hier zaehlt:
+
+* dieselbe Partitionstabelle — beide `.dts` binden
+  `mt7621_ubnt_edgerouter-x.dtsi` ein, also `factory` bei 0x0e0000, `kernel1`
+  bei 0x140000 und `kernel2` bei 0x440000;
+* dieselbe Geraetedefinition `Device/ubnt_edgerouter_common`, damit auch
+  dieselbe `KERNEL_SIZE` und dieselbe `compat_version`;
+* denselben Upgrade-Pfad: OpenWrts `platform.sh` fuehrt beide Boards in einer
+  `case`-Zeile zu `platform_upgrade_ubnt_erx`;
+* denselben Boot-Index bei Offset 160, `UBNT_ERX_KERNEL_INDEX_OFFSET` ist
+  board-unabhaengig.
+
+Der SFP unterscheidet sich nur in der Peripherie (`kmod-i2c-algo-pca`,
+`kmod-gpio-pca953x`, `kmod-sfp`) — bei uns rund 20 KB mehr im Image, am Flash
+aendert das nichts.
+
+**Getestet ist es trotzdem nicht.** Alle Durchgaenge liefen auf einem ERX ohne
+SFP. Die Vorpruefung mit `--check` laeuft ohne jedes Risiko und zeigt vorab, ob
+Layout und Boot-Index wie erwartet aussehen; das waere der erste Schritt auf
+einem SFP.
+
 ---
 
 ## Kurzfassung
