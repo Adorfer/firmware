@@ -124,12 +124,15 @@ in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb von x86.
  	local function get_radios()
  		local ret = {}
  
-@@ -180,10 +282,19 @@
+@@ -180,13 +283,22 @@
  							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
  						</a></dd>
  					<%- end %>
 -					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %> (<%| nodeinfo.hardware.nproc %> CPUs)</dd>
 +					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %><% if nodeinfo.hardware.nproc then %> (<%| nodeinfo.hardware.nproc %> <%| nodeinfo.hardware.nproc == 1 and 'CPU' or 'CPUs' %>)<% end %></dd>
+ 					<% if nodeinfo.software.firmware.target then -%>
+ 						<dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %> (<%| nodeinfo.software.firmware.subtarget %>)</dd>
+ 					<%- end %>
  					<% if nodeinfo.software.firmware.image_name then -%>
  						<dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
  					<%- end %>

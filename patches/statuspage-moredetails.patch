@@ -1,11 +1,15 @@
 Statusseite: ImageName, Mesh-MAC, Tunnel-MAC und Sitecode.
 
-Fuer Gluon 2025.1 neu geschrieben. Zwei Teile des alten Patches sind
-entfallen, weil Upstream sie inzwischen selbst zeigt:
+Fuer Gluon 2025.1 neu geschrieben.
 
-  * Target/Subtarget - steht dort als "target (subtarget)" statt
-    "target/subtarget". Das Format ist in Ordnung, die Zeile ist doppelt.
-  * Gluon Version - steckt in der Firmware-Zeile als "release (base)".
+Die Zeile "Gluon Version" ist entfallen: sie steckt bei Upstream in der
+Firmware-Zeile als "release (base)".
+
+Target/Subtarget zeigt Upstream ebenfalls schon, aber als anhaengendes
+<dd> im Firmware-Block und damit ohne eigene Beschriftung. Dieser Patch
+nimmt es dort heraus und setzt es als eigene Zeile hinter das Modell,
+vor ImageName - dort, wo es in der 2023.2-Fassung stand und wo man es
+sucht. Das Format "target (subtarget)" bleibt.
 
 Die Tunnel-MAC haengt jetzt als eigener if-Block hinter dem
 vpn_pubkey-Block, statt dessen Verschachtelung umzubauen. 2025.1 hat den
@@ -14,10 +18,13 @@ robuster gegen weitere Aenderungen dort.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -165,7 +165,15 @@
+@@ -165,10 +165,20 @@
  						</a></dd>
  					<%- end %>
  					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %> (<%| nodeinfo.hardware.nproc %> CPUs)</dd>
++					<% if nodeinfo.software.firmware.target then -%>
++						<dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %> (<%| nodeinfo.software.firmware.subtarget %>)</dd>
++					<%- end %>
 +					<% if nodeinfo.software.firmware.image_name then -%>
 +						<dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
 +					<%- end %>
@@ -29,8 +36,11 @@ robuster gegen weitere Aenderungen dort.
 +					<%- end %>
  					<dt><%:IP address%></dt><dd><%= pcdata(table.concat(sorted(nodeinfo.network.addresses), '\n')):gsub('\n', '<br>') %></dd>
  					<dt><%:Firmware%></dt><dd><%| nodeinfo.software.firmware.release %> (<%| nodeinfo.software.firmware.base %>)</dd>
- 					<dd><%| nodeinfo.software.firmware.target %> (<%| nodeinfo.software.firmware.subtarget %>)</dd>
-@@ -179,6 +187,12 @@
+-					<dd><%| nodeinfo.software.firmware.target %> (<%| nodeinfo.software.firmware.subtarget %>)</dd>
+ 					<% if nodeinfo.network.mesh_vpn then -%>
+ 						<dt><%:Mesh VPN%></dt>
+ 						<dd>
+@@ -179,6 +189,12 @@
  							<% if vpn_pubkey then -%>
  							<br><%| vpn_pubkey %> (public key)
  							<%- end %>
@@ -43,7 +53,7 @@ robuster gegen weitere Aenderungen dort.
  						</dd>
  						<% if nodeinfo.network.mesh_vpn.bandwidth_limit.enabled then -%>
  						<dt><%:Bandwidth limit%></dt>
-@@ -192,6 +206,9 @@
+@@ -192,6 +208,9 @@
  						</dd>
  						<%- end %>
  					<%- end %>
