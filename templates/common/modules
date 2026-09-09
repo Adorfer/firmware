@@ -1,13 +1,18 @@
-GLUON_SITE_FEEDS="neanderfunk community ffac"
+# Feeds fuer Gluon 2025.1.
+#
+# ffac ist entfallen: die ffac-Pakete sind in die community-packages gewandert
+# (ffac-ssid-changer, ffac-autoupdater-wifi-fallback und die uebrigen liegen
+# dort). Ein eigener Feed dafuer wuerde dieselben Pakete ein zweites Mal
+# einbringen.
+#
+# community traegt ausserdem ff-mesh-vpn-tunneldigger. Tunneldigger ist in
+# Gluon 2025.1 kein Kernbestandteil mehr (#3109) und dorthin verschoben worden.
+GLUON_SITE_FEEDS="neanderfunk community"
 
 PACKAGES_NEANDERFUNK_REPO=https://github.com/Neanderfunk/packages.git
-PACKAGES_NEANDERFUNK_BRANCH=v2023.2.x
-PACKAGES_NEANDERFUNK_COMMIT=e130b5631d38aa9dee18c244dd981abd2f9acb6f
-
-PACKAGES_FFAC_REPO=https://github.com/ffac/gluon-packages.git
-PACKAGES_FFAC_COMMIT=0ff95afb3fbb60e8cd779fd73c054571775c3d40
-PACKAGES_FFAC_BRANCH=main
+PACKAGES_NEANDERFUNK_BRANCH=v2025.1.x
+PACKAGES_NEANDERFUNK_COMMIT=c7cc3acef30197e1e157d9314be6daba56cb195f
 
 PACKAGES_COMMUNITY_REPO=https://github.com/freifunk-gluon/community-packages.git
-PACKAGES_COMMUNITY_COMMIT=91e5fa8a253b1c5cf73fca7f5f519520cf6c90c2
-PACKAGES_COMMUNITY_BRANCH=v2023.2.x
+PACKAGES_COMMUNITY_BRANCH=main
+PACKAGES_COMMUNITY_COMMIT=61eb952a56ac1bc0f50c436b7b9c30f1f759a2d6

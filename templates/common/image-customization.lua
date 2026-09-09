@@ -8,7 +8,10 @@ features {
     'ebtables-limit-arp',
     'ebtables-source-filter',
     'mesh-batman-adv-15',
-    'mesh-vpn-tunneldigger',
+    -- Tunneldigger ist in Gluon 2025.1 kein Feature mehr (#3109). Der
+    -- Dienst kommt als Paket aus den community-packages, die
+    -- Konfigurationsseite bleibt ein Feature.
+    'config-mode-mesh-vpn',
     'respondd',
     'status-page',
     'web-advanced',
@@ -37,6 +40,7 @@ features {
 -- community-packages. Aus dem ffac-Feed kommt bei uns allein
 -- ffac-web-private-wan-dhcp.
 packages {
+    'ff-mesh-vpn-tunneldigger',   -- community, ersetzt das Feature mesh-vpn-tunneldigger
     'gluon-ebtables-filter-ra-dhcp',      -- gluon
     'respondd-module-airtime',            -- gluon-packages
     'iwinfo',                             -- openwrt
