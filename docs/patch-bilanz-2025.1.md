@@ -77,7 +77,15 @@ trotzdem ansehen, ob der Kontext noch dasselbe bedeutet:
 | `kernelswapon-openwrt` | openwrt | 2 |
 
 **Erledigt:** `fix-respondd-rsk` (Commit a978467) und die drei
-Statuspage-Patches (Commit 75a6075).
+Statuspage-Patches (Commit 75a6075), dazu `statuspage-ethlinks` (4381b89).
+
+`fix-respondd-rsk` ist am 09.09.2026 im Feld bestaetigt: der migrierte ERX ist
+mit dem neuen Image auf der Karte erschienen
+(map.eulenfunk.de, Knoten f09fc20c3ddd). Der Patch war der kritischste der
+ganzen Liste — ohne ihn antwortet respondd nicht auf `ff02::1`, der Sammler
+sieht den Knoten nicht, und er steht als offline in der Karte, obwohl er
+laeuft. Neu geschrieben zu haben heisst noch nicht, dass es traegt; jetzt ist
+es gemessen.
 
 Bei den Statuspage-Patches hat sich das Pruefen auf Redundanz gelohnt — ein
 guter Teil unserer Erweiterungen ist inzwischen in Gluon angekommen, nur anders
