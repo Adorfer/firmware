@@ -105,9 +105,10 @@ run_patch revert-mips-tlb-uniquify.sh  "MIPS: r4k_tlb_uniquify() zuruecknehmen (
 
 # Reihenfolge beachten: moredetails fuegt direkt hinter der Modellzeile ein,
 # ssid und hwdetails setzen auf diesem Zustand auf.
-run_patch statuspage-moredetails.sh    "Statusseite: weitere MACs und Gluon-Version"
-run_patch statuspage-ssid.sh           "Statusseite: SSID und HT-Modus je Radio"
-run_patch statuspage-hwdetails.sh      "Statusseite: CPU-Typ, Kernzahl und BIOS"
+run_patch statuspage-moredetails.sh    "Statusseite: ImageName, Mesh-MAC und Sitecode"
+run_patch statuspage-ssid.sh           "Statusseite: Zustand des ssid-changer"
+run_patch statuspage-hwdetails.sh      "Statusseite: CPU-Modell, BIOS und RAM/Flash"
+run_patch statuspage-ethlinks.sh       "Statusseite: Ethernet-Geschwindigkeit je Port"
 
 # Deaktiviert, aber absichtlich dokumentiert:
 #
