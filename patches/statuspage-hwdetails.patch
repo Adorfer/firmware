@@ -14,7 +14,7 @@ in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb von x86.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -60,6 +60,109 @@
+@@ -60,6 +60,108 @@
  		return v
  	end
  
@@ -120,17 +120,18 @@ in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb von x86.
 +		if r and fl then ram_flash = r .. ' / ' .. fl
 +		else ram_flash = r or fl end
 +	end
-+
  	local function get_radios()
  		local ret = {}
  
-@@ -180,8 +283,17 @@
+@@ -180,10 +282,19 @@
  							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
  						</a></dd>
  					<%- end %>
 -					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %> (<%| nodeinfo.hardware.nproc %> CPUs)</dd>
 +					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %><% if nodeinfo.hardware.nproc then %> (<%| nodeinfo.hardware.nproc %> <%| nodeinfo.hardware.nproc == 1 and 'CPU' or 'CPUs' %>)<% end %></dd>
- 					<dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
+ 					<% if nodeinfo.software.firmware.image_name then -%>
+ 						<dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
+ 					<%- end %>
 +					<% if cpu_model then -%>
 +						<dt><%:CPU%></dt><dd><%| cpu_model %></dd>
 +					<%- end %>
@@ -141,5 +142,5 @@ in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb von x86.
 +						<dt><%:RAM/Flash%></dt><dd><%| ram_flash %></dd>
 +					<%- end %>
  					<dt><%:Primary MAC address%></dt><dd><%| nodeinfo.network.mac %></dd>
- 					<dt><%:Mesh MAC-Adresse%></dt><dd><%| nodeinfo.network.mesh.bat0.interfaces.other[1] %></dd>
- 					<dt><%:IP address%></dt><dd><%= pcdata(table.concat(sorted(nodeinfo.network.addresses), '\n')):gsub('\n', '<br>') %></dd>
+ 					<% local mesh_if = nodeinfo.network.mesh and nodeinfo.network.mesh.bat0
+ 							and nodeinfo.network.mesh.bat0.interfaces %>

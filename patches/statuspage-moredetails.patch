@@ -14,31 +14,42 @@ robuster gegen weitere Aenderungen dort.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -165,7 +165,9 @@
+@@ -165,7 +165,15 @@
  						</a></dd>
  					<%- end %>
  					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %> (<%| nodeinfo.hardware.nproc %> CPUs)</dd>
-+					<dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
++					<% if nodeinfo.software.firmware.image_name then -%>
++						<dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
++					<%- end %>
  					<dt><%:Primary MAC address%></dt><dd><%| nodeinfo.network.mac %></dd>
-+					<dt><%:Mesh MAC-Adresse%></dt><dd><%| nodeinfo.network.mesh.bat0.interfaces.other[1] %></dd>
++					<% local mesh_if = nodeinfo.network.mesh and nodeinfo.network.mesh.bat0
++							and nodeinfo.network.mesh.bat0.interfaces %>
++					<% if mesh_if and mesh_if.other and mesh_if.other[1] then -%>
++						<dt><%:Mesh MAC-Adresse%></dt><dd><%| mesh_if.other[1] %></dd>
++					<%- end %>
  					<dt><%:IP address%></dt><dd><%= pcdata(table.concat(sorted(nodeinfo.network.addresses), '\n')):gsub('\n', '<br>') %></dd>
  					<dt><%:Firmware%></dt><dd><%| nodeinfo.software.firmware.release %> (<%| nodeinfo.software.firmware.base %>)</dd>
  					<dd><%| nodeinfo.software.firmware.target %> (<%| nodeinfo.software.firmware.subtarget %>)</dd>
-@@ -179,6 +181,9 @@
+@@ -179,6 +187,12 @@
  							<% if vpn_pubkey then -%>
  							<br><%| vpn_pubkey %> (public key)
  							<%- end %>
-+							<% if nodeinfo.network.mesh.bat0.interfaces.tunnel and nodeinfo.network.mesh.bat0.interfaces.tunnel[1] then -%>
-+								<br>mac: <%| nodeinfo.network.mesh.bat0.interfaces.tunnel[1] %>
++							<% local tun = nodeinfo.network.mesh and nodeinfo.network.mesh.bat0
++									and nodeinfo.network.mesh.bat0.interfaces
++									and nodeinfo.network.mesh.bat0.interfaces.tunnel %>
++							<% if tun and tun[1] then -%>
++								<br>mac: <%| tun[1] %>
 +							<%- end %>
  						</dd>
  						<% if nodeinfo.network.mesh_vpn.bandwidth_limit.enabled then -%>
  						<dt><%:Bandwidth limit%></dt>
-@@ -192,6 +197,7 @@
+@@ -192,6 +206,9 @@
  						</dd>
  						<%- end %>
  					<%- end %>
-+					<dt><%:Sitecode%></dt><dd><%| nodeinfo.system.site_code %></dd>
++					<% if nodeinfo.system.site_code then -%>
++						<dt><%:Sitecode%></dt><dd><%| nodeinfo.system.site_code %></dd>
++					<%- end %>
  					<dt><%:Site%></dt><dd><%| site.site_name() %></dd>
  					<% if nodeinfo.system.domain_code then -%>
  						<dt><%:Domain%></dt>
