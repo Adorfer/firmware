@@ -136,3 +136,17 @@ der Migration.
 Nichts aus der Arbeitsliste ausser den Statuspage-Patches. Der ERX ist
 upstream unterstuetzt, hat kein WLAN und keine der betroffenen Eigenheiten.
 Fuer die uebrigen Domains sieht das anders aus.
+
+## Verhaeltnis der beiden Branches
+
+`v2023.2.x` und `v2025.1.x` tragen an den zurueckportierten Stellen denselben
+Inhalt, aber getrennte Historie — die Aenderungen sind auf beiden Seiten
+einzeln entstanden, nicht gemergt. Ein spaeteres `git merge` erzeugt dort
+Konflikte, obwohl inhaltlich nichts auseinandergeht. Wer zusammenfuehren will,
+sollte das wissen und die betroffenen Dateien gezielt aufloesen statt sich auf
+den Merge zu verlassen.
+
+Betrifft aktuell: `fix-respondd-rsk.patch`, die vier Statuspage-Patches und
+`templates/common/modules` (dort unterscheiden sich die Feed-Pins bewusst).
+
+Hinweis aus der Paket-Session, 2026-09-09.
