@@ -38,23 +38,4 @@ feel free to add things
         cat /sys/class/net/eth0/address
       Stimmt primary_mac mit phy0 ueberein und weicht vom Aufkleber ab, ist es
       das. Behebung waere ein Eintrag fuer den C6 v2 im passenden Block.
-- [ ] nil-Guards fuer die Statusseite nach v2023.2.x zurueckportieren. Das ist
-      kein Schoenheitsfehler, sondern ein latenter Absturz in der laufenden
-      Firmware: statuspage-moredetails.patch schreibt auf diesem Branch
-        <dd><%| nodeinfo.network.mesh.bat0.interfaces.other[1] %></dd>
-      ohne jede Pruefung. Fehlt ein Zwischenglied - mesh, bat0, interfaces oder
-      other -, ist das kein leeres Feld, sondern ein Lua-Fehler ("attempt to
-      index a nil value"), und die Statusseite rendert gar nicht mehr. Betroffen
-      waere ein Knoten, dessen einziges Mesh der VPN-Tunnel ist: kein
-      WLAN-Mesh, kein LAN-Mesh. Dieselbe Luecke hat die Tunnel-MAC-Zeile: sie
-      prueft zwar auf .tunnel und .tunnel[1], nicht aber auf die Zwischenglieder.
-      Drei weitere Zeilen (ImageName, Gluon Version, Sitecode) wuerden bloss
-      "nil" anzeigen, was Nutzer verwirrt.
-      Vorlage: Commit b228e37 auf v2025.1.x.
-- [ ] Offline-SSID-Anzeige nach v2023.2.x zurueckportieren. Auf dem Branch
-      v2025.1.x zeigt die Statusseite hinter der Radio-Tabelle, ob der
-      neanderfunk-ssid-changer den Knoten zuletzt als offline eingestuft hat
-      (/tmp/ssid-changer-offline, 0 oder 1), siehe patches/statuspage-ssid.patch
-      dort. Hier muss der Teil in einen eigenen Patch, weil statuspage-ssid.patch
-      auf 2023.2.x noch SSID und HT-Modus liefert - die kommen erst mit 2025.1
-      von Upstream.
+- [x] Statusseite: nil-Guards und Offline-SSID-Anzeige (Commit f14cc36)
