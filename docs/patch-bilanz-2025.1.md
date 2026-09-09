@@ -137,6 +137,37 @@ Nichts aus der Arbeitsliste ausser den Statuspage-Patches. Der ERX ist
 upstream unterstuetzt, hat kein WLAN und keine der betroffenen Eigenheiten.
 Fuer die uebrigen Domains sieht das anders aus.
 
+Dazu kommt `erx-ka-imagename`, siehe naechster Abschnitt — der ist neu und
+nicht zurueckportiert.
+
+## Neu unter 2025.1
+
+### erx-ka-imagename
+
+Nicht aus 2023.2 uebernommen, sondern hier entstanden. Benennt EdgeRouter X
+und X SFP auf `ubiquiti-edgerouter-x-ka` bzw. `ubiquiti-edgerouter-x-sfp-ka`
+um, in zwei Baeumen synchron:
+
+| Baum | Datei | Wirkung |
+|---|---|---|
+| openwrt | `target/linux/ramips/dts/mt7621_ubnt_edgerouter-x{,-sfp}.dts`, nur `model` | was der Node meldet |
+| gluon | `targets/ramips-mt7621`, erstes Argument von `device()` | Manifestkey und Dateiname |
+
+Grund ist das neue Flash-Layout. OpenWrt riegelt es ueber
+`compat_version 1.0->2.0` ab, und dieser Riegel greift erst in
+`sysupgrade --test`, also nach dem vollstaendigen Download; der major-Zweig
+von `fwtool_check_image()` wertet `IGNORE_MINOR_COMPAT` nicht aus. Ein nicht
+migrierter ERX laeuft deshalb bei jedem Cronlauf in denselben Fehlschlag und
+zieht dabei rund 690 MB pro Tag (24 Laeufe x 4 Mirrors x 7,2 MB), ohne dass
+das irgendwo sichtbar waere. Mit eigenem Imagenamen bricht er schon bei
+`model_ok` ab.
+
+`compatible` bleibt unangetastet, `SUPPORTED_DEVICES` kommt aus dem
+Profilnamen — der Migrationsweg selbst ist davon unberuehrt.
+
+Der Patch ist auf Zeit angelegt. Wie er wieder rausgeht, steht im Kopf von
+`patches/erx-ka-imagename.sh`.
+
 ## Verhaeltnis der beiden Branches
 
 `v2023.2.x` und `v2025.1.x` tragen an den zurueckportierten Stellen denselben
