@@ -27,6 +27,26 @@ geschrieben), `gluon-packages`, `targets-ath79-mikrotik`,
 `targets-ipq40xx-chromium`, `targets-ipq40xx-generic`,
 `targets-ipq807x-generic`
 
+### Sonderfall 010-primary-mac
+
+Passt, ist aber nicht mehr unstrittig. Der Patch traegt `linksys,ea8300` und
+`linksys,mr8300` in den LAN-Block von `primary_addrs` ein.
+
+| Geraet | 2023.2 upstream | 2025.1 upstream | unser Patch |
+|---|---|---|---|
+| `linksys,ea8300` | fehlt | fehlt weiterhin | LAN |
+| `linksys,mr8300` | fehlt | **WAN** | LAN |
+
+Fuer `ea8300` bleibt der Patch schlicht noetig. Bei `mr8300` uebersteuern wir
+Upstream: die Liste wird in der aufgefuehrten Reihenfolge abgearbeitet, und der
+LAN-Block steht vor dem WAN-Block.
+
+Das ist eine bewusste Entscheidung. Die primaere MAC bestimmt die node_id -
+folgten wir Upstream, bekaemen diese Knoten bei der Migration die WAN-MAC,
+erschienen auf der Karte als neue Knoten und verloeren ihre Historie. Der
+Grund steht im Kopf des Patches, damit er beim naechsten Upstream-Vergleich
+nicht wieder zur Diskussion steht.
+
 ## Passt mit Versatz
 
 Laeuft durch, die Zeilennummern haben sich nur verschoben. Vor der Uebernahme

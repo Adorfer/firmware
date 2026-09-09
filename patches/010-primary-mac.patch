@@ -1,3 +1,24 @@
+Traegt linksys ea8300 und mr8300 in den LAN-Block von primary_addrs ein.
+
+Zum Stand unter Gluon 2025.1 (geprueft 2026-09-09):
+
+* ea8300 kennt Gluon bis heute nicht. Ohne diesen Eintrag faellt das Geraet
+  auf die Standardableitung zurueck.
+
+* mr8300 hat Gluon inzwischen selbst aufgenommen - aber im Block
+  interface('wan'), waehrend wir es in interface('lan') fuehren. Die Liste
+  wird in der aufgefuehrten Reihenfolge abgearbeitet ("Entries are matched in
+  the order they are listed"), und der LAN-Block steht davor. Dieser Patch
+  uebersteuert Upstream also bewusst.
+
+  Das ist Absicht: die primaere MAC bestimmt die node_id. Wuerden wir mr8300
+  hier herausnehmen und Upstream folgen, bekaemen diese Knoten bei der
+  Migration die WAN-MAC, erschienen auf der Karte als neue Knoten und
+  verloeren ihre Historie. Die Abweichung ist der guenstigere Preis.
+
+  Wer das spaeter aendern will, braucht einen Plan fuer den
+  Identitaetswechsel, nicht bloss das Entfernen dieser Zeile.
+
 diff --git a/package/gluon-core/luasrc/lib/gluon/upgrade/010-primary-mac b/package/gluon-core/luasrc/lib/gluon/upgrade/010-primary-mac
 index fce501a6..08603e94 100755
 --- a/package/gluon-core/luasrc/lib/gluon/upgrade/010-primary-mac
