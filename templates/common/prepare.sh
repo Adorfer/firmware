@@ -89,6 +89,7 @@ if [ "$PHASE" = "pre-update" ]; then
   exit 0
 fi
 
+run_patch squashfs3-lzma-gcc15.sh      "tools/squashfs3-lzma mit GCC 14+ uebersetzbar"
 run_patch fix-respondd-rsk.sh          "respondd-Listener auf den Gluon-2016.x-Wert"
 run_patch mi4apatch.sh                 "Mi Router 4A Gigabit sysupgrade-faehig"
 run_patch add-totolink-x5000r.sh       "Totolink X5000R"
