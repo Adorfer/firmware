@@ -88,9 +88,15 @@ formuliert:
 | SSID und HT-Modus je Radio | **vollstaendig upstream**, Patch neu belegt |
 | Target/Subtarget | upstream als `target (subtarget)` |
 | Gluon Version | upstream in der Firmware-Zeile als `release (base)` |
-| Model mit Kernzahl | upstream, ohne nil-Pruefung und ohne Singular |
+| Model mit Kernzahl | upstream vorhanden, aber ohne nil-Pruefung und ohne Singular — unsere Fassung bleibt |
 | ImageName, Mesh-MAC, Tunnel-MAC, Sitecode | fehlt, bleibt bei uns |
 | CPU-Modell, BIOS, RAM/Flash | fehlt, bleibt bei uns |
+
+Die Model-Zeile behalten wir bewusst: Upstream schreibt ungeprueft
+`model (n CPUs)`. Unsere Fassung faengt zwei Faelle ab — fehlt `nproc`, entfaellt
+die Klammer statt `(nil CPUs)` zu zeigen, und bei einem Kern steht `1 CPU` statt
+`1 CPUs`. Bei unseren vielen Einkern-ath79-Geraeten ist das die Regel, nicht die
+Ausnahme.
 
 `statuspage-ssid` zeigt jetzt stattdessen den Zustand des
 neanderfunk-ssid-changer (`/tmp/ssid-changer-offline`, 0 oder 1) — eine Zeile

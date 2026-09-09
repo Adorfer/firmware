@@ -1,14 +1,16 @@
-Statusseite: CPU-Modell, BIOS und RAM/Flash.
+Statusseite: CPU-Modell, BIOS, RAM/Flash und die Kernzahl.
 
-Fuer Gluon 2025.1 neu geschrieben. Die Aenderung an der Model-Zeile ist
-entfallen: Upstream zeigt die Kernzahl inzwischen selbst als
-"model (n CPUs)". Unsere Fassung war robuster - sie prueft auf nil und
-schreibt "1 CPU" statt "1 CPUs" -, aber das ist kosmetisch und keinen
-dauerhaften Abweichungspunkt wert.
+Fuer Gluon 2025.1 neu geschrieben.
 
-Alle drei Angaben entfallen einzeln, wenn ihre Quelle fehlt: kein
-"model name" in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb
-von x86.
+Upstream zeigt die Kernzahl inzwischen selbst, aber als
+"model (n CPUs)" ohne weitere Pruefung. Unsere Fassung bleibt, weil sie
+zwei Faelle abfaengt: fehlt nproc, entfaellt die Klammer ganz statt "(nil
+CPUs)" zu schreiben, und bei einem Kern steht "1 CPU" statt "1 CPUs" -
+was bei unseren vielen Einkern-ath79-Geraeten die Regel ist, nicht die
+Ausnahme.
+
+Alle Angaben entfallen einzeln, wenn ihre Quelle fehlt: kein "model name"
+in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb von x86.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
@@ -122,9 +124,12 @@ von x86.
  	local function get_radios()
  		local ret = {}
  
-@@ -182,6 +285,15 @@
+@@ -180,8 +283,17 @@
+ 							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
+ 						</a></dd>
  					<%- end %>
- 					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %> (<%| nodeinfo.hardware.nproc %> CPUs)</dd>
+-					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %> (<%| nodeinfo.hardware.nproc %> CPUs)</dd>
++					<dt><%:Model%></dt><dd><%| nodeinfo.hardware.model %><% if nodeinfo.hardware.nproc then %> (<%| nodeinfo.hardware.nproc %> <%| nodeinfo.hardware.nproc == 1 and 'CPU' or 'CPUs' %>)<% end %></dd>
  					<dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
 +					<% if cpu_model then -%>
 +						<dt><%:CPU%></dt><dd><%| cpu_model %></dd>
