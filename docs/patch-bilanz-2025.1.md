@@ -76,12 +76,26 @@ trotzdem ansehen, ob der Kontext noch dasselbe bedeutet:
 | `add-cudy-3000-singleeth-openwrt` | openwrt | 2 |
 | `kernelswapon-openwrt` | openwrt | 2 |
 
-**Erledigt:** `fix-respondd-rsk` ist neu geschrieben (Commit a978467). Er hatte
-Vorrang vor allem anderen, weil ohne ihn respondd nicht auf `ff02::1` hoert und
-die Knoten auf der Karte faelschlich als offline erscheinen.
+**Erledigt:** `fix-respondd-rsk` (Commit a978467) und die drei
+Statuspage-Patches (Commit 75a6075).
 
-Danach kommen die drei Statuspage-Patches: ohne sie fehlen die Angaben zu RAM
-und Flash, was sofort auffaellt.
+Bei den Statuspage-Patches hat sich das Pruefen auf Redundanz gelohnt — ein
+guter Teil unserer Erweiterungen ist inzwischen in Gluon angekommen, nur anders
+formuliert:
+
+| Bestandteil | Stand unter 2025.1 |
+|---|---|
+| SSID und HT-Modus je Radio | **vollstaendig upstream**, Patch neu belegt |
+| Target/Subtarget | upstream als `target (subtarget)` |
+| Gluon Version | upstream in der Firmware-Zeile als `release (base)` |
+| Model mit Kernzahl | upstream, ohne nil-Pruefung und ohne Singular |
+| ImageName, Mesh-MAC, Tunnel-MAC, Sitecode | fehlt, bleibt bei uns |
+| CPU-Modell, BIOS, RAM/Flash | fehlt, bleibt bei uns |
+
+`statuspage-ssid` zeigt jetzt stattdessen den Zustand des
+neanderfunk-ssid-changer (`/tmp/ssid-changer-offline`, 0 oder 1) — eine Zeile
+je Knoten hinter der Radio-Schleife, nicht je Radio, und nur wenn ueberhaupt
+Radios da sind.
 
 `mi4ag-migration` passt mit Versatz. Beim Uebernehmen gleich die ERX-Ausnahme
 reparieren — sie prueft auf `ubnt-erx` statt `ubnt,edgerouter-x` und war schon
