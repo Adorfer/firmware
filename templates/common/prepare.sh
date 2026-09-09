@@ -81,7 +81,6 @@ if [ "$PHASE" = "pre-update" ]; then
   # darauf auf ein Modul anwendet. Sie muessen deshalb hier stehen und nicht
   # unten.
   run_patch add-gluon-package-patches.sh  "Paketpatch fuer packages/gluon bereitlegen"
-  run_patch add-lantiq-xrx200-devices.sh  "AVM FRITZ!Box 7430 und 3390, mit OpenWrt-Patch"
   run_patch add-ffac-package-patches.sh   "Paketpatch fuer packages/ffac bereitlegen"
 
   echo
@@ -94,6 +93,7 @@ run_patch mi4apatch.sh                 "Mi Router 4A Gigabit sysupgrade-faehig"
 run_patch add-totolink-x5000r.sh       "Totolink X5000R"
 run_patch add-mercusys-mr90x.sh        "MERCUSYS MR90X"
 run_patch add-nanopi-r2c.sh            "FriendlyElec NanoPi R2C"
+run_patch add-lantiq-xrx200-devices.sh  "AVM FRITZ!Box 3390"
 run_patch add-cudy-3000.sh             "Cudy-3000-Serie im Target mediatek-filogic"
 run_patch additionaltargets.sh         "zusaetzliche Targets und Geraete aus OpenWrt"
 run_patch erx-ka-imagename.sh          "EdgeRouter X: eigener Imagename -ka (Flash-Layout)"
