@@ -574,9 +574,33 @@ Betroffen sind drei Stellen bei uns:
   `PACKAGES_COMMUNITY_BRANCH=v2023.2.x`. Fuer 2025.1 ist der passende Zweig ein
   anderer; das Repo fuehrt `main`, `master`, `v2023.1.x` und `v2023.2.x`.
 
-Das ist keine Formalie: es ist unser gesamter VPN-Transport. Ob das
-Community-Paket unter 2025.1 mit unserer Broker-Konfiguration laeuft, ist die
-erste Frage, die vor einem Umstieg zu beantworten ist.
+Das ist keine Formalie: es ist unser gesamter VPN-Transport.
+
+**Am 2026-09-09 live geprueft, und es laeuft.** Testimage fuer den EdgeRouter X
+mit `ff-mesh-vpn-tunneldigger` aus den community-packages (`61eb952a`), gegen
+unsere sechs echten Broker auf Port 20021:
+
+* `tunneldigger` und `simple-tc` uebersetzen unter OpenWrt 24.10 ohne Aenderung.
+* Der Tunnel geht auf: Interface `mesh-vpn` mit MTU 1364, in `bat0` eingehaengt,
+  `batctl if` meldet ihn als *active*.
+* Der Knoten mesht: 70 Originatoren, Gateway ueber `mesh-vpn` mit 1024 MBit,
+  Nexthop ein Supernode.
+* Mesh-Adresse erreichbar, und zwar **dieselbe wie vor der Migration**
+  (`2a03:2260:122:315:f29f:c2ff:fe0c:3ddd`, 18 ms) - der Knoten behaelt seine
+  Identitaet, nicht bloss irgendeine Konfiguration.
+
+Getestet mit Kernel 6.6.144 und batman-adv 2024.3, also genau der Kombination,
+bei der man es haette klemmen sehen koennen.
+
+Die drei Schritte aus der README des Pakets genuegen: Feature
+`mesh-vpn-tunneldigger` weg, dafuer Feature `config-mode-mesh-vpn` und das Paket
+`ff-mesh-vpn-tunneldigger`. Die `mesh_vpn`-Sektion der `site.conf` bleibt
+unveraendert.
+
+**Damit ist der VPN-Transport kein Blocker mehr fuer den 2025.1-Umstieg.**
+Ungeprueft bleibt, wie unsere eigenen Pakete mit ihm zusammenspielen - der
+`tunneldigger-watchdog` etwa lag als eigener micrond-Eintrag auf dem alten
+System. Das Testimage hatte keine neanderfunk-Pakete.
 
 Ebenfalls entfallen, fuer uns aber ohne Folgen: die Unterstuetzung fuer das
 Babel-Routingprotokoll.
