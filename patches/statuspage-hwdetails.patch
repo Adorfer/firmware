@@ -14,7 +14,7 @@ in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb von x86.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -60,6 +60,108 @@
+@@ -60,6 +60,109 @@
  		return v
  	end
  
@@ -113,12 +113,13 @@ in /proc/cpuinfo auf MIPS, kein /sys/class/dmi ausserhalb von x86.
 +
 +	local cpu_model = get_cpu_model()
 +	local bios = get_bios()
++	local ram_total = format_bytes(get_ram_bytes())
++	local flash_total = format_bytes(get_flash_bytes())
++	-- Beides steht in einer Zeile "RAM/Flash". Fehlt ausnahmsweise einer der
++	-- Werte, haelt das Fragezeichen die Zuordnung zur Beschriftung aufrecht.
 +	local ram_flash
-+	do
-+		local r = format_bytes(get_ram_bytes())
-+		local fl = format_bytes(get_flash_bytes())
-+		if r and fl then ram_flash = r .. ' / ' .. fl
-+		else ram_flash = r or fl end
++	if ram_total or flash_total then
++		ram_flash = (ram_total or '?') .. ' / ' .. (flash_total or '?')
 +	end
  	local function get_radios()
  		local ret = {}
