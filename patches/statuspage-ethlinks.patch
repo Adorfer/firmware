@@ -1,0 +1,142 @@
+Statusseite: ausgehandelte Ethernet-Geschwindigkeit je Port anzeigen.
+
+Gluon meldet die Aushandlung nirgends, und ethtool ist auf den Images nicht
+vorhanden - ein Knoten kann also seit Jahren auf 100 MBit statt 1000 laufen,
+ohne dass es jemandem auffaellt. ubus liefert alles Noetige, ohne
+Zusatzpaket und ohne Prozessstart: was wir anbieten, was die Gegenstelle
+anbietet, und was dabei herauskam.
+
+Markiert wird nur, was auffaellig ist:
+
+  * "N possible", wenn BEIDE Seiten mehr angeboten haben. Ein echtes
+    100-MBit-Geraet an einem Gigabit-Port ist voellig in Ordnung und
+    bekommt keinen Marker - dort bietet die Gegenstelle gar kein Gigabit
+    an. Bleibt der Link dagegen unter dem, was beide koennten, ist das der
+    Fingerabdruck eines beschaedigten Kabels: zwei belegte Adernpaare
+    statt vier, ein korrodierter Stecker.
+  * "half duplex" immer. Geraete, die das noch brauchen, gibt es nicht
+    mehr; es zeigt einen erzwungenen Modus oder eine gescheiterte
+    Aushandlung an.
+
+Die Tabelle steht hinter den Radios: gleiche Machart, gleicher Frame, und
+sachlich das kabelgebundene Gegenstueck dazu. Der Block mit den
+Mesh-Interfaces weiter unten waere der falsche Platz - dort steht je
+Interface die Nachbarliste, und ein WAN-Port, der gar nicht meshed, haette
+dort nichts zu suchen.
+
+Ports ohne Link haben in ubus kein speed-Feld und erscheinen deshalb gar
+nicht. Schlaegt der ubus-Aufruf fehl, bleibt die Liste leer und der ganze
+Block entfaellt.
+
+Der Aufruf steht bewusst VOR ubus.close(uconn). Die Verbindung wird auf der
+Statusseite frueh geschlossen, und ein Aufruf danach liefert nichts - der
+pcall faengt das ab, die Liste bliebe leer und die Tabelle erschiene nie.
+Ein stiller Ausfall also, den man nur bemerkt, wenn man auf das Ergebnis
+schaut statt auf den Patch.
+
+--- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
++++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
+@@ -145,6 +145,68 @@
+ 		end
+ 		return string.format('%.0f MiB', n / (1024 * 1024))
+ 	end
++	-- Ethernet-Links: was ausgehandelt wurde, und ob dabei etwas liegen blieb.
++	--
++	-- Gluon meldet die Aushandlung nirgends, und ethtool ist nicht an Bord. ubus
++	-- liefert aber alles: was wir anbieten, was die Gegenstelle anbietet, und was
++	-- dabei herauskam.
++	--
++	-- Auffaellig ist nur, wenn BEIDE Seiten mehr koennten. Ein echtes
++	-- 100-MBit-Geraet an einem Gigabit-Port ist voellig in Ordnung - dort bietet
++	-- die Gegenstelle gar kein Gigabit an, es ist nichts zu holen. Deshalb wird
++	-- die Schnittmenge verglichen und nicht die eigene Faehigkeit. Bleibt der Link
++	-- darunter, ist das der Fingerabdruck eines beschaedigten Kabels: nur zwei
++	-- belegte Adernpaare, ein korrodierter Stecker.
++	--
++	-- Halbduplex gilt immer als Fehler. Geraete, die das noch brauchen, gibt es
++	-- nicht mehr; es zeigt einen erzwungenen Modus oder eine gescheiterte
++	-- Aushandlung an.
++	local function link_rank(s)
++		local mbit, dx = s:match('^(%d+)baseT%-([FH])$')
++		if not mbit then return nil end
++		-- Full geht vor Half bei gleicher Rate
++		return tonumber(mbit) * 2 + (dx == 'F' and 1 or 0)
++	end
++
++	local function get_ethlinks(uconn)
++		local ret = {}
++		local ok, devs = pcall(function() return uconn:call('network.device', 'status', {}) end)
++		if not ok or type(devs) ~= 'table' then return ret end
++
++		for name, d in pairs(devs) do
++			-- Nur physische Ports. Bridges, bat0, mesh-vpn und die veth-Paare
++			-- local-node/local-port stehen im selben Aufruf und haben teils
++			-- ebenfalls ein speed-Feld.
++			if type(d) == 'table' and d.speed and
++			   (name:match('^eth%d') or name:match('^lan') or name:match('^wan')) then
++				local mbit, dx = tostring(d.speed):match('^(%d+)([FH])$')
++				if mbit then
++					local partner = {}
++					for _, v in ipairs(d['link-partner-advertising'] or {}) do
++						partner[v] = true
++					end
++					local moeglich = 0
++					for _, v in ipairs(d['link-advertising'] or {}) do
++						if partner[v] then
++							local r = link_rank(v)
++							if r and r > moeglich then moeglich = r end
++						end
++					end
++					local ist = tonumber(mbit) * 2 + (dx == 'F' and 1 or 0)
++					table.insert(ret, {
++						name = name,
++						mbit = tonumber(mbit),
++						halbduplex = (dx == 'H'),
++						-- nur gesetzt, wenn beide Seiten mehr angeboten haben
++						moeglich = (moeglich > ist) and math.floor(moeglich / 2) or nil,
++					})
++				end
++			end
++		end
++		table.sort(ret, function(a, b) return a.name < b.name end)
++		return ret
++	end
++
+ 	local function get_radios()
+ 		local ret = {}
+ 
+@@ -188,6 +250,8 @@
+ 
+ 	local interfaces = get_interfaces(uconn)
+ 
++	local ethlinks = get_ethlinks(uconn)
++
+ 	ubus.close(uconn)
+ 
+ 	local radios = get_radios()
+@@ -407,6 +471,25 @@
+ 								</tr>
+ 							<%- end %>
+ 						</tbody>
++					</table>
++				<%- end %>
++
++				<% if ethlinks[1] then -%>
++					<h3><%:Ethernet%></h3>
++					<table>
++						<tbody>
++							<% for _, l in ipairs(ethlinks) do -%>
++								<tr>
++									<th><%| l.name %></th>
++									<td><%| translatef("%u MBit/s", l.mbit) %></td>
++									<% if l.halbduplex then -%>
++										<td>(<%:half duplex%>)</td>
++									<%- elseif l.moeglich then -%>
++										<td>(<%| translatef("%u possible", l.moeglich) %>)</td>
++									<%- end %>
++								</tr>
++							<%- end %>
++						</tbody>
+ 					</table>
+ 				<%- end %>
+ 
