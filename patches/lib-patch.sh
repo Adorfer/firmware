@@ -80,6 +80,18 @@ remove_created_files ()
   while read -r target; do
     [ -n "$target" ] || continue
     [ -e "$target" ] || continue
+
+    # Nur unversionierte Dateien sind Reste eines frueheren Laufs. Ist die
+    # Datei im Baum versioniert, hat upstream sie inzwischen selbst - dann
+    # gehoert der Patch umgeschrieben und nicht die upstream-Fassung
+    # geloescht. Genau das ist mit targets/ipq40xx-chromium passiert: Gluon
+    # fuehrt das Target seit 2025.1, unser Patch legte es als "new file" an,
+    # und diese Schleife hat die upstream-Datei kommentarlos weggeraeumt. Dass
+    # unsere Fassung dasselbe Geraet enthielt, war Glueck.
+    if git ls-files --error-unmatch "$target" >/dev/null 2>&1; then
+      patch_abort "$patch_file legt $target neu an, aber die Datei ist im Baum versioniert - upstream fuehrt sie inzwischen selbst. Den Patch als Aenderung schreiben, nicht als Neuanlage."
+    fi
+
     echo "  $target: Rest eines frueheren Laufs, wird vor dem Patchen entfernt."
     rm -f "$target"
   done < <(awk '
