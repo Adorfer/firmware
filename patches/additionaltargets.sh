@@ -47,10 +47,10 @@ apply_patch "$PATCH_DIR/targets-ipq40xx-generic.patch" \
   "targets/ipq40xx-generic" \
   'ATH10K_PACKAGES_IPQ40XX_QCA9984'
 
-echo "- Targets ipq40xx-chromium und ipq807x-generic"
-apply_patch "$PATCH_DIR/targets-mk.patch" \
-  "targets/targets.mk" \
-  'GluonTarget,ipq807x,generic'
+# targets-mk.patch entfaellt unter 2025.1: ipq40xx,chromium steht upstream im
+# BROKEN-Block von targets/targets.mk, und ipq807x,generic gibt es nicht mehr -
+# OpenWrt 24.10 hat das Target nach qualcommax/ipq807x umbenannt, Gluon fuehrt
+# es als qualcommax,ipq807x im aktiven Teil.
 
 echo "- Google Wifi"
 apply_patch "$PATCH_DIR/targets-ipq40xx-chromium.patch" \
@@ -62,10 +62,13 @@ apply_patch "$PATCH_DIR/targets-ipq40xx-mikrotik.patch" \
   "targets/ipq40xx-mikrotik" \
   'kmod-ath10k-smallbuffers'
 
-echo "- Xiaomi AX3600, Netgear WAX218"
-apply_patch "$PATCH_DIR/targets-ipq807x-generic.patch" \
-  "targets/ipq807x-generic" \
-  'ATH10K_PACKAGES_IPQ807X'
+# Nur noch die WAX218: den AX3600 fuehrt Gluon 2025.1 selbst in
+# targets/qualcommax-ipq807x, mit denselben Paketausschluessen wie unser
+# alter Patch. Die Datei heisst nicht mehr ipq807x-generic.
+echo "- Netgear WAX218"
+apply_patch "$PATCH_DIR/targets-qualcommax-ipq807x.patch" \
+  "targets/qualcommax-ipq807x" \
+  'netgear_wax218'
 
 echo "- Unifi 6LR v2/v3, Netgear WAX206"
 apply_patch "$PATCH_DIR/targets-mediatek-mt7622.patch" \

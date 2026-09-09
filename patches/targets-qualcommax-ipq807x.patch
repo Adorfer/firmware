@@ -1,0 +1,15 @@
+--- a/targets/qualcommax-ipq807x
++++ b/targets/qualcommax-ipq807x
+@@ -6,6 +6,12 @@
+ 	}
+ })
+ 
++-- Netgear
++
++device('netgear-wax218', 'netgear_wax218', {
++	factory = false,
++})
++
+ -- Xiaomi
+ 
+ device('xiaomi-ax3600', 'xiaomi_ax3600', {
