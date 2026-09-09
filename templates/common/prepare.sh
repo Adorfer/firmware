@@ -83,14 +83,25 @@ if [ "$PHASE" = "pre-update" ]; then
   run_patch add-gluon-package-patches.sh  "Paketpatch fuer packages/gluon bereitlegen"
   run_patch add-lantiq-xrx200-devices.sh  "AVM FRITZ!Box 7430 und 3390, mit OpenWrt-Patch"
   run_patch add-ffac-package-patches.sh   "Paketpatch fuer packages/ffac bereitlegen"
-  run_patch add-openwrt-package-patches.sh "Paketpatch fuer packages/packages bereitlegen"
 
   echo
   echo "Phase pre-update abgeschlossen."
   exit 0
 fi
 
-run_patch host-tools-gcc15.sh          "Host-Werkzeuge mit GCC 14+ uebersetzbar"
+# Nicht aktiv: host-tools-gcc15.sh und add-openwrt-package-patches.sh.
+#
+# Beide beheben Uebersetzungsfehler, die ein FRISCH geklonter 23.05-Baum auf
+# einem heutigen Host wirft - squashfs3-lzma, elfutils und das Host-Perl gegen
+# GCC 14+. Auf einem warmen Baum richten sie Schaden an: sie aendern die
+# Makefiles und damit die Build-Signatur, worauf OpenWrt die betroffenen Pakete
+# neu uebersetzt, statt die fertigen zu nehmen. Beim Host-Perl faellt der Bau
+# dabei an der naechsten Huerde um (sdbm.c, K&R-Deklarationen von malloc und
+# free), die noch offen ist.
+#
+# Die Dateien bleiben liegen. Wer einmal von Null bauen muss, hat damit den
+# halben Weg; wer einen warmen Baum hat, laesst sie in Ruhe.
+
 run_patch fix-respondd-rsk.sh          "respondd-Listener auf den Gluon-2016.x-Wert"
 run_patch mi4apatch.sh                 "Mi Router 4A Gigabit sysupgrade-faehig"
 run_patch add-totolink-x5000r.sh       "Totolink X5000R"
