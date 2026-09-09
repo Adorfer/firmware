@@ -26,7 +26,27 @@ Zwei Abweichungen von Upstream, bewusst:
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -44,10 +44,15 @@
+@@ -39,15 +39,35 @@
+ 		return interfaces
+ 	end
+ 
++	-- Der neanderfunk-ssid-changer schreibt seinen Zustand minuetlich nach
++	-- /tmp/ssid-changer-offline: "1", wenn der Knoten beim letzten Fenster als
++	-- offline eingestuft wurde, sonst "0". Der Wert ist dort ausdruecklich nur
++	-- diagnostisch gemeint und wird fuer keine Entscheidung zurueckgelesen -
++	-- genau richtig, um ihn hier zu zeigen. Fehlt die Datei (Paket nicht
++	-- installiert), bleibt der Rueckgabewert nil und die Zeile entfaellt.
++	local function get_offline_ssid_triggered()
++		local f = io.open("/tmp/ssid-changer-offline")
++		if not f then return nil end
++		local v = f:read("*l")
++		f:close()
++		if v then v = v:match("^%s*(%d)") end
++		return v
++	end
++
+ 	local function get_radios()
+ 		local ret = {}
  
  		wireless.foreach_radio(uci, function(radio)
  			local channel = iwinfo.nl80211.channel(wireless.find_phy(radio))
@@ -43,20 +63,33 @@ Zwei Abweichungen von Upstream, bewusst:
  				})
  			end
  		end)
-@@ -235,7 +240,16 @@
+@@ -80,6 +100,7 @@
+ 	ubus.close(uconn)
+ 
+ 	local radios = get_radios()
++	local offline_ssid_triggered = get_offline_ssid_triggered()
+ 
+ 	local function sorted(t)
+ 		t = {unpack(t)}
+@@ -258,6 +279,21 @@
  								<tr>
  									<th><%| radio.name %></th>
  									<td><%| translatef('Channel %u', radio.channel) %></td>
 +									<% if radio.htmode then -%>
 +										<td>(<%| radio.htmode %>)</td>
 +									<%- end %>
- 								</tr>
++								</tr>
 +								<% if radio.ssid then -%>
 +									<tr>
 +										<th></th>
 +										<td><%| translate('SSID') %>: <%| radio.ssid %></td>
 +									</tr>
 +								<%- end %>
++							<%- end %>
++							<% if offline_ssid_triggered then -%>
++								<tr>
++									<th><%:Offline-SSID%></th>
++									<td>triggered: <%| offline_ssid_triggered %></td>
+ 								</tr>
  							<%- end %>
  						</tbody>
- 					</table>

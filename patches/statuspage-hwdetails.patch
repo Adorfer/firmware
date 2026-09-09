@@ -61,8 +61,8 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
-@@ -39,6 +39,98 @@
- 		return interfaces
+@@ -54,6 +54,97 @@
+ 		return v
  	end
  
 +	local function read_first_line(path)
@@ -156,11 +156,10 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +		end
 +		return string.format('%.0f MiB', n / (1024 * 1024))
 +	end
-+
  	local function get_radios()
  		local ret = {}
  
-@@ -85,6 +177,16 @@
+@@ -100,6 +191,16 @@
  	ubus.close(uconn)
  
  	local radios = get_radios()
@@ -174,10 +173,10 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +	if ram_total or flash_total then
 +		ram_flash = (ram_total or '?') .. ' / ' .. (flash_total or '?')
 +	end
+ 	local offline_ssid_triggered = get_offline_ssid_triggered()
  
  	local function sorted(t)
- 		t = {unpack(t)}
-@@ -158,7 +260,16 @@
+@@ -174,7 +275,16 @@
  							<%| nodeinfo.location.latitude %>, <%| nodeinfo.location.longitude %>
  						</a></dd>
  					<%- end %>
@@ -192,6 +191,6 @@ Kontext veraendert. prepare.sh ruft die Skripte in dieser Reihenfolge auf.
 +					<% if ram_flash then -%>
 +						<dt><%:RAM/Flash%></dt><dd><%| ram_flash %></dd>
 +					<%- end %>
-                                         <dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %>/<%| nodeinfo.software.firmware.subtarget %></dd>
-                                         <dt><%:ImageName%></dt><dd><%| nodeinfo.software.firmware.image_name %></dd>
- 					<dt><%:Primary MAC address%></dt><dd><%| nodeinfo.network.mac %></dd>
+ 					<% if nodeinfo.software.firmware.target then -%>
+ 						<dt><%:Target/Subtarget%></dt><dd><%| nodeinfo.software.firmware.target %>/<%| nodeinfo.software.firmware.subtarget %></dd>
+ 					<%- end %>
