@@ -1,0 +1,11 @@
+--- a/tools/elfutils/Makefile
++++ b/tools/elfutils/Makefile
+@@ -19,7 +19,7 @@
+ 
+ include $(INCLUDE_DIR)/host-build.mk
+ 
+-HOST_CFLAGS +=-std=gnu17
++HOST_CFLAGS +=-std=gnu17 -Wno-error
+ 
+ HOST_CONFIGURE_ARGS += \
+ 	--disable-debuginfod \
