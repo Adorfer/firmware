@@ -1,0 +1,17 @@
+--- a/targets/ramips-mt7621
++++ b/targets/ramips-mt7621
+@@ -224,12 +224,12 @@
+ 
+ -- Ubiquiti
+ 
+-device('ubiquiti-edgerouter-x', 'ubnt_edgerouter-x', {
++device('ubiquiti-edgerouter-x-ka', 'ubnt_edgerouter-x', {
+ 	factory = false,
+ 	packages = {'-hostapd-mini'},
+ })
+ 
+-device('ubiquiti-edgerouter-x-sfp', 'ubnt_edgerouter-x-sfp', {
++device('ubiquiti-edgerouter-x-sfp-ka', 'ubnt_edgerouter-x-sfp', {
+ 	factory = false,
+ 	packages = {'-hostapd-mini'},
+ })

@@ -1,0 +1,22 @@
+--- a/target/linux/ramips/dts/mt7621_ubnt_edgerouter-x.dts
++++ b/target/linux/ramips/dts/mt7621_ubnt_edgerouter-x.dts
+@@ -1,7 +1,7 @@
+ #include "mt7621_ubnt_edgerouter-x.dtsi"
+ 
+ / {
+-	model = "Ubiquiti EdgeRouter X";
++	model = "Ubiquiti EdgeRouter X KA";
+ 	compatible = "ubnt,edgerouter-x", "mediatek,mt7621-soc";
+ };
+ 
+--- a/target/linux/ramips/dts/mt7621_ubnt_edgerouter-x-sfp.dts
++++ b/target/linux/ramips/dts/mt7621_ubnt_edgerouter-x-sfp.dts
+@@ -1,7 +1,7 @@
+ #include "mt7621_ubnt_edgerouter-x.dtsi"
+ 
+ / {
+-	model = "Ubiquiti EdgeRouter X SFP";
++	model = "Ubiquiti EdgeRouter X SFP KA";
+ 	compatible = "ubnt,edgerouter-x-sfp", "mediatek,mt7621-soc";
+ 
+ 	sfp_eth5: sfp_eth5 {
