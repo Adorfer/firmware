@@ -20,11 +20,21 @@ feel free to add things
       betraegt mehr als ein Byte, etwa 4 hoeher oder tiefer. Da die primaere
       MAC die node_id bestimmt, findet danach niemand sein Geraet anhand des
       Aufklebers wieder. Beispielgeraete werden noch gesucht (adorfer).
-      Ansatz: primary_addrs in
-      package/gluon-core/luasrc/lib/gluon/upgrade/010-primary-mac zerfaellt in
-      die Bloecke interface('lan'), interface('wan') und phy(1) und wird in
-      dieser Reihenfolge abgearbeitet - der erste Treffer gewinnt. Steht ein
-      Geraet im falschen Block oder in keinem, greift eine andere Quelle, und
-      benachbarte Interface-MACs liegen nur wenige Zaehler auseinander. Zu
-      pruefen: was sich zwischen 2021.x und 2023.2 an dieser Datei und an der
-      Fallback-Regel geaendert hat.
+      Betroffen gesehen: TP-Link Archer C6 v2 (tplink_archer-c6-v2,
+      ath79-generic).
+      Wahrscheinliche Ursache: primary_addrs in
+      package/gluon-core/luasrc/lib/gluon/upgrade/010-primary-mac fuehrt
+      Bloecke fuer interface('lan'), interface('wan') und phy(1), danach als
+      Auffangnetz "{phy(0), {{}}}" - matches everything. Der C6 v2 steht in
+      keiner Geraeteliste, weder unter 2023.2 noch unter 2025.1, bekommt also
+      die MAC des ersten WLAN-Radios. Der Aufkleber nennt dagegen die
+      Ethernet-MAC, und der Abstand zwischen beiden betraegt bei TP-Link
+      typisch 4. Warum es unter 2021.x stimmte, duerfte an der geaenderten
+      phy-Nummerierung ab OpenWrt 22.03 liegen.
+      Am Geraet zu messen:
+        uci -q get gluon.core.primary_mac
+        cat /sys/class/ieee80211/phy0/macaddress
+        cat /sys/class/ieee80211/phy1/macaddress
+        cat /sys/class/net/eth0/address
+      Stimmt primary_mac mit phy0 ueberein und weicht vom Aufkleber ab, ist es
+      das. Behebung waere ein Eintrag fuer den C6 v2 im passenden Block.
