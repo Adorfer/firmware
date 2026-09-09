@@ -16,6 +16,20 @@ vpn_pubkey-Block, statt dessen Verschachtelung umzubauen. 2025.1 hat den
 mesh_vpn-Bereich um den public key erweitert; ein eigener Block ist
 robuster gegen weitere Aenderungen dort.
 
+Ausserdem: die Zeile "Automatische Updates" erscheint jetzt immer, auch wenn
+gar kein Autoupdater installiert ist - dann als "deaktiviert".
+
+Upstream steht der ganze Block unter "if nodeinfo.software.autoupdater", faellt
+also weg, sobald das Paket fehlt. Aus Sicht des Lesers ist das die
+unguenstigste Variante: ein Knoten, der nie ein Update bekommt, sieht dann
+genauso aus wie einer, bei dem alles in Ordnung ist - die Zeile fehlt einfach.
+Wer die Statusseite aufmacht, um genau das zu pruefen, findet nichts und haelt
+es fuer eine aeltere Firmware.
+
+Moeglicherweise sehen die Gluon-Leute das anders. Dies ist eine bewusste
+Abweichung, keine Nachlaessigkeit.
+
+
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 @@ -165,10 +165,20 @@
@@ -63,3 +77,22 @@ robuster gegen weitere Aenderungen dort.
  					<dt><%:Site%></dt><dd><%| site.site_name() %></dd>
  					<% if nodeinfo.system.domain_code then -%>
  						<dt><%:Domain%></dt>
+@@ -205,12 +224,14 @@
+ 					<% if nodeinfo.system.role then -%>
+ 						<dt><%:Role%></dt><dd><%| site_i18n._translate('gluon-web-node-role:role:' .. nodeinfo.system.role) %></dd>
+ 					<%- end %>
+-					<% if nodeinfo.software.autoupdater then -%>
+-						<dt><%:Automatic updates%></dt><dd><%| enabled(nodeinfo.software.autoupdater.enabled) %><%|
++					<dt><%:Automatic updates%></dt><dd><% if nodeinfo.software.autoupdater then -%>
++						<%| enabled(nodeinfo.software.autoupdater.enabled) %><%|
+ 							nodeinfo.software.autoupdater.enabled and
+ 								string.format(' (%s)', nodeinfo.software.autoupdater.branch)
+-						%></dd>
+-					<%- end %>
++						%>
++					<%- else -%>
++						<%| translate('disabled') %>
++					<%- end %></dd>
+ 					<% if nodeinfo.software['batman-adv'] then -%>
+ 						<dt><%:Mesh protocol%></dt>
+ 						<% if nodeinfo.software['batman-adv'] then -%>
