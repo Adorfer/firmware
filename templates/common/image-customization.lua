@@ -207,6 +207,22 @@ if device({
     include_usb = false
 end
 
+-- Der EdgeRouter X bekommt das Migrationspaket. Es bringt sich selbst nicht
+-- zur Geltung, solange /lib/gluon/erx-migrate/ziel.conf leer ist - dann beendet
+-- sich erx-migrate-run still. Gefuellt wird die Datei beim Bau des
+-- Zwischenimages.
+--
+-- Nur diese beiden Geraete: das Paket prueft zwar selbst auf den board_name,
+-- aber es in jedes Image zu legen kostet Platz ohne jeden Nutzen.
+if device({
+    'ubiquiti-edgerouter-x',
+    'ubiquiti-edgerouter-x-sfp',
+}) then
+    packages {
+        'neanderfunk-erx-migrate',       -- neanderfunk
+    }
+end
+
 -- devices without usb ports
 if device({
     'ubiquiti-unifi-6-lr-v1',
