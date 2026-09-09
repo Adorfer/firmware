@@ -28,6 +28,12 @@ Ports ohne Link haben in ubus kein speed-Feld und erscheinen deshalb gar
 nicht. Schlaegt der ubus-Aufruf fehl, bleibt die Liste leer und der ganze
 Block entfaellt.
 
+Der Aufruf steht bewusst VOR ubus.close(uconn). Die Verbindung wird auf der
+Statusseite frueh geschlossen, und ein Aufruf danach liefert nichts - der
+pcall faengt das ab, die Liste bliebe leer und die Tabelle erschiene nie.
+Ein stiller Ausfall also, den man nur bemerkt, wenn man auf das Ergebnis
+schaut statt auf den Patch.
+
 --- a/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 +++ b/package/gluon-status-page/files/lib/gluon/status-page/view/status-page.html
 @@ -163,6 +163,68 @@
@@ -99,15 +105,16 @@ Block entfaellt.
  	local function get_radios()
  		local ret = {}
  
-@@ -209,6 +271,7 @@
+@@ -206,6 +268,8 @@
+ 
+ 	local interfaces = get_interfaces(uconn)
+ 
++	local ethlinks = get_ethlinks(uconn)
++
  	ubus.close(uconn)
  
  	local radios = get_radios()
-+	local ethlinks = get_ethlinks(uconn)
- 	local offline_ssid_triggered = get_offline_ssid_triggered()
- 
- 	local function sorted(t)
-@@ -406,6 +469,25 @@
+@@ -406,6 +470,25 @@
  								</tr>
  							<%- end %>
  						</tbody>
