@@ -87,6 +87,22 @@ while read -r template; do
     failed+=1
   fi
 
+  # Auch die per include() nachgeladenen Teile. Die haben keine eigene
+  # Endung-Konvention in Gluon, bei uns heissen sie ic-*.lua; sie liegen flach
+  # neben image-customization.lua, weil include() keine Unterverzeichnisse
+  # unterstuetzt.
+  for part in "$template"/ic-*.lua; do
+    [ -f "$part" ] || continue
+    checked+=1
+    if output="$("$LUA" -e "assert(loadfile('$part'))" 2>&1)"; then
+      log_ok "    $(basename "$part"): in Ordnung"
+    else
+      log_err "    $(basename "$part"): FEHLER"
+      printf '%s\n' "$output" | sed 's/^/      /'
+      failed=1
+    fi
+  done
+
   if [ -f "$template/image-customization.lua" ]; then
     checked+=1
     if output="$("$LUA" -e "assert(loadfile('$template/image-customization.lua'))" 2>&1)"; then
