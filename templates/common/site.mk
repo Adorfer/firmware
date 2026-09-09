@@ -1,4 +1,4 @@
-# site.mk Neanderfunk for gluon v2023.2.x
+# site.mk Neanderfunk for gluon v2025.1.x
 
 # GLUON_OUTPUTDIR := ${GLUON_SITEDIR}/output
 # ifdef GLUON_DEVICES
