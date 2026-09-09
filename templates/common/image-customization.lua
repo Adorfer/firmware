@@ -216,8 +216,12 @@ if device({
     'ubiquiti-unifi-6-lr-v1',
     'netgear-ex6150',
     'netgear-ex3700',
+    -- Beide Namenspaare, weil patches/erx-ka-imagename.sh den ERX auf "-ka"
+    -- umbenennt. Faellt der Rename spaeter weg, greifen wieder die oberen.
     'ubiquiti-edgerouter-x',
     'ubiquiti-edgerouter-x-sfp',
+    'ubiquiti-edgerouter-x-ka',
+    'ubiquiti-edgerouter-x-sfp-ka',
     'zyxel-nwa55axe',
 }) then
     include_usb = false
