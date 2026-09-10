@@ -93,6 +93,7 @@ run_patch fix-respondd-rsk.sh          "respondd-Listener auf den Gluon-2016.x-W
 run_patch mi4apatch.sh                 "Mi Router 4A Gigabit sysupgrade-faehig"
 run_patch add-totolink-x5000r.sh       "Totolink X5000R"
 run_patch add-mercusys-mr90x.sh        "MERCUSYS MR90X"
+run_patch add-dlink-m30.sh             "D-Link AQUILA PRO AI M30 A1"
 run_patch add-nanopi-r2c.sh            "FriendlyElec NanoPi R2C"
 run_patch add-cudy-3000.sh             "Cudy-3000-Serie im Target mediatek-filogic"
 run_patch additionaltargets.sh         "zusaetzliche Targets und Geraete aus OpenWrt"
