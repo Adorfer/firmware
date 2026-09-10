@@ -50,6 +50,7 @@ packages {
     'neanderfunk-hotfix',                 -- neanderfunk
     'neanderfunk-linkcheck',              -- neanderfunk (wieder aktiv, Bugs 2026-09-06 behoben)
     'neanderfunk-txpowerfix',             -- neanderfunk
+    'neanderfunk-preserve-wifichannel',   -- neanderfunk (ohne das Paket wirkt wifi24.preserve_channels der site.conf nicht)
     'neanderfunk-banner',                 -- neanderfunk
     'neanderfunk-migrate-updatebranch',   -- neanderfunk
     'neanderfunk-wifi-blackout',          -- neanderfunk (war eulenfunk-ath9kblackout)
