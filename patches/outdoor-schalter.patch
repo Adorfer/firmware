@@ -1,0 +1,58 @@
+Outdoor-Schalter unabhaengig von preserve_channels
+
+Der Schalter fuer den Aussenbetrieb erscheint in den Erweiterten
+Einstellungen (gluon-web-wifi-config) und im Wizard (gluon-config-mode-outdoor)
+upstream nur, solange gluon.wireless.preserve_channels nicht gesetzt ist.
+neanderfunk-preserve-wifichannel setzt es auf Neuinstallationen aus der
+site.conf (wifi24.preserve_channels = 1) - danach war der Schalter weg, und
+ein Outdoor-Geraet, das drinnen haengt, kam nicht mehr auf Indoor und damit
+nicht mehr an sein 5-GHz-Mesh. Er soll in beide Richtungen schaltbar sein.
+
+  1. wifi-config.lua: die Bedingung haengt nur noch an 5 GHz.
+  2. 0250-outdoor.lua: der Ausstieg bei preserve_channels entfaellt, die
+     Hardware-Bedingung (Outdoor-Geraet mit 5 GHz) bleibt.
+
+In 2025.1 speichert die Seite bereits mit gluon-reconfigure (Upstream
+e742f024), dort genuegen die beiden Punkte.
+
+Dass das Umschalten trotz preserve_channels wirkt - fuer 5 GHz Kanal,
+Kanalliste und htmode neu, die uebrigen Baender unveraendert -, erledigt
+neanderfunk-preserve-wifichannel beim Reconfigure. 200-wireless bleibt
+unangetastet. Das unterscheidet diesen Patch von seinem Vorgaenger
+ignore-preservechannels-for-outdoormode.patch.old (2020-2022), der dieselben
+beiden Stellen aenderte, die Kanalwahl aber in 200-wireless umbaute.
+
+--- a/package/gluon-web-wifi-config/luasrc/lib/gluon/config-mode/model/admin/wifi-config.lua
++++ b/package/gluon-web-wifi-config/luasrc/lib/gluon/config-mode/model/admin/wifi-config.lua
+@@ -118,7 +118,13 @@
+ end)
+ 
+ 
+-if wireless.device_uses_band(uci, '5g') and not wireless.preserve_channels(uci) then
++-- neanderfunk: Der Outdoor-Schalter haengt nur an der Hardware, nicht an
++-- preserve_channels. Sonst verschwaende er auf jedem Knoten, auf dem
++-- neanderfunk-preserve-wifichannel preserve_channels setzt, und ein
++-- Outdoor-Geraet, das drinnen haengt, kaeme nie wieder auf Indoor und an sein
++-- 5-GHz-Mesh. Dass das Umschalten trotz preserve_channels wirkt, erledigt das
++-- Paket beim Reconfigure.
++if wireless.device_uses_band(uci, '5g') then
+ 	local r = f:section(Section, translate("Outdoor Installation"), translate(
+ 		"Configuring the node for outdoor use tunes the 5 GHz radio to a frequency "
+ 		.. "and transmission power that conforms with the local regulatory requirements. "
+--- a/package/gluon-config-mode-outdoor/luasrc/lib/gluon/config-mode/wizard/0250-outdoor.lua
++++ b/package/gluon-config-mode-outdoor/luasrc/lib/gluon/config-mode/wizard/0250-outdoor.lua
+@@ -7,10 +7,10 @@
+ 		return
+ 	end
+ 
+-	if wireless.preserve_channels(uci) then
+-		-- Don't show if channel should be preserved
+-		return
+-	end
++	-- neanderfunk: kein Ausstieg mehr bei preserve_channels - der Schritt
++	-- haengt nur an der Hardware, siehe wifi-config.lua. Das Umschalten trotz
++	-- preserve_channels erledigt neanderfunk-preserve-wifichannel beim
++	-- gluon-reconfigure des Wizards.
+ 
+ 	local pkg_i18n = i18n 'gluon-config-mode-outdoor'
+ 

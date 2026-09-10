@@ -142,12 +142,15 @@ run_patch statuspage-ssid.sh           "Statusseite: Zustand des ssid-changer"
 run_patch statuspage-hwdetails.sh      "Statusseite: CPU-Modell, BIOS und RAM/Flash"
 run_patch statuspage-ethlinks.sh       "Statusseite: Ethernet-Geschwindigkeit je Port"
 
+run_patch outdoor-schalter.sh           "Outdoor-Schalter unabhaengig von preserve_channels"
+
 # Deaktiviert, aber absichtlich dokumentiert:
 #
 # add-mt7915e-try.sh                   mt76-Korrekturen fuer MT7603/MT7612;
 #                                      patches/mt7915e-try.patch war nie im Repo
 # airtime-logsilience.sh               haelt den Airtime-Monitor aus dem Log
-# ignore-preservechannels-for-outdoormode.sh  Auto-Channel fuer Outdoor-Geraete
+# ignore-preservechannels-for-outdoormode.sh  Vorgaenger von outdoor-schalter.sh
+#                                      (2020-2022, baute dazu 200-wireless um)
 #
 # git am ../patches/0001-*             frueher: durchnummerierte Patches
 #                                      automatisch anwenden
