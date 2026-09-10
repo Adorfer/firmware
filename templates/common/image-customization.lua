@@ -42,6 +42,7 @@ packages {
     'iwinfo',                             -- openwrt
     'haveged',                            -- openwrt-packages
     'socat',                              -- openwrt-packages
+    'wireless-tools', 			  -- openwrt-packages
     'kmod-sched',                         -- openwrt, fuer socat
     'libc',                               -- openwrt, fuer socat
     'libpthread',                         -- openwrt, fuer socat
