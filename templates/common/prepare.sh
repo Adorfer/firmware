@@ -109,6 +109,7 @@ run_patch statuspage-moredetails.sh    "Statusseite: weitere MACs und Gluon-Vers
 run_patch statuspage-ssid.sh           "Statusseite: SSID, HT-Modus und ssid-changer"
 run_patch statuspage-hwdetails.sh      "Statusseite: CPU-Typ, Kernzahl und BIOS"
 run_patch statuspage-ethlinks.sh       "Statusseite: Ethernet-Geschwindigkeit je Port"
+run_patch statuspage-ssidchanger-zaehler.sh "Statusseite: Zaehler des ssid-changer seit Boot"
 
 run_patch outdoor-schalter.sh           "Outdoor-Schalter unabhaengig von preserve_channels"
 
