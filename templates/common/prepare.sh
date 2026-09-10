@@ -141,6 +141,7 @@ run_patch statuspage-moredetails.sh    "Statusseite: ImageName, Mesh-MAC und Sit
 run_patch statuspage-ssid.sh           "Statusseite: Zustand des ssid-changer"
 run_patch statuspage-hwdetails.sh      "Statusseite: CPU-Modell, BIOS und RAM/Flash"
 run_patch statuspage-ethlinks.sh       "Statusseite: Ethernet-Geschwindigkeit je Port"
+run_patch statuspage-ssidchanger-zaehler.sh "Statusseite: Zaehler des ssid-changer seit Boot"
 
 run_patch outdoor-schalter.sh           "Outdoor-Schalter unabhaengig von preserve_channels"
 
