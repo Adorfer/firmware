@@ -24,11 +24,12 @@ Freifunk-Firmware für Freifunk Düsseldorf-Flingern und Freifunk im Neanderland
 ```
 git clone https://github.com/Adorfer/firmware -b v2023.2.x
 cd firmware
-git clone https://github.com/freifunk-gluon/gluon -b v2023.2.x gluon
 ```
 
-Der Gluon-Branch muss zu Spalte 2 der Sites-Datei passen. `build.sh` klont
-Gluon nicht selbst.
+Den Gluon-Baum (`gluon/`) legt `build.sh` beim ersten Lauf selbst an: ein
+voller `git clone` des Branches aus Spalte 2 der Sites-Datei. Eine andere
+Quelle, etwa ein lokaler Spiegel, geht über `GLUON_REPO` (Umgebung oder
+`build.local.conf`).
 
 ### Aufruf
 
