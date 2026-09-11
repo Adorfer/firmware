@@ -1,37 +1,56 @@
-# Eulenfunk Firmware Repository - Stand 09.01.2021
+# Firmware-Repository Eulenfunk / Neanderfunk
 
-Freifunk Firmware für Freifunk Düsseldorf-Flingern und Freifunk im Neanderland (Neanderfunk) 
+Freifunk-Firmware für Freifunk Düsseldorf-Flingern und Freifunk im Neanderland
+(Neanderfunk), gebaut mit Gluon. Wie `build.sh` arbeitet, steht ausführlich in
+[`docs/build-sh.md`](docs/build-sh.md).
 
-## build-Prozess
+## Bauen
 
+### Voraussetzungen
 
-Pre-Requsites:
+- Die Abhängigkeiten von Gluon 2023.2 (siehe Gluons „Getting Started“), dazu
+  `ecdsautils` (signiert die Manifeste), `lua5.1`, `python3` (Collector,
+  optional) und `rsync`.
+- **Ein Host-Compiler bis GCC 13**, etwa Debian Bookworm. OpenWrt 23.05 baut
+  mit GCC ab 14 nicht; auf einem Host mit neuerem GCC (z. B. Ubuntu 26.04) im
+  Bookworm-Container bauen, derselbe absolute Pfad innen wie außen.
+- Parallelbetrieb (`WORKERS` > 1) braucht zusätzlich rootless overlayfs, siehe
+  `docs/build-sh.md`, Kapitel 7.9. Fehlt es, baut `build.sh` seriell und sagt
+  das laut.
+- `build.sh` prüft das alles vorab und nennt fehlende Teile auf einmal.
 
-gluon-dependencies müssen ebenfalls auf dem System installiert sein (Stand 09.01.2019).
-
-```sudo apt install git subversion python build-essential gawk unzip libncurses5-dev zlib1g-dev libssl-dev wget time```
-
-
-Sites-Dateien, wie `sites.ffmet` enthalten eine Liste an Site-Konfigurationen die aus dem Template (aus `templates/`) erstellt werden.
-Diese enthalten dann Zeilen im Format wie `experimentall2tp v2018.2.x dusl2tp dusl2tp`.
-**Zeilenumbrüche müssen im UNIX- Format** sein. Jede Zeile mit muss mit **`<LR>`** abgeschlossen sein,  Leerzeilen sind ungültig.
-
-### Serviervorschlag:
-
+### Einrichten
 
 ```
-git clone https://github.com/eulenfunk/firmware
+git clone https://github.com/Adorfer/firmware -b v2023.2.x
 cd firmware
-git clone https://github.com/freifunk-gluon/gluon -b v2021.1.x
-./build.sh sites.ffmet
+git clone https://github.com/freifunk-gluon/gluon -b v2023.2.x gluon
 ```
 
+Der Gluon-Branch muss zu Spalte 2 der Sites-Datei passen. `build.sh` klont
+Gluon nicht selbst.
 
-Das Buildscript wird mit der Sites-Datei als Parameter aufgerufen, zusätzlich können beliebig viele Architekturen angegeben werden, für die Images gebaut werden sollen. Wird keine Architektur angegeben, werden alle gebaut.
+### Aufruf
 
-`./build.sh sites.ffmet ar71xx-generic ar71xx-nand`
+```
+./build.sh build.conf targets.conf domains.conf [target ...] [--resume | --restart]
+```
 
+| Datei | sagt |
+|---|---|
+| `build.conf` | *wie* gebaut wird: Version, Aufräumen, `WORKERS`, Baureihenfolge |
+| `build.local.conf` | optional, hostspezifisch, nicht im Repo (etwa `WORKERS=6`) |
+| `targets.conf` | welche Hardware (`GLUON_TARGETS`, `-` davor schaltet aus) |
+| `domains.conf` | welche Domains: `SITES_FILE`, `DOMAINS_INCLUDE`/`EXCLUDE` |
+| `sites.*` | die Domains, je Zeile eine, erzeugt aus `templates/` |
 
+Targets auf der Kommandozeile ersetzen die aus `targets.conf`. Ein
+abgebrochener Lauf wird mit `--resume` fortgesetzt oder mit `--restart`
+verworfen. Die Images landen in `images/images-<epoch>/`, dazu die
+Laufdaten in `buildinfo/`.
+
+Sites-Dateien: **Zeilenumbrüche im UNIX-Format**, jede Zeile mit `LF`
+abgeschlossen.
 
 ## Branches
 experimental und stable 
@@ -46,8 +65,9 @@ Auf den Releasechannels "experimental" ist die Minimum-Valid-Signatures auf 2 ge
 
 ## Development
 
-You can check the right modules with
+Syntax von `site.conf` und `image-customization.lua` der Templates in
+Sekunden prüfen, ohne Bau (die semantische Prüfung macht Gluon beim `make`):
 
-    tests/validate_site.sh
+    tests/check-site-conf.sh
 
-This will perform a basic check, if all packages from `site.mk` are found in any of the defined repositories in `modules`, gluon itself and the gluon/packages repo.
+`build.sh` ruft sie vor jedem Lauf selbst auf.
