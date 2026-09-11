@@ -1,0 +1,18 @@
+--- a/targets/mediatek-filogic
++++ b/targets/mediatek-filogic
+@@ -17,15 +17,12 @@
+ 
+ 
+ -- D-Link
+ 
+ device('d-link-aquila-pro-ai-m30-a1', 'dlink_aquila-pro-ai-m30-a1', {
+ 	factory = false,
+-	extra_images = {
+-		{ '-squashfs-recovery', '-recovery', '.bin' }
+-	},
+ })
+ 
+ device('d-link-aquila-pro-ai-m60-a1', 'dlink_aquila-pro-ai-m60-a1', {
+ 	factory = false,
+ 	extra_images = {
+ 		{ '-squashfs-recovery', '-recovery', '.bin' }
