@@ -114,6 +114,7 @@ run_patch statuspage-ethlinks.sh       "Statusseite: Ethernet-Geschwindigkeit je
 run_patch statuspage-ssidchanger-zaehler.sh "Statusseite: Zaehler des ssid-changer seit Boot"
 run_patch statuspage-respondd.sh       "Statusseite: Werte aus neanderfunk-respondd, live"
 run_patch web-static-version.sh        "Statusseite und Config-Mode: CSS/JS mit Versionsanhang"
+run_patch wizard-save-only.sh          "Config-Mode: Wizard mit Speichern ohne Neustart, Warnung beim Verlassen"
 
 run_patch outdoor-schalter.sh           "Outdoor-Schalter unabhaengig von preserve_channels"
 
