@@ -42,6 +42,11 @@ if ! docker image inspect "$BILD" >/dev/null 2>&1; then
   exit 1
 fi
 
+# /etc/localtime vom Host: sonst laeuft der Container in UTC, und die
+# Stundenangabe in SBRANCH (SBRANCH_MODE=date, date +%y%m%d%H) weicht um ein
+# bis zwei Stunden von einem Lauf auf dem Host ab. Das Bild hat kein tzdata;
+# die eingehaengte Datei reicht glibc trotzdem.
+#
 # --network=host: "make download" holt Quellen, und der Bau laeuft in unserem
 # Netz. Ohne das ginge es zwar auch, aber die Firmware-Server im eigenen Netz
 # waeren nicht erreichbar.
@@ -50,6 +55,7 @@ exec docker run --rm -i \
   --network=host \
   -v "$BAUM:$BAUM" \
   -v "$HOME/.gitconfig:$HOME/.gitconfig:ro" \
+  -v /etc/localtime:/etc/localtime:ro \
   -w "$BAUM" \
   -e HOME="$BAUM" \
   "$BILD" \
