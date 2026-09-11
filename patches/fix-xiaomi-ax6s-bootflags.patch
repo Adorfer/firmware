@@ -1,0 +1,73 @@
+mediatek-mt7622: Xiaomi Redmi AX6S - Boot-Flags des A/B-Bootloaders bei jedem
+Start bestaetigen.
+
+Bericht aus dem Feld: Gluon laesst sich auf den AX6S flashen, nach einigen
+Neustarts bootet der Router aber wieder die Stock-Firmware. Der
+Xiaomi-Bootloader hat zwei Firmware-Plaetze und fuehrt im U-Boot-Environment
+flag_boot_success und je Platz einen Fehlerzaehler (flag_try_sys1_failed,
+flag_try_sys2_failed). Die Stock-Firmware bestaetigt jeden gelungenen Start;
+bleibt das aus, zaehlt der Bootloader hoch und startet nach einigen
+Versuchen den anderen Platz, auf dem oft noch die Stock-Firmware liegt.
+
+OpenWrt setzt diese Flags beim AX6S nirgends, auch nicht in 24.10 und main.
+Bei anderen Xiaomi-Geraeten schon: AX3000T und AX3600 im sysupgrade, der Mi
+Router 4C in genau diesem bootcount-Skript. Die Installationsanleitungen
+(OpenWrt-Wiki, Freifunk Dresden) setzen sie deshalb einmal von Hand in der
+Stock-Firmware, vor dem Flashen - wer das auslaesst, bekommt den Rueckfall.
+
+Hier: bei jedem Boot flag_boot_success=1 und beide Zaehler auf 0, nur was
+abweicht, in einem Schreibvorgang (fw_setenv -s -), jede Aenderung im
+Syslog ("bootcount: xiaomi a/b: ..."). Nur wenn das Xiaomi-Environment
+lesbar ist - bei falscher Env-Konfiguration oder CRC-Fehler liefert
+fw_printenv die Standardumgebung ohne diese Flags, dann bleibt alles
+unberuehrt. fw_setenv (uboot-envtools) gehoert zu den Standardpaketen von
+mt7622, die Env-Konfiguration fuer den AX6S (/dev/mtd3) bringt OpenWrt mit.
+
+Auf Hardware ungetestet (kein AX6S erreichbar); Logik mit nachgebautem
+fw_printenv/fw_setenv geprueft: hochgezaehlt -> korrigiert, korrekt -> kein
+Schreiben, Standardumgebung -> nichts.
+
+--- a/target/linux/mediatek/mt7622/base-files/etc/init.d/bootcount
++++ b/target/linux/mediatek/mt7622/base-files/etc/init.d/bootcount
+@@ -2,6 +2,32 @@
+ 
+ START=99
+ 
++# Xiaomi-Bootloader mit zwei Firmware-Plaetzen (A/B), etwa Redmi AX6S: Er
++# erwartet, dass die Firmware nach jedem gelungenen Start flag_boot_success
++# setzt. Bleibt das aus, zaehlt er flag_try_sys<N>_failed hoch und startet nach
++# einigen Versuchen den anderen Platz - dort liegt oft noch die Stock-Firmware.
++# OpenWrt setzt die Flags beim AX6S nirgends (bei AX3000T/AX3600 im
++# sysupgrade, beim Mi Router 4C hier). Geschrieben wird nur, was abweicht, in
++# einem Zug; und nur, wenn das Xiaomi-Environment lesbar ist - bei falscher
++# Env-Konfiguration oder CRC-Fehler liefert fw_printenv die Standardumgebung
++# ohne diese Flags, dann bleibt alles, wie es ist.
++xiaomi_ab_boot_ok() {
++	fw_printenv -n flag_try_sys2_failed >/dev/null 2>&1 || return 0
++
++	local pair var want cur changes=""
++	for pair in flag_boot_success=1 flag_try_sys1_failed=0 flag_try_sys2_failed=0; do
++		var="${pair%%=*}"
++		want="${pair#*=}"
++		cur="$(fw_printenv -n "$var" 2>/dev/null)"
++		[ "$cur" = "$want" ] && continue
++		changes="$changes$var $want
++"
++		logger -t bootcount "xiaomi a/b: $var ${cur:-(leer)} -> $want"
++	done
++	[ -n "$changes" ] && printf '%s' "$changes" | fw_setenv -s -
++	return 0
++}
++
+ boot() {
+ 	case $(board_name) in
+ 	dlink,eagle-pro-ai-m32-a1|\
+@@ -15,5 +41,8 @@
+ 	linksys,e8450)
+ 		mtd erase senv || true
+ 		;;
++	xiaomi,redmi-router-ax6s)
++		xiaomi_ab_boot_ok
++		;;
+ 	esac
+ }
