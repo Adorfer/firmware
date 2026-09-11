@@ -59,10 +59,9 @@ packages {
     'neanderfunk-nodeplacer',             -- neanderfunk
     'neanderfunk-button-bind',            -- neanderfunk (Fork von ffffm-button-bind, Konflikt deklariert)
     'neanderfunk-node-whisperer',         -- neanderfunk (Fork von ffda-node-whisperer, Konflikt deklariert)
+    'neanderfunk-ap-timer',               -- neanderfunk (ff-ap-timer + ff-web-ap-timer, Konflikt deklariert)
 --    'ffac-ssid-changer',                -- community
     'ffac-autoupdater-wifi-fallback',     -- community
-    'ff-ap-timer',                        -- community
-    'ff-web-ap-timer',                    -- community
     'ffbs-collect-debug-info',            -- community
     'ffbs-debugbathosts',                 -- community
 --    'ffmuc-ipv6-ra-filter',             -- community
