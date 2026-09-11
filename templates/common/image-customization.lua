@@ -32,7 +32,7 @@ features {
 --   openwrt           OpenWrt-Basis
 --   openwrt-packages  OpenWrt-Feed "packages"
 --
--- Vorsicht: der Namensvorsatz sagt nichts ueber den Feed. ffac-ssid-changer,
+-- Vorsicht: der Namensvorsatz sagt nichts ueber den Feed.
 -- ffac-autoupdater-wifi-fallback und ffac-update-location-gps liegen in
 -- community-packages. Aus dem ffac-Feed kommt bei uns allein
 -- ffac-web-private-wan-dhcp.
@@ -60,12 +60,13 @@ packages {
     'neanderfunk-button-bind',            -- neanderfunk (Fork von ffffm-button-bind, Konflikt deklariert)
     'neanderfunk-node-whisperer',         -- neanderfunk (Fork von ffda-node-whisperer, Konflikt deklariert)
     'neanderfunk-ap-timer',               -- neanderfunk (ff-ap-timer + ff-web-ap-timer, Konflikt deklariert)
---    'ffac-ssid-changer',                -- community
     'ffac-autoupdater-wifi-fallback',     -- community
     'ffbs-collect-debug-info',            -- community
     'ffbs-debugbathosts',                 -- community
---    'ffmuc-ipv6-ra-filter',             -- community
 }
+-- Bewusst NICHT: ffmuc-ipv6-ra-filter. Beim schnellen Wechsel der Supernodes
+-- einer Domain bleibt der Filter lange sticky, die Knoten bekommen keinen
+-- Kontakt zum neuen Supernode.
 
 -- "all devices" section finished
 
