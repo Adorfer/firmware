@@ -60,6 +60,7 @@ packages {
     'neanderfunk-button-bind',            -- neanderfunk (Fork von ffffm-button-bind, Konflikt deklariert)
     'neanderfunk-node-whisperer',         -- neanderfunk (Fork von ffda-node-whisperer, Konflikt deklariert)
     'neanderfunk-ap-timer',               -- neanderfunk (ff-ap-timer + ff-web-ap-timer, Konflikt deklariert)
+    'neanderfunk-respondd',               -- neanderfunk (respondd: Hardware, Radios, Offline-SSID, Ethernet; C)
     'ffac-autoupdater-wifi-fallback',     -- community
     'ffbs-collect-debug-info',            -- community
     'ffbs-debugbathosts',                 -- community
