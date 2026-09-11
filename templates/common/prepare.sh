@@ -113,6 +113,7 @@ run_patch statuspage-hwdetails.sh      "Statusseite: CPU-Typ, Kernzahl und BIOS"
 run_patch statuspage-ethlinks.sh       "Statusseite: Ethernet-Geschwindigkeit je Port"
 run_patch statuspage-ssidchanger-zaehler.sh "Statusseite: Zaehler des ssid-changer seit Boot"
 run_patch statuspage-respondd.sh       "Statusseite: Werte aus neanderfunk-respondd, live"
+run_patch web-static-version.sh        "Statusseite und Config-Mode: CSS/JS mit Versionsanhang"
 
 run_patch outdoor-schalter.sh           "Outdoor-Schalter unabhaengig von preserve_channels"
 
