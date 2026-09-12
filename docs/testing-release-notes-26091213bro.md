@@ -6,8 +6,12 @@ Firmware-Stand: `26091213bro`, gebaut am 12.09.2026.
 
 Das ist eine **Testversion**. Sie steckt voller Neuerungen aus den letzten
 zwei Wochen, ist aber noch nicht final. Wer mag, spielt sie auf einen
-Router, schaut sich um und meldet an die Neanderfunk-Admins, was auffällt:
-was gut ist und was nicht.
+Router, schaut sich um und meldet, was auffällt: was gut ist und was nicht.
+
+Rückmeldungen bitte an:
+
+- Mastodon: [@neanderfunk@nrw.social](https://nrw.social/@neanderfunk)
+- Telegram: [Neanderfunk-Gruppe](https://t.me/+_rWKhNAJyvg5MWY0)
 
 ## Einrichtung (Setup-Mode)
 
