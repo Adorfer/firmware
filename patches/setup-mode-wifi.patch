@@ -4,8 +4,13 @@ Setzt auf setup-mode-hostnames und setup-mode-captive auf.
 
   S20network    in der uci-Konfiguration des Setup-Modes
                 (/var/gluon/setup-mode/config) zusaetzlich:
-                - Interface "setupwifi", Bridge br-setupwifi, 192.168.2.1/24
-                  (bridge_empty, damit sie ohne Port hochkommt)
+                - Interface "setupwifi", Bridge br-setupwifi, 198.51.100.1/24
+                  (bridge_empty, damit sie ohne Port hochkommt). Absichtlich
+                  keine private Adresse: Android oeffnet sein Anmeldefenster
+                  nur, wenn der Probe-Host NICHT auf eine private Adresse
+                  (RFC 1918) aufloest, sonst meldet es nur "kein Internet"
+                  (am S24 Ultra mit 192.168.2.1 so gesehen). 198.51.100.0/24
+                  ist TEST-NET-2 (RFC 5737), nirgends geroutet.
                 - wireless: alle wifi-iface raus, ein AP auf dem ersten
                   2,4-GHz-Radio (sonst dem ersten Radio), die uebrigen Radios
                   aus (ein 5-GHz-Radio wartete sonst nur auf DFS)
@@ -25,7 +30,7 @@ Setzt auf setup-mode-hostnames und setup-mode-captive auf.
                 Knoten, eigene Lease- und PID-Datei. Nur, wenn S20network das
                 WLAN angelegt hat.
   cgi-bin/portal  leitet auf die Adresse zurueck, ueber die die Anfrage kam
-                (SERVER_ADDR), also 192.168.2.1 im WLAN, 192.168.1.1 am LAN.
+                (SERVER_ADDR), also 198.51.100.1 im WLAN, 192.168.1.1 am LAN.
 
 Am LAN bleibt es wie in setup-mode-captive: kein Catch-all, weil dort oft
 ein Laptop haengt, der nebenbei per WLAN im Internet ist. Im Setup-WLAN
@@ -47,12 +52,17 @@ an, radio0 aus, SSID setup.gluon_3456 / freifunk_52 bei MAC
 192.168.1.1, sonst REFUSED, Lease router=[] dns=[192.168.1.1]; WLAN-Seite:
 jeder Name -> 192.168.2.1, Lease router=[192.168.2.1] dns=[192.168.2.1];
 /generate_204 -> 302 auf http://192.168.2.1/... bzw. http://192.168.1.1/...
-Nicht geprueft: der Funk selbst (hostapd mit echtem Radio), das braucht
-Hardware.
+(QEMU-Lauf noch mit 192.168.2.1.)
+
+Auf Hardware (Xiaomi Mi Router 4A Gigabit, 12.09.2026, mit 192.168.2.1):
+SSID setup.gluon_33f1 da, Anmeldung mit freifunk_28 geht, http://setup.gluon
+oeffnet den Wizard, "Speichern & Neustarten" fuehrt in den Normalbetrieb.
+Das Anmeldefenster kam am Samsung S24 Ultra nicht -> Umstellung auf
+198.51.100.1.
 
 --- a/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S20network
 +++ b/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S20network
-@@ -3,6 +3,13 @@
+@@ -3,6 +3,18 @@
  SETUP_MODE_ADDR=192.168.1.1
  SETUP_MODE_NETMASK=255.255.255.0
  
@@ -60,13 +70,18 @@ Hardware.
 +# subnet, DNS and DHCP (S60dnsmasq). SSID and passphrase are derived from the
 +# primary MAC address. The passphrase only keeps out accidental joins: the MAC
 +# is visible to everybody as the BSSID.
-+SETUP_WIFI_ADDR=192.168.2.1
++#
++# Deliberately no private (RFC 1918) address: Android opens its captive portal
++# sign-in only if the connectivity check host does not resolve to a private
++# address, otherwise it just reports "no internet". 198.51.100.0/24 is
++# TEST-NET-2 (RFC 5737), routed nowhere, and harmless in a network of its own.
++SETUP_WIFI_ADDR=198.51.100.1
 +SETUP_WIFI_NETMASK=255.255.255.0
 +
  START=20
  STOP=90
  
-@@ -13,6 +20,65 @@
+@@ -13,6 +25,65 @@
  	[ "$1" = 'loopback' ] || uci_remove network "$1"
  }
  
@@ -132,7 +147,7 @@ Hardware.
  prepare_config() {
  (
  	export UCI_CONFIG_DIR=/var/gluon/setup-mode/config
-@@ -32,6 +98,8 @@
+@@ -32,6 +103,8 @@
  	uci_set network setup ipaddr "$SETUP_MODE_ADDR"
  	uci_set network setup netmask "$SETUP_MODE_NETMASK"
  
@@ -174,8 +189,8 @@ Hardware.
  # sign-in, and that opens the setup page.
  
 -URL=http://192.168.1.1/cgi-bin/config
-+# Back to the address the request came in on: 192.168.1.1 on the LAN, the
-+# address of the WLAN bridge there (see S20network).
++# Back to the address the request came in on: 192.168.1.1 on the LAN,
++# 198.51.100.1 in the WLAN of the config mode (see S20network).
 +case "$SERVER_ADDR" in
 +	''|*:*) HOST=192.168.1.1 ;;
 +	*) HOST="$SERVER_ADDR" ;;
