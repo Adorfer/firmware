@@ -122,6 +122,8 @@ run_patch setup-mode-wifi.sh           "Setup-Mode: WLAN-Zugang setup.gluon_<MAC
 
 run_patch outdoor-schalter.sh           "Outdoor-Schalter unabhaengig von preserve_channels"
 
+run_patch state-check-shell.sh          "gluon-state-check als Shell statt Lua (RAM-Druck auf 64-MB-Geraeten)"
+
 # Entfernt am 11.09.2026, weil sie nicht mehr aufgerufen wurden (die
 # Geschichte steht in git):
 #
