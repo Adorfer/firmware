@@ -30,13 +30,17 @@ Behebung in wizard.lua, bevor irgendein Feld etwas schreibt:
     Sperre steht, hoechstens 50 s (uhttpd beendet CGI nach 60 s), und
     bekommt nach .done nur die Neustart-Seite, ohne etwas zu lesen oder zu
     schreiben.
-  - Ist das Formular ungueltig, gibt f:handle die Sperre wieder frei, damit
-    die korrigierte Absendung nicht als zweite gilt.
+  - In der Sperre steht die PID des CGI-Prozesses. Ist er weg, ohne dass
+    .done existiert (ungueltiges Formular, Fehler, oder eine Seite, die
+    dieses Model laedt und vorher aufhoert - etwa die Sammelseite von
+    neanderfunk-setup-mode bei einem Feldfehler), gilt die Sperre als
+    verwaist und wird uebernommen. Ist das Formular ungueltig, gibt f:handle
+    sie ausserdem sofort frei.
   - Die Dateien liegen im RAM und verschwinden mit dem Neustart.
 
 --- a/package/gluon-config-mode-core/luasrc/lib/gluon/config-mode/model/gluon-config-mode/wizard.lua
 +++ b/package/gluon-config-mode-core/luasrc/lib/gluon/config-mode/model/gluon-config-mode/wizard.lua
-@@ -1,4 +1,57 @@
+@@ -1,4 +1,70 @@
  local util = require "gluon.util"
 +local fcntl = require 'posix.fcntl'
 +local unistd = require 'posix.unistd'
@@ -53,8 +57,11 @@ Behebung in wizard.lua, bevor irgendein Feld etwas schreibt:
 +-- section").
 +--
 +-- The first submit of "Save & restart" takes LOCK before any field writes
-+-- anything. Every other request waits until the run is DONE and gets the
-+-- reboot page only; the files live in RAM and vanish with the reboot.
++-- anything, and puts the PID of its CGI process in it. Every other request
++-- waits until the run is DONE and gets the reboot page only. A LOCK whose
++-- process is gone without DONE (invalid form, an error, a page that loads
++-- this model and stops early) is stale and taken over. The files live in
++-- RAM and vanish with the reboot.
 +local LOCK = '/var/gluon/setup-mode/wizard-save'
 +local DONE = LOCK .. '.done'
 +local WAIT = 50 -- seconds; uhttpd ends CGI requests after 60
@@ -67,6 +74,12 @@ Behebung in wizard.lua, bevor irgendein Feld etwas schreibt:
 +	return r
 +end
 +
++local function lock_stale()
++	local pid = util.trim(util.readfile(LOCK) or '')
++	-- An empty LOCK was created a moment ago and gets its PID right away.
++	return pid ~= '' and not unistd.access('/proc/' .. pid)
++end
++
 +local save_restart = os.getenv('REQUEST_METHOD') == 'POST' and
 +	not (os.getenv('QUERY_STRING') or ''):match('save%-only=1')
 +local holding = false
@@ -75,9 +88,13 @@ Behebung in wizard.lua, bevor irgendein Feld etwas schreibt:
 +	if unistd.access(DONE) then
 +		return reboot_page()
 +	end
++	if unistd.access(LOCK) and lock_stale() then
++		os.remove(LOCK)
++	end
 +	if save_restart then
 +		local fd = fcntl.open(LOCK, fcntl.O_WRONLY + fcntl.O_CREAT + fcntl.O_EXCL, 384)
 +		if fd then
++			unistd.write(fd, tostring(unistd.getpid()))
 +			unistd.close(fd)
 +			holding = true
 +			break
@@ -94,7 +111,7 @@ Behebung in wizard.lua, bevor irgendein Feld etwas schreibt:
  local uci = require("simple-uci").cursor()
  
  local f = Form(translate("Welcome!"))
-@@ -32,14 +85,16 @@
+@@ -32,14 +98,16 @@
  		return
  	end
  
@@ -114,12 +131,13 @@ Behebung in wizard.lua, bevor irgendein Feld etwas schreibt:
  	f.template = "wizard/reboot"
  	f.package = "gluon-config-mode-core"
  	f.hidenav = true
-@@ -57,4 +112,14 @@
+@@ -57,4 +125,15 @@
  	end
  end
  
-+-- An invalid form writes nothing; give the lock back, so that the corrected
-+-- submit is not taken for a second one.
++-- An invalid form writes nothing; give the lock back right away, so that the
++-- corrected submit is not taken for a second one. (Should this not run, the
++-- lock is stale once this process has ended.)
 +local handle = f.handle
 +function f:handle()
 +	handle(self)
