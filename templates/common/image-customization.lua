@@ -77,7 +77,36 @@ packages {
 
 -- "all devices" section finished
 
-if not device_class('tiny') then
+-- 64 MB RAM und zwei Radios: RAM-Druck bis zum OOM. Auf dem Archer C25 v1
+-- (ath9k + ath10k) bleiben fuer den Datei-Cache rund 3 MB, jeder Cron-Job
+-- laedt Lua dann vom Flash (Paketfeed-Session, 12.09.2026). Gluon fuehrt die
+-- meisten davon deshalb als broken ("64M ath9k + ath10k", "OOM with 5GHz").
+-- Liste aus Gluons Device-Definitionen und der OpenWrt Table of Hardware
+-- (RAM, Baender): alle Geraete unserer Targets mit 64 MB und 2 Radios.
+-- Archer C60 v1, D50 v1 und WNDR3700 v1/v2 sind bei Gluon nicht 'tiny' und
+-- bekaemen sonst tls, wpa3, sqm und usteer.
+local lowmem_dualradio = device({
+    'avm-fritz-wlan-repeater-1750e',   -- ath9k + ath10k
+    'tp-link-archer-c2-v3',            -- ath9k + ath10k
+    'tp-link-archer-c25-v1',           -- ath9k + ath10k
+    'tp-link-archer-c58-v1',           -- ath9k + ath10k
+    'tp-link-archer-c60-v1',           -- ath9k + ath10k
+    'tp-link-archer-d50-v1',           -- ath9k + ath10k
+    'tp-link-tl-wr902ac-v1',           -- ath9k + ath10k
+    'd-link-dir825b1',                 -- 2x ath9k
+    'netgear-wndr3700',                -- 2x ath9k
+    'netgear-wndr3700-v2',             -- 2x ath9k
+})
+
+if lowmem_dualradio then
+    packages {
+        -- Daemon mit eigenem Puffer (~1,6 MB RSS am WDR3600); Entropie
+        -- liefert unter OpenWrt 23.05 ohnehin urngd.
+        '-haveged',                    -- openwrt-packages
+    }
+end
+
+if not device_class('tiny') and not lowmem_dualradio then
     features {
         'tls',
         'wireless-encryption-wpa3',
