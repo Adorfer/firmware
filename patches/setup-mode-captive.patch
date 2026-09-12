@@ -8,7 +8,8 @@ HTTP-Adresse (Probe) und zeigen "Im Netzwerk anmelden", wenn die Antwort
 nicht stimmt. Genau das nutzen Hotspots und IoT-Geraete im AP-Modus. Hier:
 
   S60dnsmasq    die bekannten Probe-Hosts (Apple, Android/Google, Xiaomi,
-                Huawei, Windows inkl. der NCSI-DNS-Probe, Firefox,
+                Huawei, Windows inkl. der NCSI-DNS-Probe, Firefox (auch der
+                neue Host firefox-portal-detection.com, am S24 Ultra gesehen),
                 GNOME/Ubuntu/Debian/KDE/Arch) loesen auf 192.168.1.1 auf,
                 wie gluon.setup mit --address und --local.
   S50uhttpd     -E /cgi-bin/portal: jeder Pfad, den es nicht gibt (also
@@ -50,7 +51,7 @@ Android pruefen nur im WLAN (Setup-WLAN ist fuer 2025.1 vorgemerkt).
 +	connectivitycheck.gstatic.com connectivitycheck.android.com clients3.google.com
 +	connect.rom.miui.com connectivitycheck.platform.hicloud.com
 +	www.msftconnecttest.com ipv6.msftconnecttest.com www.msftncsi.com dns.msftncsi.com
-+	detectportal.firefox.com
++	detectportal.firefox.com firefox-portal-detection.com
 +	nmcheck.gnome.org connectivity-check.ubuntu.com network-test.debian.org networkcheck.kde.org ping.archlinux.org
 +'
 +
