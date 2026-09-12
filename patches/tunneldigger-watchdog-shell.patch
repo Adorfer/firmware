@@ -14,6 +14,13 @@ Gleiches Verhalten:
   bisher als "keine Nachbarn"
 - dieselben zwei Logzeilen, derselbe Neustart per Init-Skript
 
+Neu gegenueber der Lua-Fassung: Ohne IPv4-Adresse auf br-wan startet der
+Watchdog nicht neu. tunneldigger erreicht dann keinen Broker (der Client
+nutzt nur IPv4), ein Neustart setzt nur dieselbe vergebliche Schleife neu
+auf. Am WDR3600 ohne WAN (nur LAN-Mesh) hat der Watchdog tunneldigger alle
+5 Minuten neu gestartet. Kommt die Adresse zurueck, gilt wieder das alte
+Verhalten.
+
 Das Skript liegt jetzt unter files/ statt luasrc/: luasrc wird mit
 luasrcdiet minifiziert, das wuerde Shell zerstoeren.
 
@@ -26,7 +33,7 @@ new file mode 100755
 index 0000000..7910ecb
 --- /dev/null
 +++ b/package/gluon-mesh-vpn-tunneldigger/files/usr/bin/tunneldigger-watchdog
-@@ -0,0 +1,13 @@
+@@ -0,0 +1,17 @@
 +#!/bin/sh
 +# Restarts tunneldigger when the mesh VPN is enabled, but batman-adv has no
 +# originator via mesh-vpn. Same behaviour as the former Lua version, which
@@ -34,6 +41,10 @@ index 0000000..7910ecb
 +# flash, because the page cache could not hold it.
 +
 +[ "$(uci -q get tunneldigger.mesh_vpn.enabled)" = 1 ] || exit 0
++
++# Without an IPv4 address on br-wan no broker is reachable (the client is
++# IPv4 only); a restart would just start the same failing loop again.
++ip -4 addr show dev br-wan 2>/dev/null | grep 'inet ' >/dev/null || exit 0
 +
 +if ! batctl o | grep 'mesh-vpn' >/dev/null; then
 +	logger -t tunneldigger-watchdog "No vpn-mesh neighbours found."
