@@ -106,6 +106,7 @@ run_patch patch-gluon-makefiles.sh     "Gluon-Makefile und Paketliste"
 run_patch limit-wireless-buffers.sh    "WLAN-Puffer nach RAM begrenzen (Backport Gluon 8f38662f)"
 run_patch revert-mips-tlb-uniquify.sh  "MIPS: r4k_tlb_uniquify() zuruecknehmen (Kaltstart-Haenger 74Kc)"
 run_patch ag71xx-rx-ring-no-bug.sh     "ag71xx: kein BUG() bei leerem RX-Ring (RAM-Druck, Archer C25)"
+run_patch sysctl-no-watermark-boost-64mb.sh "base-files: kein Watermark-Boost auf 64-MB-Geraeten"
 
 # Reihenfolge beachten: moredetails fuegt direkt hinter der Modellzeile ein,
 # ssid und hwdetails setzen auf diesem Zustand auf.
