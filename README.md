@@ -4,6 +4,10 @@ Freifunk-Firmware für Freifunk Düsseldorf-Flingern und Freifunk im Neanderland
 (Neanderfunk), gebaut mit Gluon. Wie `build.sh` arbeitet, steht ausführlich in
 [`docs/build-sh.md`](docs/build-sh.md).
 
+In English: a measurement report on build times and the parallel build mode
+(golden tree, rootless overlayfs workers), with raw data, is in
+[`docs/parallel-builds/`](docs/parallel-builds/).
+
 ## Bauen
 
 ### Voraussetzungen
