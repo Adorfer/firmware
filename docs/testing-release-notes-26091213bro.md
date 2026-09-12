@@ -13,6 +13,24 @@ Rückmeldungen bitte an:
 - Mastodon: [@neanderfunk@nrw.social](https://nrw.social/@neanderfunk)
 - Telegram: [Neanderfunk-Gruppe](https://t.me/+_rWKhNAJyvg5MWY0)
 
+## So kommt die Testfirmware auf den Router
+
+Per SSH auf dem Router anmelden und diese eine Zeile einfügen:
+
+```
+U=http://imageslive.ffdus.de/images2023.2ad;C=$(uci get autoupdater.broken.mirror|cut -d/ -f6);T=$C;grep -q '"ssh-' /lib/gluon/site.json&&T=$C-key;for D in $(wget -qO- $U/|grep -o 'images-[0-9]*'|sort -ru);do M=$U/$D/$T/$C/sysupgrade;wget -qO- $M/broken.manifest|grep ^BRANCH>/dev/null&&break;M=;done;echo ${M:-kein Image fuer $T};[ "$M" ]&&{ :>/tmp/au;(trap '' HUP;exec autoupdater -f -b broken $M)>>/tmp/au 2>&1 </dev/null& tail -f /tmp/au& sleep 60;kill $!;exit;}
+```
+
+- Die Zeile sucht die neueste fertige Testfirmware für die Domain des
+  Routers, mit oder ohne SSH-Keys, genau wie bisher.
+- Das Update läuft im Hintergrund. Die Ausgabe ist eine Minute lang zu
+  sehen, dann meldet sich die Sitzung von selbst ab. Danach flasht der
+  Router und startet neu, das dauert ein paar Minuten.
+- An der Konfiguration ändert die Zeile nichts. Mit dem nächsten
+  Stable-Release kommt der Router von selbst wieder auf stable.
+- Steht dort „No new firmware available“, ist der Router schon auf diesem
+  Stand oder neuer.
+
 ## Einrichtung (Setup-Mode)
 
 - **Neues Design:** Alles auf einer Seite, und beim Wechseln geht keine
