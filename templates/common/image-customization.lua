@@ -40,7 +40,9 @@ packages {
     'gluon-ebtables-filter-ra-dhcp',      -- gluon
     'respondd-module-airtime',            -- gluon-packages
     'iwinfo',                             -- openwrt
-    'haveged',                            -- openwrt-packages
+    -- Bewusst kein haveged mehr: Entropie liefert unter OpenWrt 23.05 urngd,
+    -- und der Kernel 5.15 initialisiert seinen CRNG auch ohne Hilfe. haveged
+    -- kostete ~1,6 MB RSS (WDR3600), auf 64-MB-Geraeten zu viel.
     'socat',                              -- openwrt-packages
     'wireless-tools', 			  -- openwrt-packages
     'kmod-sched',                         -- openwrt, fuer socat
@@ -100,9 +102,6 @@ local lowmem_dualradio = device({
 
 if lowmem_dualradio then
     packages {
-        -- Daemon mit eigenem Puffer (~1,6 MB RSS am WDR3600); Entropie
-        -- liefert unter OpenWrt 23.05 ohnehin urngd.
-        '-haveged',                    -- openwrt-packages
         -- Komprimierter Swap im RAM (Standard: halber RAM, lzo-rle). Selten
         -- genutzte Seiten der Daemons werden komprimiert, das laesst mehr
         -- Platz fuer den Datei-Cache. Zieht kmod-zram und die busybox-Applets
