@@ -80,7 +80,7 @@ if [ "$PHASE" = "pre-update" ]; then
   # Alle vier legen eine Datei im Gluon-Baum ab, die "make update" gleich
   # darauf auf ein Modul anwendet. Sie muessen deshalb hier stehen und nicht
   # unten.
-  run_patch add-gluon-package-patches.sh  "Paketpatch fuer packages/gluon bereitlegen"
+  run_patch add-gluon-package-patches.sh  "Paketpatches fuer packages/gluon bereitlegen (opkg-Keys, Airtime-Plausibilitaet)"
   run_patch add-lantiq-xrx200-devices.sh  "AVM FRITZ!Box 7430 und 3390, mit OpenWrt-Patch"
   run_patch add-ffac-package-patches.sh   "Paketpatch fuer packages/ffac bereitlegen"
   run_patch tunneldigger-reinit-backoff.sh "tunneldigger: Reinit mit Pause, kein modprobe fuer mesh-vpn (Modulpatch)"
