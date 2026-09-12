@@ -26,7 +26,8 @@ Setzt auf setup-mode-hostnames und setup-mode-captive auf.
   S60dnsmasq    die bisherige Instanz jetzt fest an br-setup
                 (--interface, --bind-dynamic); eine zweite Instanz fest an
                 br-setupwifi (--except-interface=lo): DNS-Catch-all auf die
-                eigene Adresse, DHCP .2-.254 MIT Default-Route ueber den
+                eigene Adresse (--address=/#/ fuer A, --local=/#/ damit AAAA
+                leer beantwortet wird statt REFUSED), DHCP .2-.254 MIT Default-Route ueber den
                 Knoten, eigene Lease- und PID-Datei. Nur, wenn S20network das
                 WLAN angelegt hat.
   cgi-bin/portal  leitet auf die Adresse zurueck, ueber die die Anfrage kam
@@ -178,7 +179,7 @@ Das Anmeldefenster kam am Samsung S24 Ultra nicht -> Umstellung auf
 +	wifi_addr="$(uci -q -c /var/gluon/setup-mode/config get network.setupwifi.ipaddr)" || return 0
 +
 +	procd_open_instance setupwifi
-+	procd_set_param command $PROG -k -p 53 --interface=br-setupwifi --except-interface=lo --bind-dynamic --no-resolv --no-hosts --address=/#/$wifi_addr -F ${wifi_addr%.*}.2,${wifi_addr%.*}.254 -l /tmp/dhcp-setupwifi.leases -x /var/run/dnsmasq-setupwifi.pid
++	procd_set_param command $PROG -k -p 53 --interface=br-setupwifi --except-interface=lo --bind-dynamic --no-resolv --no-hosts --address=/#/$wifi_addr --local=/#/ -F ${wifi_addr%.*}.2,${wifi_addr%.*}.254 -l /tmp/dhcp-setupwifi.leases -x /var/run/dnsmasq-setupwifi.pid
  	procd_set_param respawn
  	procd_close_instance
  }
