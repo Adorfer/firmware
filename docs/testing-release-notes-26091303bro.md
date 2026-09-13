@@ -7,9 +7,8 @@ Firmware-Stand: `26091303bro`, gebaut am 13.09.2026. Die Images liegen unter
 
 Gegenüber der Testversion vom Vortag (`26091213bro`) neu: mehr Stabilität für
 Dualband-Router mit wenig Arbeitsspeicher, keine Dauerlast mehr bei
-Mesh-VPN ohne Internet, eine realistische Kanalauslastung auf der Karte,
-Firmware auch für Router mit IPQ40xx-Chip sowie die SSH-Befehle `vpn` und
-`flash` (Einzelheiten unten).
+Mesh-VPN ohne Internet, eine realistische Kanalauslastung auf der Karte
+sowie die SSH-Befehle `vpn` und `flash` (Einzelheiten unten).
 
 Das ist eine **Testversion**. Sie steckt voller Neuerungen aus den letzten
 zwei Wochen, ist aber noch nicht final. Wer mag, spielt sie auf einen
@@ -89,11 +88,6 @@ U=http://imageslive.ffdus.de/images2023.2ad;C=$(uci get autoupdater.broken.mirro
 - Keine unmögliche Kanalauslastung mehr (über 100 % oder unter 0), wie sie
   einige Router mit MediaTek-WLAN (MT7915/MT7981) gemeldet haben.
 
-## Neue Geräte
-
-- Firmware jetzt auch für Router mit IPQ40xx-Chip, z. B. AVM FRITZ!Box 4040
-  und 7530, FRITZ!Repeater 1200, Aruba AP-303, ZyXEL NBG6617.
-
 ## Statusseite des Routers
 
 - Die aktiven SSIDs
@@ -120,4 +114,3 @@ U=http://imageslive.ffdus.de/images2023.2ad;C=$(uci get autoupdater.broken.mirro
 - Bleiben Kanäle und Sendeleistung nach dem Update erhalten?
 - Dualband-Router mit 64 MB (Archer C2 v3, C25, C58, C60, D50 …): Läuft er
   über Tage stabil, auch mit vielen WLAN-Clients?
-- Router mit IPQ40xx-Chip: Klappt das Update, laufen WLAN und Mesh?
