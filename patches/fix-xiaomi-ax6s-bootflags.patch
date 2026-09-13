@@ -17,9 +17,15 @@ gesetzt hat und die bei ihm seit ueber einem halben Jahr halten (13.09.2026)
   boot_fw1 "run boot_rd_img;bootm"   auch Platz 1 bootet das OpenWrt-Image,
                                      ein Platzwechsel fuehrt nicht mehr zur
                                      Stock-Firmware (der eigentliche Hebel)
-  flag_boot_rootfs 0
   flag_try_sys1_failed 8, flag_try_sys2_failed 8
   flag_boot_success 1, flag_last_success 1
+
+flag_boot_rootfs (vom Betreiber einmal auf 0 gesetzt) legen wir bewusst nicht
+fest: Am AX6S RDVW-d4da211db8f5 wechselte der Bootloader bei einem Neustart
+auf Platz 1, obwohl flag_boot_success=1 war, und zaehlte
+flag_try_sys2_failed hoch. Weil beide Plaetze dasselbe Image booten, ist der
+Wert egal; festgelegt wuerde er bei jedem Platzwechsel neu geschrieben, und
+das Environment hat keine redundante Kopie (/dev/mtd3).
 
 Die alte Fassung haette die Zaehler bei so eingerichteten Geraeten auf 0
 zurueckgesetzt. Geprueft wird bei jedem Boot, geschrieben nur, was abweicht,
@@ -27,14 +33,16 @@ in einem Zug (fw_setenv -s -), jede Aenderung im Syslog ("bootcount: xiaomi
 a/b: ..."). Nur wenn das Xiaomi-Environment lesbar ist, und boot_fw1 nur,
 wenn es boot_rd_img gibt.
 
-Auf Hardware ungetestet (kein AX6S erreichbar); Logik mit nachgebautem
-fw_printenv/fw_setenv geprueft: Stock-Werte -> ein Schreibvorgang, zweiter
-Boot -> keiner, Standardumgebung -> nichts, ohne boot_rd_img -> boot_fw1
-bleibt.
+Environment eines echten AX6S (RDVW-d4da211db8f5, 13.09.2026) gelesen: dort
+war boot_fw1 schon gesetzt, die Zaehler standen durch die alte Fassung auf 0.
+Die neue Fassung schreibt dort genau einmal (Zaehler auf 8/8). Logik mit
+nachgebautem fw_printenv/fw_setenv geprueft: Stock-Werte -> ein
+Schreibvorgang, zweiter Boot -> keiner, reiner Platzwechsel -> keiner,
+Standardumgebung -> nichts, ohne boot_rd_img -> boot_fw1 bleibt.
 
 --- a/target/linux/mediatek/mt7622/base-files/etc/init.d/bootcount
 +++ b/target/linux/mediatek/mt7622/base-files/etc/init.d/bootcount
-@@ -2,6 +2,52 @@
+@@ -2,6 +2,54 @@
  
  START=99
  
@@ -50,9 +58,12 @@ bleibt.
 +#   boot_fw1 "run boot_rd_img;bootm"  auch Platz 1 bootet das OpenWrt-Image,
 +#                                     ein Platzwechsel fuehrt nicht mehr zur
 +#                                     Stock-Firmware
-+#   flag_boot_rootfs 0                Platz 0
 +#   flag_try_sys1/2_failed 8          beide Zaehler ueber der Schwelle
 +#   flag_boot_success 1, flag_last_success 1
++# flag_boot_rootfs bleibt dem Bootloader: er wechselt den Platz auch mit
++# flag_boot_success=1 (am AX6S im Feld gesehen), und weil beide Plaetze
++# dasselbe Image booten, ist der Wert egal - festgelegt wuerde er sonst bei
++# jedem Platzwechsel neu geschrieben.
 +# Geschrieben wird nur, was abweicht, in einem Zug - nach dem ersten Start
 +# also normalerweise nie wieder. Nur wenn das Xiaomi-Environment lesbar ist
 +# (bei falscher Env-Konfiguration oder CRC-Fehler liefert fw_printenv die
@@ -74,7 +85,6 @@ bleibt.
 +		logger -t bootcount "xiaomi a/b: $var ${cur:-(leer)} -> $want"
 +	done <<-EOF
 +		boot_fw1 run boot_rd_img;bootm
-+		flag_boot_rootfs 0
 +		flag_try_sys1_failed 8
 +		flag_try_sys2_failed 8
 +		flag_boot_success 1
@@ -87,7 +97,7 @@ bleibt.
  boot() {
  	case $(board_name) in
  	dlink,eagle-pro-ai-m32-a1|\
-@@ -15,5 +61,8 @@
+@@ -15,5 +63,8 @@
  	linksys,e8450)
  		mtd erase senv || true
  		;;
