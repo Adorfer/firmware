@@ -69,6 +69,7 @@ packages {
     -- alten Config-Mode: beide Zeilen entfernen.
     '-gluon-config-mode-theme',           -- gluon
     'neanderfunk-setup-mode',             -- neanderfunk (zieht neanderfunk-config-mode-theme)
+    'neanderfunk-setup-wifi',             -- neanderfunk (Setup-WLAN, site.conf setup_mode.wifi; ohne Funk wirkungslos)
     'ffac-autoupdater-wifi-fallback',     -- community
     'ffbs-collect-debug-info',            -- community
     'ffbs-debugbathosts',                 -- community
