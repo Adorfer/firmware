@@ -99,6 +99,7 @@ local lowmem_dualradio = device({
     'd-link-dir825b1',                 -- 2x ath9k
     'netgear-wndr3700',                -- 2x ath9k
     'netgear-wndr3700-v2',             -- 2x ath9k
+    'netgear-r6120',                   -- mt7603 + mt76x2 (ramips-mt76x8, 16 MB Flash)
 })
 
 if lowmem_dualradio then
