@@ -19,6 +19,12 @@ bleibt hier nur:
   cgi-bin/portal  leitet auf die Adresse zurueck, ueber die die Anfrage kam
                 (SERVER_ADDR), also 198.51.100.1 im WLAN, 192.168.1.1 am LAN.
 
+Unsere site.conf: start = 'button', security = 'open'. Beim Genexis Pulse
+EX400 zaehlt die kapazitive WPS-Flaeche als Taste; sie loest bekanntermassen
+auch von selbst aus (deshalb nimmt Gluon sie vom Langdruck aus), das offene
+Setup-WLAN kann dort also ohne Finger angehen. Hingenommen (adorfer,
+13.09.2026): bei der Einrichtung hat man das Geraet im Blick.
+
 Ohne das Paket (x86, ERX, oder start = 'off') aendert beides nichts: br-setup
 ist das einzige Netz des Setup-Modes, und am LAN kommen die Anfragen ohnehin
 ueber 192.168.1.1.
