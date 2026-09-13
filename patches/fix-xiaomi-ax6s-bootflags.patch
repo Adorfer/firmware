@@ -38,11 +38,29 @@ war boot_fw1 schon gesetzt, die Zaehler standen durch die alte Fassung auf 0.
 Die neue Fassung schreibt dort genau einmal (Zaehler auf 8/8). Logik mit
 nachgebautem fw_printenv/fw_setenv geprueft: Stock-Werte -> ein
 Schreibvorgang, zweiter Boot -> keiner, reiner Platzwechsel -> keiner,
-Standardumgebung -> nichts, ohne boot_rd_img -> boot_fw1 bleibt.
+Standardumgebung -> nichts, ohne boot_rd_img -> boot_fw1 bleibt (alles ohne
+das Hochzaehlen durch den Bootloader, siehe unten).
+
+Im Feld beobachtet (RDVW-d4da211db8f5, Image 26091317bro, 13./14.09.2026):
+Beim ersten Start nach dem Update schrieb der Patch einmal
+(flag_try_sys1_failed 0 -> 8, flag_try_sys2_failed 1 -> 8). Nach drei
+weiteren Neustarts stand flag_boot_rootfs auf 0 statt 1: Der Bootloader
+wechselt den Platz auch mit 8/8 und flag_boot_success=1 weiter und schreibt
+dafuer bei jedem Boot selbst ins Environment. Den Zaehler des Platzes, den er
+startet, erhoeht er dabei (8 -> 9), und der Patch setzt ihn beim Boot wieder
+auf 8 (Syslog "xiaomi a/b: flag_try_sys1_failed 9 -> 8"). Es bleibt also
+eine Schreibung je Boot, zusaetzlich zu der des Bootloaders selbst -
+unkritisch. Der Router startet trotzdem immer OpenWrt, weil boot_fw0 und
+boot_fw1 beide boot_rd_img booten; das ist der eigentliche Schutz.
+
+Offen: Ab welchem Zaehlerstand der Bootloader aufgibt (etwa in die Recovery
+geht), ist nicht bekannt. Deshalb halten wir die Zaehler bei 8, statt sie
+steigen zu lassen. Beim Betreiber, der sie einmal von Hand setzte und nie
+zuruecksetzte, lief es allerdings auch so ein halbes Jahr.
 
 --- a/target/linux/mediatek/mt7622/base-files/etc/init.d/bootcount
 +++ b/target/linux/mediatek/mt7622/base-files/etc/init.d/bootcount
-@@ -2,6 +2,54 @@
+@@ -2,6 +2,56 @@
  
  START=99
  
@@ -58,14 +76,16 @@ Standardumgebung -> nichts, ohne boot_rd_img -> boot_fw1 bleibt.
 +#   boot_fw1 "run boot_rd_img;bootm"  auch Platz 1 bootet das OpenWrt-Image,
 +#                                     ein Platzwechsel fuehrt nicht mehr zur
 +#                                     Stock-Firmware
-+#   flag_try_sys1/2_failed 8          beide Zaehler ueber der Schwelle
++#   flag_try_sys1/2_failed 8          beide Zaehler wie beim Betreiber
 +#   flag_boot_success 1, flag_last_success 1
 +# flag_boot_rootfs bleibt dem Bootloader: er wechselt den Platz auch mit
 +# flag_boot_success=1 (am AX6S im Feld gesehen), und weil beide Plaetze
 +# dasselbe Image booten, ist der Wert egal - festgelegt wuerde er sonst bei
 +# jedem Platzwechsel neu geschrieben.
-+# Geschrieben wird nur, was abweicht, in einem Zug - nach dem ersten Start
-+# also normalerweise nie wieder. Nur wenn das Xiaomi-Environment lesbar ist
++# Geschrieben wird nur, was abweicht, in einem Zug. Der Bootloader zaehlt den
++# Platz, den er startet, bei jedem Boot hoch (8 -> 9, am AX6S im Feld
++# gesehen); das setzen wir hier zurueck, also eine Schreibung je Boot, zu der
++# des Bootloaders dazu. Nur wenn das Xiaomi-Environment lesbar ist
 +# (bei falscher Env-Konfiguration oder CRC-Fehler liefert fw_printenv die
 +# Standardumgebung ohne diese Flags), und boot_fw1 nur, wenn es boot_rd_img
 +# gibt.
@@ -97,7 +117,7 @@ Standardumgebung -> nichts, ohne boot_rd_img -> boot_fw1 bleibt.
  boot() {
  	case $(board_name) in
  	dlink,eagle-pro-ai-m32-a1|\
-@@ -15,5 +63,8 @@
+@@ -15,5 +65,8 @@
  	linksys,e8450)
  		mtd erase senv || true
  		;;
