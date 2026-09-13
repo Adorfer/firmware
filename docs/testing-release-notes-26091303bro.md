@@ -1,8 +1,15 @@
-# Testing-Release-Notes `26091213bro`
+# Testing-Release-Notes `26091303bro`
 
 **Neanderfunk-Testfirmware (broken) auf Basis von Gluon v2023.2.6**
 
-Firmware-Stand: `26091213bro`, gebaut am 12.09.2026.
+Firmware-Stand: `26091303bro`, gebaut am 13.09.2026. Die Images liegen unter
+<http://imageslive.ffdus.de/images2023.2ad/images-1789262805/>.
+
+Gegenüber der Testversion vom Vortag (`26091213bro`) neu: mehr Stabilität für
+Dualband-Router mit wenig Arbeitsspeicher, keine Dauerlast mehr bei
+Mesh-VPN ohne Internet, eine realistische Kanalauslastung auf der Karte,
+Firmware auch für Router mit IPQ40xx-Chip sowie die SSH-Befehle `vpn` und
+`flash` (Einzelheiten unten).
 
 Das ist eine **Testversion**. Sie steckt voller Neuerungen aus den letzten
 zwei Wochen, ist aber noch nicht final. Wer mag, spielt sie auf einen
@@ -64,8 +71,28 @@ U=http://imageslive.ffdus.de/images2023.2ad;C=$(uci get autoupdater.broken.mirro
 
 ## Stabilität
 
+- **Dualband-Router mit wenig Arbeitsspeicher laufen stabil:** Auf Routern mit
+  64 MB RAM und zwei Funkmodulen (z. B. TP-Link Archer C2 v3, C25, C58, C60,
+  D50, TL-WR902AC, FRITZ!WLAN Repeater 1750E) wurde es mit eingeschaltetem
+  5 GHz eng bis zum Absturz. Diese Router bekommen jetzt komprimierten
+  Arbeitsspeicher (zram) und verzichten auf ein paar Extras.
+- **Etwas mehr freier Arbeitsspeicher auf allen Routern:** Hintergrunddienste
+  laufen sparsamer.
+- **Mesh-VPN an, aber kein Internet am WAN-Port:** Die vergeblichen
+  VPN-Verbindungsversuche bremsen den Router nicht mehr aus. Bisher lief die
+  Last dabei über die Zahl der CPU-Kerne.
 - Weniger unnötige automatische Neustarts.
 - Die NodeMonitor-App zeigt den Gateway-Status richtig an.
+
+## Karte
+
+- Keine unmögliche Kanalauslastung mehr (über 100 % oder unter 0), wie sie
+  einige Router mit MediaTek-WLAN (MT7915/MT7981) gemeldet haben.
+
+## Neue Geräte
+
+- Firmware jetzt auch für Router mit IPQ40xx-Chip, z. B. AVM FRITZ!Box 4040
+  und 7530, FRITZ!Repeater 1200, Aruba AP-303, ZyXEL NBG6617.
 
 ## Statusseite des Routers
 
@@ -81,9 +108,16 @@ U=http://imageslive.ffdus.de/images2023.2ad;C=$(uci get autoupdater.broken.mirro
 - `nodeinfo` zeigt Nachbarn und LAN-Ports.
 - LAN-Ports lassen sich per Befehl zwischen Mesh und Client umschalten.
 - `help` ist vollständig.
+- `vpn` zeigt, ob das Mesh-VPN an ist, und schaltet es dauerhaft an oder aus.
+- `flash <URL>` bzw. `sysupgrade` klappen jetzt auch auf Routern mit wenig
+  Arbeitsspeicher zuverlässig: Vor dem Flashen werden WLAN und Netz so
+  angehalten, wie es der Autoupdater tut.
 
 ## Beim Testen besonders interessant
 
 - Einrichten per WLAN mit iPhone, Laptop oder älteren Android-Handys: Öffnet
   sich die Setup-Seite von allein?
 - Bleiben Kanäle und Sendeleistung nach dem Update erhalten?
+- Dualband-Router mit 64 MB (Archer C2 v3, C25, C58, C60, D50 …): Läuft er
+  über Tage stabil, auch mit vielen WLAN-Clients?
+- Router mit IPQ40xx-Chip: Klappt das Update, laufen WLAN und Mesh?
