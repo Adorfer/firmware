@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Xiaomi Redmi AX6S: bestaetigt bei jedem Boot die Flags des A/B-Bootloaders,
+# Xiaomi Redmi AX6S: legt die Flags des A/B-Bootloaders auf das OpenWrt-Image fest,
 # damit er nicht nach einigen Neustarts auf die Stock-Firmware zurueckfaellt.
 # Einzelheiten im Kopf von fix-xiaomi-ax6s-bootflags.patch.
 #
@@ -13,4 +13,4 @@ echo "mediatek-mt7622: Xiaomi Redmi AX6S, Boot-Flags bestaetigen"
 enter_dir openwrt
 apply_patch "$PATCH_DIR/fix-xiaomi-ax6s-bootflags.patch" \
   "target/linux/mediatek/mt7622/base-files/etc/init.d/bootcount" \
-  'xiaomi_ab_boot_ok'
+  'xiaomi_ab_pin_openwrt'
