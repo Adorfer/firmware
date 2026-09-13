@@ -122,7 +122,7 @@ run_patch wizard-save-only.sh          "Config-Mode: Wizard mit Speichern ohne N
 run_patch wizard-save-lock.sh          "Config-Mode: nur ein Speichern & Neustarten gleichzeitig"
 run_patch setup-mode-hostnames.sh      "Setup-Mode: gluon.setup und setup.gluon per DNS auf 192.168.1.1"
 run_patch setup-mode-captive.sh        "Setup-Mode: Portal-Erkennung der Clients fuehrt auf die Setup-Seite"
-run_patch setup-mode-wifi.sh           "Setup-Mode: WLAN-Zugang setup.gluon_<MAC> mit Umleitung auf die Setup-Seite"
+run_patch setup-mode-wifi.sh           "Setup-Mode: dnsmasq an br-setup, Portal-Umleitung (fuer neanderfunk-setup-wifi)"
 
 run_patch outdoor-schalter.sh           "Outdoor-Schalter unabhaengig von preserve_channels"
 
