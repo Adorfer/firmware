@@ -16,6 +16,7 @@ Router, schaut sich um und meldet, was auffällt: was gut ist und was nicht.
 
 Rückmeldungen bitte an:
 
+- E-Mail: [projekt@neanderfunk.de](mailto:projekt@neanderfunk.de)
 - Mastodon: [@neanderfunk@nrw.social](https://nrw.social/@neanderfunk)
 - Telegram: [Neanderfunk-Gruppe](https://t.me/+_rWKhNAJyvg5MWY0)
 
