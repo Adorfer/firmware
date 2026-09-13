@@ -109,8 +109,24 @@ U=http://imageslive.ffdus.de/images2023.2ad;C=$(uci get autoupdater.broken.mirro
 
 ## Beim Testen besonders interessant
 
-- Einrichten per WLAN mit iPhone, Laptop oder älteren Android-Handys: Öffnet
-  sich die Setup-Seite von allein?
+**Vor allem: der neue Setup-Mode, eingerichtet per WLAN vom Smartphone aus.**
+Den Router in den Setup-Mode bringen (Reset-Taste einige Sekunden drücken),
+dann mit dem Handy ins WLAN `setup.gluon_…` gehen (siehe oben) und den Router
+komplett einrichten. Uns interessiert:
+
+- Taucht das Setup-WLAN auf, klappt das Verbinden mit dem Passwort?
+- Öffnet sich die Setup-Seite von allein? Wenn nicht: Geht es über
+  http://setup.gluon?
+- Lässt sich alles gut bedienen, auch im Hochformat und im Dark Mode?
+- Kommt der Router nach „Speichern & Neustarten“ richtig eingerichtet ins
+  Netz?
+
+Bitte dazu schreiben, welches Handy und welches System (iPhone/iOS-Version,
+Android-Version und Hersteller). Gerade ältere Android-Geräte und iPhones
+verhalten sich bei WLANs ohne Internet unterschiedlich.
+
+Außerdem:
+
 - Bleiben Kanäle und Sendeleistung nach dem Update erhalten?
 - Dualband-Router mit 64 MB (Archer C2 v3, C25, C58, C60, D50 …): Läuft er
   über Tage stabil, auch mit vielen WLAN-Clients?
