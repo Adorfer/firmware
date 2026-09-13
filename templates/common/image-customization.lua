@@ -100,6 +100,9 @@ local lowmem_dualradio = device({
     'netgear-wndr3700',                -- 2x ath9k
     'netgear-wndr3700-v2',             -- 2x ath9k
     'netgear-r6120',                   -- mt7603 + mt76x2 (ramips-mt76x8, 16 MB Flash)
+    'tp-link-archer-c50-v3',           -- mt7603 + mt76x2 (ramips-mt76x8)
+    'cudy-wr1000',                     -- mt7603 + mt76x2 (ramips-mt76x8)
+    'tp-link-archer-c20i',             -- rt2800soc + mt76x0e (ramips-mt7620)
 })
 
 if lowmem_dualradio then
