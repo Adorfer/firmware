@@ -1,6 +1,23 @@
-Statusseite: Zaehler des ssid-changer seit Boot
+Statusseite: Zustand und Zaehler des ssid-changer
 
-Die Zeile "Offline-SSID  triggered: x" zeigt x/y/z, zum Beispiel 1/15/17:
+Die Zeile "Offline-SSID" zeigt den Zustand in einem Wort und dahinter die
+Zaehler:
+
+  Offline-SSID   online        Zaehler: 0/15/17
+  Offline-SSID   offline       Zaehler: 1/16/18
+  Offline-SSID   deaktiviert
+
+  deaktiviert  ssid-changer.settings.enabled = 0 (dann ohne Zaehler)
+  offline      /tmp/ssid-changer-offline = 1, die Offline-SSID ist geschaltet
+  online       /tmp/ssid-changer-offline = 0
+
+Vorher stand dort "triggered: x/y/z". Das wurde als "gerade ausgeloest"
+gelesen, auch bei 0/0/0 (Rueckmeldung aus dem Feld, 13.09.2026). Ohne
+ssid-changer-Konfiguration erscheint keine Zeile; ist die Funktion an, aber
+/tmp/ssid-changer-offline noch nicht geschrieben (erste Minute nach dem Boot),
+ebenfalls nicht.
+
+Die Zaehler x/y/z, zum Beispiel 1/15/17:
 
   x  wie bisher /tmp/ssid-changer-offline: galt der Knoten am letzten
      Fensterwechsel als offline (0/1)
@@ -55,23 +72,45 @@ offline_ssid_triggered als Kontext und passte sonst nicht mehr.
  	local function read_first_line(path)
  		local f = io.open(path)
  		if not f then return nil end
-@@ -266,6 +290,7 @@
+@@ -293,6 +317,22 @@
  		ram_flash = (ram_total or '?') .. ' / ' .. (flash_total or '?')
  	end
  	local offline_ssid_triggered = get_offline_ssid_triggered()
 +	local sc_switches, sc_losses = get_ssid_changer_counts()
++
++	-- Zustand der Offline-SSID in einem Wort: "deaktiviert" (Funktion per uci
++	-- aus), sonst "offline" bzw. "online" nach /tmp/ssid-changer-offline. Frueher
++	-- stand hier "triggered: x/y/z", und das wurde als "gerade ausgeloest"
++	-- gelesen, auch bei 0/0/0. Ohne ssid-changer-Konfiguration keine Zeile.
++	local sc_state
++	if uci:get('ssid-changer', 'settings') then
++		if uci:get('ssid-changer', 'settings', 'enabled') == '0' then
++			sc_state = 'deaktiviert'
++		elseif offline_ssid_triggered == '1' then
++			sc_state = 'offline'
++		elseif offline_ssid_triggered == '0' then
++			sc_state = 'online'
++		end
++	end
  
  	local function sorted(t)
  		t = {unpack(t)}
-@@ -467,7 +492,11 @@
- 							<% if offline_ssid_triggered then -%>
+@@ -491,10 +531,17 @@
+ 									</tr>
+ 								<%- end %>
+ 							<%- end %>
+-							<% if offline_ssid_triggered then -%>
++							<% if sc_state then -%>
  								<tr>
  									<th><%:Offline-SSID%></th>
 -									<td>triggered: <%| offline_ssid_triggered %></td>
-+									<% if sc_switches then -%>
-+										<td title="now (0/1) / offline SSID switched since boot / gateway lost since boot">triggered: <%| offline_ssid_triggered %>/<%| sc_switches %>/<%| sc_losses %></td>
-+									<%- else -%>
-+										<td>triggered: <%| offline_ssid_triggered %></td>
++									<td><%| sc_state %></td>
++									<% if sc_state ~= 'deaktiviert' then -%>
++										<% if sc_switches then -%>
++											<td title="jetzt offline (0/1) / Offline-SSID geschaltet seit Start / Gateway verloren seit Start">Zähler: <%| offline_ssid_triggered %>/<%| sc_switches %>/<%| sc_losses %></td>
++										<%- else -%>
++											<td title="jetzt offline (0/1)">Zähler: <%| offline_ssid_triggered %></td>
++										<%- end %>
 +									<%- end %>
  								</tr>
  							<%- end %>
