@@ -105,6 +105,7 @@ run_patch network/interfaces-patch.sh          "primaere MACs und Schnittstellen
 run_patch build/patch-gluon-makefiles.sh     "Gluon-Makefile und Paketliste"
 run_patch lowmem/limit-wireless-buffers.sh    "WLAN-Puffer nach RAM begrenzen (Backport Gluon 8f38662f)"
 run_patch kernel/revert-mips-tlb-uniquify.sh  "MIPS: r4k_tlb_uniquify() zuruecknehmen (Kaltstart-Haenger 74Kc)"
+run_patch kernel/rtl8221b-skip-mmd30.sh       "Kernel: MMD 30 des RTL8221B beim PHY-Scan auslassen (toter 2,5G-Port bei Boot mit Kabel; Backport OpenWrt 88dcd8c)"
 run_patch kernel/ag71xx-rx-ring-no-bug.sh     "ag71xx: kein BUG() bei leerem RX-Ring (RAM-Druck, Archer C25)"
 run_patch lowmem/sysctl-no-watermark-boost-64mb.sh "base-files: kein Watermark-Boost auf 64-MB-Geraeten"
 run_patch bugfixes/sysctl-firmware-no-sysfs-fallback.sh "base-files: kein sysfs-Fallback fuer fehlende Firmware (Boot-Stillstand)"

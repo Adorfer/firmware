@@ -76,6 +76,7 @@ Setup-WLAN) steckt in Paketen des Feeds (`neanderfunk-config-mode-theme`,
 | `lowmem/limit-wireless-buffers.sh` | post-update | WLAN-Puffer nach RAM begrenzen (Backport Gluon 8f38662f; entfällt mit 2025.1) |
 | `kernel/revert-mips-tlb-uniquify.sh` | post-update | MIPS: `r4k_tlb_uniquify()` zurücknehmen (Kaltstart-Hänger 74Kc) |
 | `kernel/ag71xx-rx-ring-no-bug.sh` | post-update | ag71xx: kein `BUG()` bei leerem RX-Ring (RAM-Druck) |
+| `kernel/rtl8221b-skip-mmd30.sh` | post-update | beim PHY-Scan MMD 30 des RTL8221B nicht lesen; sonst ist der 2,5G-Port tot, wenn beim Booten ein Kabel steckt (Cudy TR3000/WR3000H; Backport OpenWrt 88dcd8c) |
 | `lowmem/sysctl-no-watermark-boost-64mb.sh` | post-update | kein Watermark-Boost auf 64-MB-Geräten |
 | `bugfixes/sysctl-firmware-no-sysfs-fallback.sh` | post-update | kein sysfs-Fallback für fehlende Firmware (60 s Boot-Stillstand) |
 | `lowmem/sysctl-64m-min-free.sh` | post-update | `vm.min_free_kbytes=2048` und kleinere Fragmentpuffer auf 64-MB-Geräten (Backport Gluon a505f767 + c6ac8914; entfällt, sobald Gluon es mitbringt) |
@@ -95,6 +96,7 @@ Setup-WLAN) steckt in Paketen des Feeds (`neanderfunk-config-mode-theme`,
 | `lowmem/state-check-shell.sh` | post-update | gluon-state-check als Shell statt Lua |
 | `lowmem/tunneldigger-watchdog-shell.sh` | post-update | tunneldigger-watchdog als Shell statt Lua |
 | `parked/squashfs-blocksize-per-device.sh` | – | squashfs-Blockgröße je Gerät (Testaufbau, nicht aktiv) |
+| `parked/cudy-rtl8221b-irq-parent.sh` | – | TR3000/M3000: `interrupt-parent = <&pio>` für den 2,5G-PHY (Backport OpenWrt 82b69df); geparkt bis zur Bestätigung des MMD-30-Hacks, siehe Patchkopf |
 
 ## Abhängigkeiten
 
