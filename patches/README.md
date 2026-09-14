@@ -37,10 +37,16 @@ machen weiter. Scheitert einer, brechen sie mit Fehler ab.
 | `bugfixes/` | Fehlerbehebungen am System, unabhängig vom Gerät |
 | `network/` | primäre MAC, Schnittstellen und Rollen |
 | `status-page/` | erweiterte Statusseite (Kette, Reihenfolge wichtig) |
-| `config-mode/` | Config-Mode: Wizard, Outdoor-Schalter |
-| `setup-mode/` | Setup-Mode: DNS-Namen, Portal-Erkennung, Setup-WLAN |
+| `gluon-config-mode/` | Gluons ursprüngliche Config-Mode-Oberfläche (`gluon-config-mode-*`, `gluon-web-*`): Wizard, Outdoor-Schalter |
+| `setup-mode-network/` | Netzdienste im Setup-Mode (dnsmasq, uhttpd): DNS-Namen, Portal-Erkennung, Anbindung des Setup-WLANs; wirkt per Kabel wie per WLAN |
 | `build/` | Gluon-Makefile und Patches für externe Module (packages/gluon, ffac) |
 | `parked/` | derzeit nicht angewendet (nicht in `prepare.sh`) |
+
+Zur Unterscheidung: Gluons **Setup-Mode** ist die Betriebsart beim Einrichten
+(eigene Netzdienste, feste Adresse 192.168.1.1), der **Config-Mode** die
+Weboberfläche darin. Unsere eigene Oberfläche dafür (Theme, Sammelseite,
+Setup-WLAN) steckt in Paketen des Feeds (`neanderfunk-config-mode-theme`,
+`neanderfunk-setup-mode`, `neanderfunk-setup-wifi`), nicht in diesen Patches.
 
 ## Alle Skripte
 
@@ -75,12 +81,12 @@ machen weiter. Scheitert einer, brechen sie mit Fehler ab.
 | `status-page/statuspage-ssidchanger-zaehler.sh` | post-update | Statusseite: Zähler des ssid-changer seit Boot |
 | `status-page/statuspage-respondd.sh` | post-update | Statusseite: Werte aus neanderfunk-respondd, live, inkl. Temperatur |
 | `status-page/web-static-version.sh` | post-update | Statusseite und Config-Mode: CSS/JS mit Versionsanhang gegen den Browser-Cache |
-| `config-mode/wizard-save-only.sh` | post-update | Wizard mit „Speichern“ ohne Neustart, Warnung beim Verlassen |
-| `config-mode/wizard-save-lock.sh` | post-update | nur ein „Speichern & Neustarten“ gleichzeitig |
-| `setup-mode/setup-mode-hostnames.sh` | post-update | `gluon.setup` und `setup.gluon` per DNS auf 192.168.1.1 |
-| `setup-mode/setup-mode-captive.sh` | post-update | Portal-Erkennung der Clients führt auf die Setup-Seite |
-| `setup-mode/setup-mode-wifi.sh` | post-update | dnsmasq an br-setup, Portal-Umleitung (für neanderfunk-setup-wifi) |
-| `config-mode/outdoor-schalter.sh` | post-update | Outdoor-Schalter unabhängig von preserve_channels |
+| `gluon-config-mode/wizard-save-only.sh` | post-update | Wizard mit „Speichern“ ohne Neustart, Warnung beim Verlassen |
+| `gluon-config-mode/wizard-save-lock.sh` | post-update | nur ein „Speichern & Neustarten“ gleichzeitig |
+| `setup-mode-network/setup-mode-hostnames.sh` | post-update | `gluon.setup` und `setup.gluon` per DNS auf 192.168.1.1 |
+| `setup-mode-network/setup-mode-captive.sh` | post-update | Portal-Erkennung der Clients führt auf die Setup-Seite |
+| `setup-mode-network/setup-mode-wifi.sh` | post-update | dnsmasq an br-setup, Portal-Umleitung (für neanderfunk-setup-wifi) |
+| `gluon-config-mode/outdoor-schalter.sh` | post-update | Outdoor-Schalter unabhängig von preserve_channels |
 | `lowmem/state-check-shell.sh` | post-update | gluon-state-check als Shell statt Lua |
 | `lowmem/tunneldigger-watchdog-shell.sh` | post-update | tunneldigger-watchdog als Shell statt Lua |
 | `parked/squashfs-blocksize-per-device.sh` | – | squashfs-Blockgröße je Gerät (Testaufbau, nicht aktiv) |
@@ -93,10 +99,10 @@ machen weiter. Scheitert einer, brechen sie mit Fehler ab.
   `statuspage-respondd` braucht das Paket `neanderfunk-respondd` aus
   [Neanderfunk/packages](https://github.com/Neanderfunk/packages); ohne es
   bleiben die betreffenden Zeilen leer.
-* **`setup-mode/`**: `setup-mode-captive` baut auf `setup-mode-hostnames` auf,
+* **`setup-mode-network/`**: `setup-mode-captive` baut auf `setup-mode-hostnames` auf,
   `setup-mode-wifi` auf beiden; `setup-mode-wifi` ist nur mit dem Paket
   `neanderfunk-setup-wifi` sinnvoll.
-* **`config-mode/`**: `wizard-save-lock` setzt `wizard-save-only` voraus.
+* **`gluon-config-mode/`**: `wizard-save-lock` setzt `wizard-save-only` voraus.
 * **pre-update**-Skripte legen Dateien unter `gluon/patches/…` ab; sie wirken
   nur, wenn danach `make update` läuft.
 * Die übrigen Skripte sind voneinander unabhängig.

@@ -4,7 +4,7 @@
 # von preserve_channels - siehe Kopf von outdoor-schalter.patch.
 #
 # Wird aus dem Gluon-Verzeichnis heraus aufgerufen, so wie prepare.sh es tut:
-#   pushd ../gluon ; ../patches/config-mode/outdoor-schalter.sh ; popd
+#   pushd ../gluon ; ../patches/gluon-config-mode/outdoor-schalter.sh ; popd
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib-patch.sh"
 
