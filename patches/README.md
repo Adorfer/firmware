@@ -23,7 +23,11 @@ Verzeichnis, gemeinsam genutzt wird nur `lib-patch.sh`. Zum Übernehmen:
 3. die Phase beachten (Tabelle). Abhängigkeiten stehen unten.
 
 Die Skripte sind idempotent: Ist ein Patch schon drin, melden sie das und
-machen weiter. Scheitert einer, brechen sie mit Fehler ab.
+machen weiter. Scheitert einer, brechen sie mit Fehler ab. Ausnahme: Die
+`status-page/`-Kette läuft nur auf einem frischen Baum durch. Ein zweiter Lauf
+bricht bei `statuspage-hwdetails` ab, weil `statuspage-respondd` dessen Teil
+umgeschrieben hat. `build.sh` setzt den Gluon-Baum vor jedem Lauf zurück, dort
+fällt das nicht auf.
 
 ## Gruppen
 
@@ -74,6 +78,7 @@ Setup-WLAN) steckt in Paketen des Feeds (`neanderfunk-config-mode-theme`,
 | `kernel/ag71xx-rx-ring-no-bug.sh` | post-update | ag71xx: kein `BUG()` bei leerem RX-Ring (RAM-Druck) |
 | `lowmem/sysctl-no-watermark-boost-64mb.sh` | post-update | kein Watermark-Boost auf 64-MB-Geräten |
 | `bugfixes/sysctl-firmware-no-sysfs-fallback.sh` | post-update | kein sysfs-Fallback für fehlende Firmware (60 s Boot-Stillstand) |
+| `lowmem/sysctl-64m-min-free.sh` | post-update | `vm.min_free_kbytes=2048` und kleinere Fragmentpuffer auf 64-MB-Geräten (Backport Gluon a505f767 + c6ac8914; entfällt, sobald Gluon es mitbringt) |
 | `status-page/statuspage-moredetails.sh` | post-update | Statusseite: weitere MACs und Gluon-Version |
 | `status-page/statuspage-ssid.sh` | post-update | Statusseite: SSID, HT-Modus und ssid-changer |
 | `status-page/statuspage-hwdetails.sh` | post-update | Statusseite: CPU-Typ, Kernzahl und BIOS |

@@ -108,6 +108,7 @@ run_patch kernel/revert-mips-tlb-uniquify.sh  "MIPS: r4k_tlb_uniquify() zurueckn
 run_patch kernel/ag71xx-rx-ring-no-bug.sh     "ag71xx: kein BUG() bei leerem RX-Ring (RAM-Druck, Archer C25)"
 run_patch lowmem/sysctl-no-watermark-boost-64mb.sh "base-files: kein Watermark-Boost auf 64-MB-Geraeten"
 run_patch bugfixes/sysctl-firmware-no-sysfs-fallback.sh "base-files: kein sysfs-Fallback fuer fehlende Firmware (Boot-Stillstand)"
+run_patch lowmem/sysctl-64m-min-free.sh        "gluon-core: min_free_kbytes 2048 und kleine Fragmentpuffer auf 64-MB-Geraeten (Backport Gluon a505f767+c6ac8914)"
 
 # Reihenfolge beachten: moredetails fuegt direkt hinter der Modellzeile ein,
 # ssid und hwdetails setzen auf diesem Zustand auf.
