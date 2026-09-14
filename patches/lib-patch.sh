@@ -1,11 +1,15 @@
 # shellcheck shell=bash
 #
-# Gemeinsame Hilfsfunktionen fuer die Patch-Skripte in patches/.
+# Gemeinsame Hilfsfunktionen fuer die Patch-Skripte in patches/<gruppe>/.
 #
 # Eingebunden wird sie ueber den eigenen Skriptpfad, damit sie unabhaengig vom
 # Arbeitsverzeichnis gefunden wird:
 #
-#   . "$(dirname "${BASH_SOURCE[0]}")/lib-patch.sh"
+#   . "$(dirname "${BASH_SOURCE[0]}")/../lib-patch.sh"
+#
+# Die Skripte liegen nach Gruppen in Unterverzeichnissen (devices/, kernel/,
+# status-page/ ...), jeweils zusammen mit ihren Patchdateien; diese Datei
+# liegt eine Ebene hoeher und wird von allen geteilt.
 #
 # Zweck ist die Fehlererkennung. Frueher liefen alle Patch-Skripte nach dem
 # Muster "wenn der Rueckwaerts-Trockenlauf fehlschlaegt, patche vorwaerts" und
@@ -14,7 +18,8 @@
 # Firmware, in der Geraete fehlen. Jeder Fehler bricht jetzt ab.
 #
 # Aufrufkontext: die Skripte laufen im Gluon-Verzeichnis (prepare.sh ruft sie
-# von dort als ../patches/<name>.sh auf), einige wechseln danach nach openwrt.
+# von dort als ../patches/<gruppe>/<name>.sh auf), einige wechseln danach nach
+# openwrt.
 # Alle Pfade sind gequotet: ein unquotetes "<$patchfile" ergibt bei einem
 # Leerzeichen im Pfad "ambiguous redirect", und das Kommando laeuft dann gar
 # nicht erst - genau daran sind hier schon Patches still gescheitert.
@@ -23,9 +28,10 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
-# Absoluter Pfad des patches/-Verzeichnisses, damit die Skripte ihre
+# Absoluter Pfad des Verzeichnisses, in dem das aufrufende Skript liegt (seine
+# Gruppe, dort liegen auch seine Patchdateien), damit die Skripte ihre
 # Patchdateien auch nach einem "cd openwrt" noch finden.
-PATCH_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PATCH_DIR="$( cd "$( dirname "${BASH_SOURCE[1]}" )" && pwd )"
 
 patch_abort ()
 {

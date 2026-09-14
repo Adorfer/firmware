@@ -610,7 +610,7 @@ cpu-probe.o build without warnings. NOT tested on hardware.
 
 ## Ergebnis
 
-`patches/999-mips-tlb-r4k-no-uniquify.patch` nimmt den Aufruf zurueck und stellt
+`patches/kernel/999-mips-tlb-r4k-no-uniquify.patch` nimmt den Aufruf zurueck und stellt
 das Verhalten bis 5.15.189 wieder her. Ueber beide betroffenen Geraete hinweg
 **0 von 41** Kaltstarts ungepatcht gegen **41 von 41** gepatcht.
 
