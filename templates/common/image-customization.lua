@@ -276,8 +276,10 @@ if include_usb then
     packages {'ffka-gluon-web-usb-wan-hotplug', 'ffac-update-location-gps'}  -- beide community
 end
 
--- VORUEBERGEHEND (14.09.2026): ethtool auf dem Cudy TR3000, dessen 2,5G-WAN
--- an einem Realtek RTL8221B haengt. Zur Diagnose des Link-Problems
+-- VORUEBERGEHEND (14.09.2026): ethtool auf den Geraeten mit Realtek RTL8221B
+-- am 2,5G-Port (TR3000 laut DTS; WR3000H v1 und M3000 laut OpenWrt-Forum,
+-- neuere Revisionen teils mit Motorcomm YT8821). Nicht noetig bei GL-MT3000,
+-- NWA50AX Pro, MR90X, TUF-AX4200: dort MaxLinear GPY211C. Zur Diagnose des Link-Problems
 -- (openwrt/openwrt#17505; freifunk-docs rtl8221b-2g5-wan-2023.2.md): Link-Zustand
 -- ansehen (ethtool eth0) und Aushandlung ohne Neustart neu anstossen
 -- (ethtool -r eth0). Wieder raus, sobald geklaert ist, ob ein Port-Reset statt
@@ -285,6 +287,8 @@ end
 if device({
     'cudy-tr3000-v1',
     'cudy-tr3000-256mb-v1',
+    'cudy-wr3000h-v1',
+    'cudy-m3000-v1',
 }) then
     packages {'ethtool'}                 -- openwrt
 end
