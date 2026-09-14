@@ -15,7 +15,10 @@ feel free to add things
       pruefen, ob es ueberhaupt noch Knoten mit 1.0 gibt - sonst kann die
       Ausnahme ersatzlos weg. Befund vom 09.09.2026, siehe
       docs/erx-migration-howto.md.
-- [ ] primary-mac stimmt nach "sysupgrade -n" nicht mit dem Etikett ueberein.
+- [x] primary-mac stimmt nach "sysupgrade -n" nicht mit dem Etikett ueberein.
+      GESCHLOSSEN 14.09.2026 (adorfer): Am Archer C6 v2 mit "sysupgrade -n"
+      aus der broken-Firmware nicht nachvollziehbar, evtl. war es ein anderes
+      Geraet. Wieder oeffnen, wenn sich jemand mit dem betroffenen Target meldet.
       Unter Gluon 2021.x war es korrekt, seit 2023.2.x nicht mehr; der Versatz
       betraegt mehr als ein Byte, etwa 4 hoeher oder tiefer. Da die primaere
       MAC die node_id bestimmt, findet danach niemand sein Geraet anhand des
