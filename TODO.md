@@ -35,7 +35,7 @@ feel free to add things
       typisch 4. Warum es unter 2021.x stimmte, duerfte an der geaenderten
       phy-Nummerierung ab OpenWrt 22.03 liegen.
       Am Geraet zu messen:
-        uci -q get gluon.core.primary_mac
+        cat /lib/gluon/core/sysconfig/primary_mac
         cat /sys/class/ieee80211/phy0/macaddress
         cat /sys/class/ieee80211/phy1/macaddress
         cat /sys/class/net/eth0/address
