@@ -17,8 +17,10 @@ reclaimt wird, und macht den Netgear R6120 stabiler. Bei uns bleiben rund
 6 MB mehr fuer den Datei-Cache. Risiko: kleinere Reserve fuer atomare
 Allokationen (RX-Refill ath10k/ag71xx) - am Archer C25 testen.
 
-Wirksam ab dem Boot nach dem Anlegen des Links (das Upgrade-Skript laeuft
-nach /etc/init.d/sysctl); sofort: sysctl -p /etc/sysctl.d/35-gluon-memory-64m.conf
+Wirksam schon im ersten Boot nach dem Flashen: Gluons Upgrade-Skripte laufen
+als uci-defaults in /etc/init.d/boot (S10), /etc/init.d/sysctl ist S11 (am
+Archer C25 am 15.09.2026 bestaetigt). Ohne Neustart von Hand:
+sysctl -p /etc/sysctl.d/35-gluon-memory-64m.conf
 
 Entfaellt, sobald unser Gluon die beiden Commits selbst mitbringt.
 
