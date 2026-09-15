@@ -80,7 +80,7 @@ Setup-WLAN) steckt in Paketen des Feeds (`neanderfunk-config-mode-theme`,
 | `kernel/mt7530-phy-disable-eee.sh` | post-update | EEE am MT7530-PHY aus (Switch des MT7621): sonst Link-Schleifen an 2-paarigen Kabeln und instabile 100-Mbit-Links; Nachbau OpenWrt PR #25058 für 5.15, mit Neuaushandlung |
 | `lowmem/sysctl-no-watermark-boost-64mb.sh` | post-update | kein Watermark-Boost auf 64-MB-Geräten |
 | `bugfixes/sysctl-firmware-no-sysfs-fallback.sh` | post-update | kein sysfs-Fallback für fehlende Firmware (60 s Boot-Stillstand) |
-| `lowmem/sysctl-64m-min-free.sh` | post-update | `vm.min_free_kbytes=2048` und kleinere Fragmentpuffer auf 64-MB-Geräten (Backport Gluon a505f767 + c6ac8914; entfällt, sobald Gluon es mitbringt) |
+| `lowmem/sysctl-64m-min-free.sh` | post-update | kleinere Fragmentpuffer auf 64-MB-Geräten (Backport Gluon a505f767 + c6ac8914), **ohne** dessen `vm.min_free_kbytes=2048`: bricht ath10k unter WLAN-Last (C25, 15.09.2026) |
 | `status-page/statuspage-moredetails.sh` | post-update | Statusseite: weitere MACs und Gluon-Version |
 | `status-page/statuspage-ssid.sh` | post-update | Statusseite: SSID, HT-Modus und ssid-changer |
 | `status-page/statuspage-hwdetails.sh` | post-update | Statusseite: CPU-Typ, Kernzahl und BIOS |

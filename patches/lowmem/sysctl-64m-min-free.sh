@@ -1,15 +1,16 @@
 #!/bin/bash
 #
-# gluon-core: vm.min_free_kbytes=2048 und kleinere Fragmentpuffer auf
+# gluon-core: kleinere Fragmentpuffer auf
 # Geraeten mit 64 MB RAM. Backport aus Gluon main (a505f767 + Fix c6ac8914,
-# David Bauer); Einzelheiten im Patchkopf.
+# David Bauer), OHNE dessen min_free_kbytes=2048 (bricht ath10k unter Last);
+# Einzelheiten im Patchkopf.
 #
 # Wird aus dem Gluon-Verzeichnis heraus aufgerufen, so wie prepare.sh es tut:
 #   pushd ../gluon ; ../patches/lowmem/sysctl-64m-min-free.sh ; popd
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib-patch.sh"
 
-echo "gluon-core: sysctl fuer 64-MB-Geraete (min_free_kbytes 2048)"
+echo "gluon-core: sysctl fuer 64-MB-Geraete (Fragmentpuffer, min_free bleibt 8192)"
 
 apply_patch "$PATCH_DIR/sysctl-64m-min-free.patch" \
   "package/gluon-core/luasrc/lib/gluon/upgrade/550-sysctl" \
