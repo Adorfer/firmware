@@ -88,6 +88,8 @@ packages {
 -- (RAM, Baender): alle Geraete unserer Targets mit 64 MB und 2 Radios.
 -- Archer C60 v1, D50 v1 und WNDR3700 v1/v2 sind bei Gluon nicht 'tiny' und
 -- bekaemen sonst tls, wpa3, sqm und usteer.
+-- Ausfuehrlich: router-werkstatt docs/ramdruck-64mb.md, oeffentlich
+-- freifunk-docs lowmem-dualband-64mb-2023.2.md.
 local lowmem_dualradio = device({
     'avm-fritz-wlan-repeater-1750e',   -- ath9k + ath10k
     'tp-link-archer-c2-v3',            -- ath9k + ath10k
@@ -99,21 +101,71 @@ local lowmem_dualradio = device({
     'd-link-dir825b1',                 -- 2x ath9k
     'netgear-wndr3700',                -- 2x ath9k
     'netgear-wndr3700-v2',             -- 2x ath9k
+    'avm-fritz-wlan-repeater-300e',    -- 2x ath9k
+    'openmesh-om5p',                   -- 2x ath9k
+    'tp-link-cpe510-v2',               -- 2x ath9k
+    'ubiquiti-nanobeam-m5-xw',         -- 2x ath9k
     'netgear-r6120',                   -- mt7603 + mt76x2 (ramips-mt76x8, 16 MB Flash)
     'tp-link-archer-c50-v3',           -- mt7603 + mt76x2 (ramips-mt76x8)
     'cudy-wr1000',                     -- mt7603 + mt76x2 (ramips-mt76x8)
     'tp-link-archer-c20i',             -- rt2800soc + mt76x0e (ramips-mt7620)
 })
 
-if lowmem_dualradio then
+-- Geraete mit 64 MB RAM und nur einem Funkteil. Sie thrashen nicht wie die
+-- Dualband-Geraete (77-81 % Speicher, load unter 0,1), sind aber dieselbe
+-- Speicherklasse: 134 im Feld, vor allem die 1043-Familie und die CPE210.
+-- Quelle der Liste: werkzeug-Erhebung geraete-ram.tsv (RAM je Geraet aus den
+-- Gluon-Targets und dem OpenWrt-ToH). Nur ath79 ist darin vollstaendig;
+-- Einzelradio-Geraete anderer Targets fehlen also noch.
+local lowmem_singleradio = device({
+    'alfa-network-ap121f',
+    'avm-fritz-wlan-repeater-450e',
+    'd-link-dap-1330-a1',
+    'd-link-dir-505',
+    'gl.inet-gl-ar150',
+    'gl.inet-gl-usb150',
+    'netgear-wnr2200-16m',
+    'netgear-wnr2200-8m',
+    'onion-omega',
+    'openmesh-om2p-hs-v1',
+    'openmesh-om2p-hs-v2',
+    'openmesh-om2p-hs-v3',
+    'openmesh-om2p-hs-v4',
+    'openmesh-om2p-lc',
+    'openmesh-om2p-v2',
+    'openmesh-om2p-v4',
+    'plasma-cloud-pa300',
+    'teltonika-rut230-v1',
+    'tp-link-cpe210-v1',
+    'tp-link-cpe210-v2',
+    'tp-link-cpe210-v3',
+    'tp-link-cpe220-v3',
+    'tp-link-tl-wr1043n-v5',
+    'tp-link-tl-wr1043nd-v2',
+    'tp-link-tl-wr1043nd-v3',
+    'tp-link-tl-wr1043nd-v4',
+    'tp-link-wbs210-v1',
+    'tp-link-wbs210-v2',
+    'ubiquiti-unifi-ap-outdoor+',
+})
+
+local lowmem_64m = lowmem_dualradio or lowmem_singleradio
+
+if lowmem_64m then
     packages {
         -- Komprimierter Swap im RAM (Standard: halber RAM, lzo-rle). Selten
         -- genutzte Seiten der Daemons werden komprimiert, das laesst mehr
         -- Platz fuer den Datei-Cache. Zieht kmod-zram und die busybox-Applets
         -- swapon/mkswap (die dann im ganzen Target mitkommen, wenige kB).
-        -- Auf Hardware noch nicht getestet: am C25 "cat /proc/swaps" und
-        -- "/etc/init.d/zram status" pruefen.
         'zram-swap',                   -- openwrt
+
+        -- procd-ujail raus: Die Sandbox kostet einen zusaetzlichen Prozess je
+        -- gejailtem Dienst, am TL-WR1043ND v2 gemessen 3,7 MB RSS fuer
+        -- dnsmasq, hostapd und ntpd zusammen. procd startet die Dienste ohne
+        -- /sbin/ujail einfach ungejailt. Bewusste Abwaegung (adorfer
+        -- 16.09.2026): Haertung gegen Speicher, auf genau den Geraeten, die
+        -- sonst ins Thrashing laufen oder taub werden.
+        '-procd-ujail',                -- openwrt
     }
 end
 
