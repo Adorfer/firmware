@@ -67,10 +67,43 @@ remove_patch_leftovers ()
   done < <(awk '/^\+\+\+ /{ sub(/^\+\+\+ [ab]\//, "", $0); sub(/[ \t].*$/, "", $0); print }' "$patch_file")
 }
 
+# created_files <patchdatei>
+#
+# Gibt die Dateien aus, die der Patch neu anlegt. Zwei Schreibweisen kommen
+# vor: "--- /dev/null" (git diff) und "--- a/<pfad>\t1970-01-01 ..."
+# (diff -ruN gegen eine nicht vorhandene Datei, z. B. sysctl-64m-min-free).
+created_files ()
+{
+  awk '
+    /^--- / && ($0 ~ /\/dev\/null/ || $0 ~ /[ \t]1970-01-01/) {
+      if ((getline line) > 0 && line ~ /^\+\+\+ /) {
+        sub(/^\+\+\+ [ab]\//, "", line)
+        sub(/[ \t].*$/, "", line)
+        print line
+      }
+    }' "$1"
+}
+
+# created_files_present <patchdatei>
+#
+# Wahr, wenn mindestens eine der Dateien, die der Patch anlegt, schon im Baum
+# liegt.
+created_files_present ()
+{
+  local target
+
+  while read -r target; do
+    [ -n "$target" ] || continue
+    [ -e "$target" ] && return 0
+  done < <(created_files "$1")
+
+  return 1
+}
+
 # remove_created_files <patchdatei>
 #
-# Loescht die Dateien, die der Patch neu anlegen wuerde ("--- /dev/null"),
-# sofern sie schon da sind.
+# Loescht die Dateien, die der Patch neu anlegen wuerde, sofern sie schon da
+# sind.
 #
 # Aufgerufen nur, wenn der Rueckwaerts-Test fehlgeschlagen ist, der Patch also
 # nicht vollstaendig drinsteht. Dann sind vorhandene Neuanlagen Reste eines
@@ -88,14 +121,7 @@ remove_created_files ()
     [ -e "$target" ] || continue
     echo "  $target: Rest eines frueheren Laufs, wird vor dem Patchen entfernt."
     rm -f "$target"
-  done < <(awk '
-    /^--- \/dev\/null/ {
-      if ((getline line) > 0 && line ~ /^\+\+\+ /) {
-        sub(/^\+\+\+ [ab]\//, "", line)
-        sub(/[ \t].*$/, "", line)
-        print line
-      }
-    }' "$patch_file")
+  done < <(created_files "$patch_file")
 }
 
 # do_patch <patchdatei>
@@ -134,12 +160,14 @@ apply_patch ()
   #
   #   1. Rueckwaerts anwendbar?      -> steht schon vollstaendig drin
   #   2. Vorwaerts anwendbar?        -> normaler Fall, anwenden
-  #   3. Merkmal schon im Baum?      -> ein spaeterer Patch hat dieselbe Stelle
+  #   3. Legt der Patch Dateien an, die schon dastehen? -> alte Fassung aus
+  #                                     einem frueheren Lauf, ersetzen
+  #   4. Merkmal schon im Baum?      -> ein spaeterer Patch hat dieselbe Stelle
   #                                     nochmal geaendert (statuspage-ssid und
   #                                     -hwdetails setzen so auf
   #                                     statuspage-moredetails auf)
-  #   4. Neuanlagen von einem halben Lauf wegraeumen und nochmal vorwaerts
-  #   5. sonst Abbruch
+  #   5. Neuanlagen von einem halben Lauf wegraeumen und nochmal vorwaerts
+  #   6. sonst Abbruch
   #
   # Der Vorwaerts-Test steht bewusst VOR der Merkmalspruefung: sonst wuerde ein
   # Merkmal, das es im unveraenderten Baum ohnehin schon gibt, den Patch
@@ -148,6 +176,17 @@ apply_patch ()
   if patch -R -p1 -s -f --dry-run --ignore-whitespace <"$patch_file" >/dev/null 2>&1; then
     echo "  $patch_file: bereits angewendet."
   elif patch -p1 -s -f --dry-run --ignore-whitespace <"$patch_file" >/dev/null 2>&1; then
+    do_patch "$patch_file"
+  elif created_files_present "$patch_file"; then
+    # Der Patch legt Dateien an, die schon im Baum liegen - in einer anderen
+    # Fassung, sonst haette der Rueckwaerts-Test gegriffen. build.sh setzt den
+    # Gluon-Baum nur zurueck und reinigt ihn absichtlich nicht (siehe dort),
+    # also ueberleben solche Dateien jeden Lauf. Dieser Zweig muss VOR der
+    # Merkmalspruefung stehen: Das Merkmal steht ja schon da, und der Patch
+    # wuerde stillschweigend uebersprungen. Genau so kam 26091521bro mit der
+    # alten memory-64m.conf heraus (vm.min_free_kbytes=2048), obwohl der
+    # Patch die neue Fassung ohne diese Zeile anlegt.
+    remove_created_files "$patch_file"
     do_patch "$patch_file"
   elif [ -n "$check_file" ] && [ -n "$check_pattern" ] && [ -f "$check_file" ] \
        && grep -q "$check_pattern" "$check_file"; then
