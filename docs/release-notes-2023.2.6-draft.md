@@ -84,7 +84,7 @@ Netz?".
   dreistellige Werte, weil jeder *Weg* statt jedes *Knotens* gezählt wurde.
 - **Die Anzeige „Gateway" zeigt jetzt wirklich den Gateway**, vorher war es
   der Wert eines VPN-Nachbarn.
-- Kein Dauerprotokoll mehr im Systemlog auf Knoten ohne Multidomain.
+- Kein Dauergeschreibsel mehr im Systemlog auf Knoten ohne Multidomain.
 
 Wer sie beim letzten Release übersehen hat: Es lohnt sich, einmal
 hineinzuschauen.
@@ -136,7 +136,7 @@ Dualband-Router.
 
 - **Die Prüfer schweigen nicht mehr die erste Stunde.** Bisher liefen sie in
   den ersten 60 Minuten nach einem Neustart gar nicht - wer direkt nach einem
-  Reboot ins Protokoll sah, sah nichts, egal ob der Knoten gesund war oder
+  Reboot ins Log sah, sah nichts, egal ob der Knoten gesund war oder
   nicht. Jetzt laufen sie ab 5 Minuten Laufzeit und **melden**, halten sich mit
   Eingriffen aber weiterhin bis zur ersten Stunde zurück. Die bisher
   aufgelaufenen Fehlermeldungen werden dann, wenn der Fehler nach wie vor
@@ -146,7 +146,7 @@ Dualband-Router.
 - **Neustartschleifen sind seltener und nachvollziehbar.** Ein Knoten, der
   wiederholt seinen Gateway verliert, startet weiterhin neu - nun aber
   frühestens nach 60 Minuten Laufzeit statt nach gut 30, und was in der ersten
-  Stunde passiert, steht im Protokoll. Ein Neustart behebt einen fehlenden
+  Stunde passiert, steht im Log. Ein Neustart behebt einen fehlenden
   Gateway nicht; ob er bei Netzausfall überhaupt erfolgen soll, sehen wir uns
   für die nächste Generation an.
 - **Neustartgründe bleiben erhalten.** Der Knoten schreibt mit, warum er neu
@@ -155,7 +155,7 @@ Dualband-Router.
 - **Neue Prüfer für bekannte Hängerfälle:** ein klemmender WLAN-Chip (ath10k),
   ein hängender Ethernet-Sendepfad bei bestimmten Cudy-Geräten - dort wird
   zuerst der Port zurückgesetzt und erst dann neu gestartet -, und ein
-  Fernprotokoll, das nach einem Adresswechsel ins Leere lief.
+  Remote-Log, das nach einem Adresswechsel ins Leere lief.
 - Der Watchdog startet nicht mehr hart durch, wenn er im ungünstigen Moment
   ein Signal bekommt, und wartet vor einem Neustart auf das Schreiben der
   Daten.
