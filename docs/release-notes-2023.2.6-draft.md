@@ -137,6 +137,16 @@ Hilfsbefehle:
 *(Liste beim RC einsetzen — u. a. D-Link AQUILA PRO AI M30, ZyXEL NWA55AXE,
 Mercusys MR90X, Cudy-Modelle mit 2,5-Gigabit-Port.)*
 
+## Kleinere Korrekturen
+
+Dazu eine größere Zahl von Reparaturen, die einzeln aufzuführen wenig brächte.
+Der Schwerpunkt lag bei den **Verbindungsprüfern** (linkcheck): Mehrere
+Prüfungen waren wirkungslos, weil sie nie zutrafen, und einzelne griffen genau
+verkehrt herum. Sie tun jetzt das, was ihr Name sagt. Hinzu kommen zahlreiche
+Sparsamkeitskorrekturen — Konfiguration wird einmal je Lauf gelesen statt
+mehrfach, und der WLAN-Neustart löst keine überflüssige Neukonfiguration mehr
+aus.
+
 ## Hinweise zum Umstieg
 
 - Die Konfiguration bleibt erhalten, der Router kommt von selbst zurück.
