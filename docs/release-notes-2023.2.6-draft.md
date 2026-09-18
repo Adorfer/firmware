@@ -38,13 +38,21 @@ Dualband-Router.
 
 ## Der Knoten hilft sich selbst
 
-- **Ein Knoten startet nicht mehr in Endlosschleife neu.** Bisher konnte ein
-  Knoten, der keinen Gateway sah, sich alle paar Minuten neu starten — teils
-  stundenlang, ohne dass der Neustart etwas half. Jetzt gilt eine Mindestlaufzeit
-  von einer Stunde, bevor ein Prüfer einen Neustart auslösen darf.
+- **Die Prüfer schweigen nicht mehr die erste Stunde.** Bisher liefen sie in
+  den ersten 60 Minuten nach einem Neustart gar nicht — wer direkt nach einem
+  Reboot ins Protokoll sah, sah nichts, egal ob der Knoten gesund war oder
+  nicht. Jetzt laufen sie ab 5 Minuten Laufzeit und **melden**, halten sich mit
+  Eingriffen aber weiterhin bis zur ersten Stunde zurück. Die gezählten
+  Verstöße laufen dabei weiter, ein noch bestehendes Problem wird also sofort
+  behandelt statt von vorn gezählt.
+- **Auch der WLAN-Neustart wartet jetzt ab.** Er passierte bisher unabhängig
+  von der Laufzeit.
+  <!-- TODO: Wenn geklärt ist, woher die Neustartschleifen der März-Stable
+       kamen (eulenfunk-hotfix/rebootIfNoGw.sh?), gehört das hier als
+       behobener Fehler hin - mit belegter Ursache, nicht als Vermutung. -->
 - **Neustartgründe bleiben erhalten.** Der Knoten schreibt mit, warum er neu
-  gestartet ist; die letzten Einträge überstehen den Neustart. Das macht aus
-  „war weg" ein „war weg, weil …".
+  gestartet ist; die letzten **sechs** Einträge überstehen den Neustart. Das
+  macht aus „war weg" ein „war weg, weil …".
 - **Neue Prüfer für bekannte Hängerfälle:** ein klemmender WLAN-Chip (ath10k),
   ein hängender Ethernet-Sendepfad bei bestimmten Cudy-Geräten — dort wird
   zuerst der Port zurückgesetzt und erst dann neu gestartet —, und ein
