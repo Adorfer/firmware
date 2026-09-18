@@ -19,6 +19,64 @@ Rückmeldungen bitte an:
 - Mastodon: [@neanderfunk@nrw.social](https://nrw.social/@neanderfunk)
 - Telegram: [Neanderfunk-Gruppe](https://t.me/+_rWKhNAJyvg5MWY0)
 
+## Einrichten per WLAN, ohne Kabel
+
+- **Ein kurzer Druck auf die Taste öffnet ein offenes WLAN**
+  `setup.gluon_<MAC>`. Darüber lässt sich der Router einrichten — auch dann,
+  wenn kein Netzwerkkabel zur Hand ist oder das Gerät an einer schlecht
+  erreichbaren Stelle hängt.
+- Handy oder Notebook verbinden, die Einrichtungsseite öffnet sich von selbst;
+  sonst `http://setup.gluon` aufrufen.
+- Das Setup-WLAN **schaltet sich nach 20 Minuten von selbst wieder ab**, es
+  bleibt also nicht versehentlich offen.
+
+> **Bekannte Einschränkung:** Der kleine Browser, den Android für
+> Anmeldeseiten öffnet, kann keine Dateien hochladen. Ein Firmware-Upgrade
+> gelingt dort nicht — dafür `http://setup.gluon` im normalen Browser öffnen.
+> Kein Fehler des Routers.
+
+## Neue Konfigurationsseite
+
+- **Neues Erscheinungsbild, alles auf einer Seite**, auf dem Handy deutlich
+  besser bedienbar.
+- Ruft man die Seite auf, **ohne etwas zu speichern, bleibt das Flash
+  unberührt**.
+- Nach einem Update zeigt der Browser nicht mehr die alte Seite aus seinem
+  Zwischenspeicher.
+- Fehlermeldungen benennen jetzt das konkrete Problem, statt nur zu scheitern.
+
+## Statusseite
+
+- Die Werte werden **live aktualisiert** und kommen direkt vom Knoten.
+- Neu: **Ethernet-Geschwindigkeit je Port**, **Temperaturen**, und eine Zeile
+  zur Offline-SSID mit Zählern.
+
+## SSH-Konsolenzugriff
+
+Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
+
+- **`nodestatus`** zeigt auf einen Blick Modell, Domain, Firmware, Uplink,
+  Gateway, VPN, Clients, WLAN-Kanäle und Ports — inklusive
+  **SoC-Temperatur** und der **öffentlichen IPv4 mit Rückwärtsauflösung und
+  Provider**.
+- **`vpn on|off`** schaltet das Mesh-VPN dauerhaft, **`flash <url>`** holt und
+  prüft eine Firmware, **`lanrole`/`wanrole`** zeigen und setzen Portrollen,
+  **`routername`** den Knotennamen.
+- **Warnungen statt stiller Fehler:** Der Knoten meldet, wenn der WLAN-Kanal
+  nicht zur Firmware passt, wenn eine Offline-SSID dauerhaft festgeschrieben
+  wurde oder wenn eine Portrolle den CPU-Port trifft.
+- **Mögliche unerwünschte Wechselwirkungen zwischen Paketen ausgeräumt.** Der
+  Fall: Ein Paket setzt etwas absichtlich nur vorübergehend — die
+  Offline-SSID, während kein Gateway da ist, oder das abgeschaltete WLAN
+  während der Zeitschaltung. Ein anderes Paket speichert kurz darauf aus
+  eigenem Anlass die Konfiguration ins Flash **und nimmt den fremden
+  Zwischenzustand mit**. Ab da ist er dauerhaft: Der Router hieß dann auch
+  nach der Störung weiter `FF_Offline_…` oder ließ das WLAN aus. Betroffen
+  waren ssid-changer, WLAN-Zeitschaltung (ap-timer), WLAN-Taste und
+  Domainwechsler. Dieselbe Falle gab es auf der Konsole und beim bloßen
+  Ansehen einer Konfigurationsseite; beides schreibt jetzt nichts Fremdes
+  mehr mit.
+
 ## Router mit wenig Arbeitsspeicher laufen stabiler
 
 Betrifft alle Geräte mit 64 MB RAM, also einen großen Teil der älteren
@@ -86,56 +144,6 @@ Dualband-Router.
 - Auf Geräten mit MT7530-Switch ist eine Stromsparfunktion abgeschaltet, die
   in der Praxis Verbindungsabbrüche verursacht hat.
 
-## SSH-Konsolenzugriff
-
-Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
-
-- **`nodestatus`** zeigt auf einen Blick Modell, Domain, Firmware, Uplink,
-  Gateway, VPN, Clients, WLAN-Kanäle und Ports — inklusive
-  **SoC-Temperatur** und der **öffentlichen IPv4 mit Rückwärtsauflösung und
-  Provider**.
-- **`vpn on|off`** schaltet das Mesh-VPN dauerhaft, **`flash <url>`** holt und
-  prüft eine Firmware, **`lanrole`/`wanrole`** zeigen und setzen Portrollen,
-  **`routername`** den Knotennamen.
-- **Warnungen statt stiller Fehler:** Der Knoten meldet, wenn der WLAN-Kanal
-  nicht zur Firmware passt, wenn eine Offline-SSID dauerhaft festgeschrieben
-  wurde oder wenn eine Portrolle den CPU-Port trifft.
-- **Mögliche unerwünschte Wechselwirkungen zwischen Paketen ausgeräumt.** Der
-  Fall: Ein Paket setzt etwas absichtlich nur vorübergehend — die
-  Offline-SSID, während kein Gateway da ist, oder das abgeschaltete WLAN
-  während der Zeitschaltung. Ein anderes Paket speichert kurz darauf aus
-  eigenem Anlass die Konfiguration ins Flash **und nimmt den fremden
-  Zwischenzustand mit**. Ab da ist er dauerhaft: Der Router hieß dann auch
-  nach der Störung weiter `FF_Offline_…` oder ließ das WLAN aus. Betroffen
-  waren ssid-changer, WLAN-Zeitschaltung (ap-timer), WLAN-Taste und
-  Domainwechsler. Dieselbe Falle gab es auf der Konsole und beim bloßen
-  Ansehen einer Konfigurationsseite; beides schreibt jetzt nichts Fremdes
-  mehr mit.
-
-## Konfigurationsseite im Browser
-
-- **Neues Erscheinungsbild, alles auf einer Seite**, auf dem Handy deutlich
-  besser bedienbar.
-- **Setup-WLAN:** Ein kurzer Tastendruck öffnet ein offenes WLAN
-  `setup.gluon_<MAC>`, über das sich der Router einrichten lässt — praktisch,
-  wenn kein Kabel zur Hand ist. Es schaltet sich nach 20 Minuten von selbst
-  wieder ab.
-- Ruft man die Seite auf, **ohne etwas zu speichern, bleibt das Flash
-  unberührt**.
-- Nach einem Update zeigt der Browser nicht mehr die alte Seite aus seinem
-  Zwischenspeicher.
-
-> **Bekannte Einschränkung:** Der kleine Browser, den Android für
-> Anmeldeseiten öffnet, kann keine Dateien hochladen. Ein Firmware-Upgrade
-> über die Setup-Seite gelingt dort nicht — dafür die Seite
-> `http://setup.gluon` im normalen Browser öffnen. Kein Fehler des Routers.
-
-## Statusseite
-
-- Die Werte werden **live aktualisiert** und kommen direkt vom Knoten.
-- Neu: **Ethernet-Geschwindigkeit je Port**, **Temperaturen**, und eine Zeile
-  zur Offline-SSID mit Zählern.
-
 ## App und Karte
 
 - **Die NodeMonitor-App zeigt die Zahl der Knoten im Netz wieder richtig.**
@@ -171,3 +179,4 @@ aus.
 - Die Konfiguration bleibt erhalten, der Router kommt von selbst zurück.
 - Geräte mit 4 MB Flash und 32 MB RAM werden nicht mehr unterstützt; für sie
   gibt es einen eigenen Endstand.
+
