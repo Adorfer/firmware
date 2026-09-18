@@ -196,9 +196,11 @@ dieselbe Vertrauensstufe erfüllt, die er auch für neue Firmware verlangt.
 
 ## Geräte
 
-**Neu unterstützt: D-Link AQUILA PRO AI M30.** Die Installation läuft über das
-OpenWrt-Initramfs, weil es für dieses Gerät kein Recovery-Image gibt; die
-Anleitung dazu kommt getrennt.
+**Neu unterstützt: D-Link AQUILA PRO AI M30.** Wifi 6, 3000er-Klasse, derzeit
+für rund 35 Euro zu haben. Das Aufspielen geht so unkompliziert wie bei den
+anderen D-Link-Geräten, also COVR und DAP. Die Aachener haben eine Anleitung
+dafür geschrieben:
+[Installationsanleitung D-Link M30](https://freifunk-aachen.de/2026/08/17/installationsanleitung-d-link-m30/).
 
 **Einige Zielplattformen sind entfallen.** Wir bauen nicht mehr für Hardware,
 von der es realistischerweise nie einen Knoten bei uns geben wird - darunter
