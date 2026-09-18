@@ -53,8 +53,15 @@ Rückmeldungen bitte an:
 
 ## Die App NodeMonitor — vermutlich die am meisten übersehene Neuerung
 
-Mit [NodeMonitor](https://github.com/freifunk-darmstadt/NodeMonitor) (Android)
-sieht man **jeden Freifunk-Knoten in Funkreichweite, ohne sich zu verbinden**.
+Mit **NodeMonitor** sieht man **jeden Freifunk-Knoten in Funkreichweite, ohne
+sich zu verbinden**:
+
+- [Im Play Store](https://play.google.com/store/apps/details?id=net.freifunk.darmstadt.nodewhisperer&hl=de)
+- [Quelltext auf GitHub](https://github.com/freifunk-darmstadt/NodeMonitor)
+
+Die App gibt es **nur für Android**. Das liegt nicht am Aufwand: iOS gibt
+Anwendungen keinen Zugriff auf die WLAN-Suche, und genau die braucht es
+hier.
 Der Router sendet die Angaben in den Beacons seines Client-WLANs mit; die App
 liest sie im Vorbeigehen aus. Nützlich beim Aufstellen, beim Suchen eines
 Standorts und bei der Frage „ist der Knoten dort oben eigentlich noch im
