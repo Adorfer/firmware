@@ -1,4 +1,4 @@
-# Release Notes 2023.2.6 — ENTWURF
+# Release Notes 2023.2.6 - ENTWURF
 
 **Neanderfunk-Firmware auf Basis von Gluon v2023.2.6**
 
@@ -22,29 +22,29 @@ Rückmeldungen bitte an:
 ## Einrichten per WLAN, ohne Kabel
 
 Bisher brauchte die Ersteinrichtung ein Netzwerkkabel. Jetzt geht sie auch über
-ein eigenes WLAN — praktisch bei Geräten, die schlecht erreichbar hängen, und
+ein eigenes WLAN - praktisch bei Geräten, die schlecht erreichbar hängen, und
 mit dem Handy in der Hand.
 
 **So kommt man hinein:**
 
 1. Den Router in den Setup-Mode bringen, wie gewohnt mit einem **langen** Druck
    auf die Taste. Dann **abwarten, bis die Status-LED langsam blinkt**, etwa
-   einmal pro Sekunde — das ist das Zeichen, dass der Setup-Mode läuft.
-2. Jetzt **einmal kurz** auf dieselbe Taste drücken — kürzer als drei
+   einmal pro Sekunde - das ist das Zeichen, dass der Setup-Mode läuft.
+2. Jetzt **einmal kurz** auf dieselbe Taste drücken - kürzer als drei
    Sekunden. Wer länger drückt, startet den Router neu.
 3. Die LED **blinkt schneller**, und das offene WLAN `setup.gluon_<MAC>` ist da.
    Ab hier bleiben **20 Minuten**, um den Router einzurichten.
 4. Verbinden, die Einrichtungsseite öffnet sich meist von selbst; sonst
    `http://setup.gluon` aufrufen.
 5. Nach 20 Minuten schaltet sich das WLAN von selbst ab. **Ein weiterer kurzer
-   Druck verlängert die Zeit** — er schaltet nicht aus.
+   Druck verlängert die Zeit** - er schaltet nicht aus.
 
 **Und ja: Das geht wirklich nur im Setup-Mode, nicht im Normalbetrieb.** Ein
 laufender Knoten öffnet auf Tastendruck kein Einrichtungs-WLAN.
 
 > **Bekannte Einschränkung:** Der kleine Browser, den Android für
 > Anmeldeseiten öffnet, kann keine Dateien hochladen. Ein Firmware-Upgrade
-> gelingt dort nicht — dafür `http://setup.gluon` im normalen Browser öffnen.
+> gelingt dort nicht - dafür `http://setup.gluon` im normalen Browser öffnen.
 > Kein Fehler des Routers.
 
 ## Neue Konfigurationsseite
@@ -63,7 +63,7 @@ laufender Knoten öffnet auf Tastendruck kein Einrichtungs-WLAN.
 - Neu: **Ethernet-Geschwindigkeit je Port**, **Temperaturen**, und eine Zeile
   zur Offline-SSID mit Zählern.
 
-## Die App NodeMonitor — vermutlich die am meisten übersehene Neuerung
+## Die App NodeMonitor - vermutlich die am meisten übersehene Neuerung
 
 Mit **NodeMonitor** sieht man **jeden Freifunk-Knoten in Funkreichweite, ohne
 sich zu verbinden**:
@@ -93,7 +93,7 @@ hineinzuschauen.
 Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
 
 - **`nodestatus`** zeigt auf einen Blick Modell, Domain, Firmware, Uplink,
-  Gateway, VPN, Clients, WLAN-Kanäle und Ports — inklusive
+  Gateway, VPN, Clients, WLAN-Kanäle und Ports - inklusive
   **SoC-Temperatur** und der **öffentlichen IPv4 mit Rückwärtsauflösung und
   Provider**.
 - **`vpn on|off`** schaltet das Mesh-VPN dauerhaft, **`flash <url>`** holt und
@@ -103,7 +103,7 @@ Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
   nicht zur Firmware passt oder wenn eine Offline-SSID dauerhaft
   festgeschrieben wurde.
 - **Mögliche unerwünschte Wechselwirkungen zwischen Paketen ausgeräumt.** Der
-  Fall: Ein Paket setzt etwas absichtlich nur vorübergehend — die
+  Fall: Ein Paket setzt etwas absichtlich nur vorübergehend - die
   Offline-SSID, während kein Gateway da ist, oder das abgeschaltete WLAN
   während der Zeitschaltung. Ein anderes Paket speichert kurz darauf aus
   eigenem Anlass die Konfiguration ins Flash **und nimmt den fremden
@@ -134,7 +134,7 @@ Dualband-Router.
 ## Der Knoten hilft sich selbst
 
 - **Die Prüfer schweigen nicht mehr die erste Stunde.** Bisher liefen sie in
-  den ersten 60 Minuten nach einem Neustart gar nicht — wer direkt nach einem
+  den ersten 60 Minuten nach einem Neustart gar nicht - wer direkt nach einem
   Reboot ins Protokoll sah, sah nichts, egal ob der Knoten gesund war oder
   nicht. Jetzt laufen sie ab 5 Minuten Laufzeit und **melden**, halten sich mit
   Eingriffen aber weiterhin bis zur ersten Stunde zurück. Die bisher
@@ -143,7 +143,7 @@ Dualband-Router.
 - **Auch der WLAN-Neustart wartet jetzt ab.** Er passierte bisher unabhängig
   von der Laufzeit.
 - **Neustartschleifen sind seltener und nachvollziehbar.** Ein Knoten, der
-  wiederholt seinen Gateway verliert, startet weiterhin neu — nun aber
+  wiederholt seinen Gateway verliert, startet weiterhin neu - nun aber
   frühestens nach 60 Minuten Laufzeit statt nach gut 30, und was in der ersten
   Stunde passiert, steht im Protokoll. Ein Neustart behebt einen fehlenden
   Gateway nicht; ob er bei Netzausfall überhaupt erfolgen soll, sehen wir uns
@@ -152,8 +152,8 @@ Dualband-Router.
   gestartet ist; die letzten **sechs** Einträge überstehen den Neustart. Das
   macht aus „war weg" ein „war weg, weil …".
 - **Neue Prüfer für bekannte Hängerfälle:** ein klemmender WLAN-Chip (ath10k),
-  ein hängender Ethernet-Sendepfad bei bestimmten Cudy-Geräten — dort wird
-  zuerst der Port zurückgesetzt und erst dann neu gestartet —, und ein
+  ein hängender Ethernet-Sendepfad bei bestimmten Cudy-Geräten - dort wird
+  zuerst der Port zurückgesetzt und erst dann neu gestartet -, und ein
   Fernprotokoll, das nach einem Adresswechsel ins Leere lief.
 - Der Watchdog startet nicht mehr hart durch, wenn er im ungünstigen Moment
   ein Signal bekommt, und wartet vor einem Neustart auf das Schreiben der
@@ -176,7 +176,7 @@ Dualband-Router.
   passte. Der Router folgt jetzt wieder den Vorgaben der Firmware.
 - **Kanal und Kanalbreite können auf Wunsch über Updates hinweg erhalten
   bleiben.**
-- **Die Kanalauslastung auf der Karte ist wieder realistisch** — vorher
+- **Die Kanalauslastung auf der Karte ist wieder realistisch** - vorher
   konnten unsinnig hohe Werte auftauchen.
 - Auf Geräten mit MT7530-Switch ist eine Stromsparfunktion abgeschaltet, die
   in der Praxis Verbindungsabbrüche verursacht hat.
@@ -185,12 +185,12 @@ Dualband-Router.
 
 Beim letzten Anlauf mit einer Multidomain-Firmware, vor einigen Jahren, landete
 ein großer Teil der Knoten bei der Ersteinrichtung in der **ersten Domain der
-Auswahlliste** — und blieb dort. Das ließ sich danach nur von Hand und vor Ort
+Auswahlliste** - und blieb dort. Das ließ sich danach nur von Hand und vor Ort
 wieder geraderücken.
 
 Dafür gibt es jetzt eine Lösung: Ein Knoten kann **auf Zuruf in die richtige
 Neanderfunk-Domain umziehen**, ohne dass jemand hinfahren muss. Die Anweisung
-dazu ist genauso abgesichert wie ein Firmware-Update — sie muss von mehreren
+dazu ist genauso abgesichert wie ein Firmware-Update - sie muss von mehreren
 Personen unterschrieben sein, und der Knoten nimmt sie nur an, wenn sie
 dieselbe Vertrauensstufe erfüllt, die er auch für neue Firmware verlangt.
 
@@ -201,7 +201,7 @@ OpenWrt-Initramfs, weil es für dieses Gerät kein Recovery-Image gibt; die
 Anleitung dazu kommt getrennt.
 
 **Einige Zielplattformen sind entfallen.** Wir bauen nicht mehr für Hardware,
-von der es realistischerweise nie einen Knoten bei uns geben wird — darunter
+von der es realistischerweise nie einen Knoten bei uns geben wird - darunter
 Allwinner (sunxi), Realtek RTL838x, sehr alte x86-Varianten und generische
 ARM-Systeme. Für die meisten davon kennt der Gluon-Zensus in **ganz
 Deutschland keinen einzigen Knoten**. Das spart Bauzeit, die den Geräten
@@ -214,7 +214,7 @@ Dazu eine größere Zahl von Reparaturen, die einzeln aufzuführen wenig brächt
 Der Schwerpunkt lag bei den **Verbindungsprüfern** (linkcheck): Mehrere
 Prüfungen waren wirkungslos, weil sie nie zutrafen, und einzelne griffen genau
 verkehrt herum. Sie tun jetzt das, was ihr Name sagt. Hinzu kommen zahlreiche
-Sparsamkeitskorrekturen — Konfiguration wird einmal je Lauf gelesen statt
+Sparsamkeitskorrekturen - Konfiguration wird einmal je Lauf gelesen statt
 mehrfach, und der WLAN-Neustart löst keine überflüssige Neukonfiguration mehr
 aus.
 
@@ -229,8 +229,8 @@ aus.
 
 Wer gerade dabei ist, die letzten Geräte mit 4 MB Flash zu ersetzen: Nehmt die
 Geräte mit **64 MB Arbeitsspeicher** gleich mit. Diese Version hält sie noch am
-Laufen — dafür sind zram, die entschlackten Hintergrunddienste und die
-sparsameren Skripte oben da —, aber in künftigen Gluon-Versionen werden auch
+Laufen - dafür sind zram, die entschlackten Hintergrunddienste und die
+sparsameren Skripte oben da -, aber in künftigen Gluon-Versionen werden auch
 sie wegfallen. Das ist keine Drohung, nur Arithmetik.
 
 Und falls das am Gerät scheitert: Wir haben noch ein paar **Genexis EX400** im
