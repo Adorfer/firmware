@@ -169,14 +169,18 @@ Dualband-Router.
 - Auf Geräten mit MT7530-Switch ist eine Stromsparfunktion abgeschaltet, die
   in der Praxis Verbindungsabbrüche verursacht hat.
 
-## Für Betreiber mehrerer Knoten
+## Vorbereitung auf eine Multidomain-Firmware
 
-- **Zeitschaltung fürs WLAN** (ap-timer) ist jetzt fester Bestandteil, mit
-  eigener Seite im Config-Mode.
-- **Serverseitiger Domainwechsel:** Ein Knoten kann auf Zuruf in eine andere
-  Domain umziehen, ohne dass jemand vor Ort sein muss. Die Anweisung ist
-  signiert und wird nur angenommen, wenn sie dieselbe Vertrauensstufe erfüllt
-  wie ein Firmware-Update.
+Beim letzten Anlauf mit einer Multidomain-Firmware, vor einigen Jahren, landete
+ein großer Teil der Knoten bei der Ersteinrichtung in der **ersten Domain der
+Auswahlliste** — und blieb dort. Das ließ sich danach nur von Hand und vor Ort
+wieder geraderücken.
+
+Dafür gibt es jetzt eine Lösung: Ein Knoten kann **auf Zuruf in die richtige
+Neanderfunk-Domain umziehen**, ohne dass jemand hinfahren muss. Die Anweisung
+dazu ist genauso abgesichert wie ein Firmware-Update — sie muss von mehreren
+Personen unterschrieben sein, und der Knoten nimmt sie nur an, wenn sie
+dieselbe Vertrauensstufe erfüllt, die er auch für neue Firmware verlangt.
 
 ## Neue und wieder unterstützte Geräte
 
