@@ -83,10 +83,9 @@ Dualband-Router.
 - Auf Geräten mit MT7530-Switch ist eine Stromsparfunktion abgeschaltet, die
   in der Praxis Verbindungsabbrüche verursacht hat.
 
-## Bedienung auf dem Router
+## SSH-Konsolenzugriff
 
-Wer sich per SSH anmeldet, findet eine neue Übersicht und mehrere
-Hilfsbefehle:
+Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
 
 - **`nodestatus`** zeigt auf einen Blick Modell, Domain, Firmware, Uplink,
   Gateway, VPN, Clients, WLAN-Kanäle und Ports — inklusive
