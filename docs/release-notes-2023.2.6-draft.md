@@ -212,3 +212,14 @@ aus.
 - Geräte mit 4 MB Flash und 32 MB RAM werden nicht mehr unterstützt; für sie
   gibt es einen eigenen Endstand.
 
+
+## P.S., ganz nebenbei
+
+Wer gerade dabei ist, die letzten Geräte mit 4 MB Flash zu ersetzen: Nehmt die
+Geräte mit **64 MB Arbeitsspeicher** gleich mit. Diese Version hält sie noch am
+Laufen — dafür sind zram, die entschlackten Hintergrunddienste und die
+sparsameren Skripte oben da —, aber in künftigen Gluon-Versionen werden auch
+sie wegfallen. Das ist keine Drohung, nur Arithmetik.
+
+Und falls das am Gerät scheitert: Wir haben noch ein paar **Genexis EX400** im
+Austauschprogramm liegen. Einfach fragen.
