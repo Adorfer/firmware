@@ -125,9 +125,9 @@ Dualband-Router.
   den ersten 60 Minuten nach einem Neustart gar nicht — wer direkt nach einem
   Reboot ins Protokoll sah, sah nichts, egal ob der Knoten gesund war oder
   nicht. Jetzt laufen sie ab 5 Minuten Laufzeit und **melden**, halten sich mit
-  Eingriffen aber weiterhin bis zur ersten Stunde zurück. Die gezählten
-  Verstöße laufen dabei weiter, ein noch bestehendes Problem wird also sofort
-  behandelt statt von vorn gezählt.
+  Eingriffen aber weiterhin bis zur ersten Stunde zurück. Die bisher
+  aufgelaufenen Fehlermeldungen werden dann, wenn der Fehler nach wie vor
+  besteht, sofort behandelt.
 - **Auch der WLAN-Neustart wartet jetzt ab.** Er passierte bisher unabhängig
   von der Laufzeit.
 - **Neustartschleifen sind seltener und nachvollziehbar.** Ein Knoten, der
