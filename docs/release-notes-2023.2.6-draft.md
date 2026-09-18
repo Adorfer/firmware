@@ -21,14 +21,25 @@ Rückmeldungen bitte an:
 
 ## Einrichten per WLAN, ohne Kabel
 
-- **Ein kurzer Druck auf die Taste öffnet ein offenes WLAN**
-  `setup.gluon_<MAC>`. Darüber lässt sich der Router einrichten — auch dann,
-  wenn kein Netzwerkkabel zur Hand ist oder das Gerät an einer schlecht
-  erreichbaren Stelle hängt.
-- Handy oder Notebook verbinden, die Einrichtungsseite öffnet sich von selbst;
-  sonst `http://setup.gluon` aufrufen.
-- Das Setup-WLAN **schaltet sich nach 20 Minuten von selbst wieder ab**, es
-  bleibt also nicht versehentlich offen.
+Bisher brauchte die Ersteinrichtung ein Netzwerkkabel. Jetzt geht sie auch über
+ein eigenes WLAN — praktisch bei Geräten, die schlecht erreichbar hängen, und
+mit dem Handy in der Hand.
+
+**So kommt man hinein:**
+
+1. Den Router in den Setup-Mode bringen, wie gewohnt mit einem **langen** Druck
+   auf die Taste. Dann **abwarten, bis die Status-LED langsam blinkt**, etwa
+   einmal pro Sekunde — das ist das Zeichen, dass der Setup-Mode läuft.
+2. Jetzt **einmal kurz** auf dieselbe Taste drücken. Kurz heißt wirklich kurz.
+3. Die LED **blinkt schneller**, und das offene WLAN `setup.gluon_<MAC>` ist da.
+   Ab hier bleiben **20 Minuten**, um den Router einzurichten.
+4. Verbinden, die Einrichtungsseite öffnet sich meist von selbst; sonst
+   `http://setup.gluon` aufrufen.
+5. **Ein erneuter kurzer Druck schaltet das WLAN sofort wieder ab.** Sonst
+   endet es nach den 20 Minuten von allein.
+
+**Und ja: Das geht wirklich nur im Setup-Mode, nicht im Normalbetrieb.** Ein
+laufender Knoten öffnet auf Tastendruck kein Einrichtungs-WLAN.
 
 > **Bekannte Einschränkung:** Der kleine Browser, den Android für
 > Anmeldeseiten öffnet, kann keine Dateien hochladen. Ein Firmware-Upgrade
