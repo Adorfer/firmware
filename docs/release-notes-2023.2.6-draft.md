@@ -182,10 +182,19 @@ dazu ist genauso abgesichert wie ein Firmware-Update — sie muss von mehreren
 Personen unterschrieben sein, und der Knoten nimmt sie nur an, wenn sie
 dieselbe Vertrauensstufe erfüllt, die er auch für neue Firmware verlangt.
 
-## Neue und wieder unterstützte Geräte
+## Geräte
 
-*(Liste beim RC einsetzen — u. a. D-Link AQUILA PRO AI M30, ZyXEL NWA55AXE,
-Mercusys MR90X, Cudy-Modelle mit 2,5-Gigabit-Port.)*
+**Neu unterstützt: D-Link AQUILA PRO AI M30.** Die Installation läuft über das
+OpenWrt-Initramfs, weil es für dieses Gerät kein Recovery-Image gibt; die
+Anleitung dazu kommt getrennt.
+
+**Einige Zielplattformen sind entfallen.** Wir bauen nicht mehr für Hardware,
+von der es realistischerweise nie einen Knoten bei uns geben wird — darunter
+Allwinner (sunxi), Realtek RTL838x, sehr alte x86-Varianten und generische
+ARM-Systeme. Für die meisten davon kennt der Gluon-Zensus in **ganz
+Deutschland keinen einzigen Knoten**. Das spart Bauzeit, die den Geräten
+zugutekommt, die tatsächlich im Feld stehen. Sollte doch jemand so ein Gerät
+betreiben wollen: melden, dann bauen wir es wieder mit.
 
 ## Kleinere Korrekturen
 
