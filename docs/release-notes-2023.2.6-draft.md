@@ -100,15 +100,17 @@ Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
 - **Warnungen statt stiller Fehler:** Der Knoten meldet, wenn der WLAN-Kanal
   nicht zur Firmware passt, wenn eine Offline-SSID dauerhaft festgeschrieben
   wurde oder wenn eine Portrolle den CPU-Port trifft.
-- **Mögliche unerwünschte Wechselwirkungen zwischen Paketen ausgeräumt.**
-  Betroffen waren der ssid-changer (Offline-SSID), die WLAN-Zeitschaltung
-  (ap-timer), die WLAN-Taste und der Domainwechsler. Ihre nur vorübergehend
-  gedachten Einträge konnten dauerhaft im Flash landen — etwa durch ein
-  pauschales `uci commit` auf der Konsole oder dadurch, dass man eine
-  Konfigurationsseite bloß ansah. Dann hieß der Router auch nach der Störung
-  weiter `FF_Offline_…` oder ließ das WLAN aus. Jetzt bleibt vorübergehend,
-  was vorübergehend gemeint ist; ein Commit, der solche Einträge mitnähme,
-  wird auf der Konsole zurückgewiesen und benennt sie.
+- **Mögliche unerwünschte Wechselwirkungen zwischen Paketen ausgeräumt.** Der
+  Fall: Ein Paket setzt etwas absichtlich nur vorübergehend — die
+  Offline-SSID, während kein Gateway da ist, oder das abgeschaltete WLAN
+  während der Zeitschaltung. Ein anderes Paket speichert kurz darauf aus
+  eigenem Anlass die Konfiguration ins Flash **und nimmt den fremden
+  Zwischenzustand mit**. Ab da ist er dauerhaft: Der Router hieß dann auch
+  nach der Störung weiter `FF_Offline_…` oder ließ das WLAN aus. Betroffen
+  waren ssid-changer, WLAN-Zeitschaltung (ap-timer), WLAN-Taste und
+  Domainwechsler. Dieselbe Falle gab es auf der Konsole und beim bloßen
+  Ansehen einer Konfigurationsseite; beides schreibt jetzt nichts Fremdes
+  mehr mit.
 
 ## Konfigurationsseite im Browser
 
