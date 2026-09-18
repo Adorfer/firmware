@@ -51,6 +51,24 @@ Rückmeldungen bitte an:
 - Neu: **Ethernet-Geschwindigkeit je Port**, **Temperaturen**, und eine Zeile
   zur Offline-SSID mit Zählern.
 
+## Die App NodeMonitor — vermutlich die am meisten übersehene Neuerung
+
+Mit [NodeMonitor](https://github.com/freifunk-darmstadt/NodeMonitor) (Android)
+sieht man **jeden Freifunk-Knoten in Funkreichweite, ohne sich zu verbinden**.
+Der Router sendet die Angaben in den Beacons seines Client-WLANs mit; die App
+liest sie im Vorbeigehen aus. Nützlich beim Aufstellen, beim Suchen eines
+Standorts und bei der Frage „ist der Knoten dort oben eigentlich noch im
+Netz?".
+
+- **Die Zahl der Knoten im Netz stimmt wieder.** Vorher standen dort
+  dreistellige Werte, weil jeder *Weg* statt jedes *Knotens* gezählt wurde.
+- **Die Anzeige „Gateway" zeigt jetzt wirklich den Gateway**, vorher war es
+  der Wert eines VPN-Nachbarn.
+- Kein Dauerprotokoll mehr im Systemlog auf Knoten ohne Multidomain.
+
+Wer sie beim letzten Release übersehen hat: Es lohnt sich, einmal
+hineinzuschauen.
+
 ## SSH-Konsolenzugriff
 
 Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
@@ -143,12 +161,6 @@ Dualband-Router.
   konnten unsinnig hohe Werte auftauchen.
 - Auf Geräten mit MT7530-Switch ist eine Stromsparfunktion abgeschaltet, die
   in der Praxis Verbindungsabbrüche verursacht hat.
-
-## App und Karte
-
-- **Die NodeMonitor-App zeigt die Zahl der Knoten im Netz wieder richtig.**
-  Vorher wurden dreistellige Werte angezeigt, weil jeder Weg statt jedes
-  Knotens gezählt wurde.
 
 ## Für Betreiber mehrerer Knoten
 
