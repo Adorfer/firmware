@@ -26,7 +26,7 @@ In English: a measurement report on build times and the parallel build mode
 ### Einrichten
 
 ```
-git clone https://github.com/Adorfer/firmware -b v2023.2.x
+git clone https://github.com/Neanderfunk/firmware -b v2023.2.x
 cd firmware
 ```
 
