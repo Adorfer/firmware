@@ -84,7 +84,7 @@ Netz?".
   dreistellige Werte, weil jeder *Weg* statt jedes *Knotens* gezählt wurde.
 - **Die Anzeige „Gateway" zeigt jetzt wirklich den Gateway**, vorher war es
   der Wert eines VPN-Nachbarn.
-- Kein Dauergeschreibsel mehr im Systemlog auf Knoten ohne Multidomain.
+- Kein Log-Rauschen mehr im Systemlog auf Knoten ohne Multidomain.
 
 Wer sie beim letzten Release übersehen hat: Es lohnt sich, einmal
 hineinzuschauen.
