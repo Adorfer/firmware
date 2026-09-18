@@ -97,8 +97,14 @@ Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
 - **Warnungen statt stiller Fehler:** Der Knoten meldet, wenn der WLAN-Kanal
   nicht zur Firmware passt, wenn eine Offline-SSID dauerhaft festgeschrieben
   wurde oder wenn eine Portrolle den CPU-Port trifft.
-- **Laufzeitänderungen werden nicht mehr versehentlich dauerhaft.** Ein `uci
-  commit` in der Shell schreibt nur noch das ins Flash, was auch gemeint war.
+- **`uci commit` friert keine Laufzeitzustände mehr ein.** Manches steht nur
+  vorübergehend in der Konfiguration: die Offline-SSID, solange der Knoten
+  keinen Gateway sieht, oder das abgeschaltete WLAN während der Zeitschaltung.
+  Ein pauschales `uci commit` auf der Konsole schrieb das mit ins Flash — und
+  dann hieß der Router dauerhaft `FF_Offline_…` oder ließ das WLAN aus, lange
+  nachdem der Anlass weg war. Die Konsole weist ein solches Commit jetzt
+  zurück, nennt die betroffenen Zeilen und schlägt das gezielte
+  `uci commit gluon` vor. Skripte sind nicht betroffen.
 
 ## Konfigurationsseite im Browser
 
