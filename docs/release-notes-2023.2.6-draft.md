@@ -221,21 +221,41 @@ Sparsamkeitskorrekturen - Konfiguration wird einmal je Lauf gelesen statt
 mehrfach, und der WLAN-Neustart löst keine überflüssige Neukonfiguration mehr
 aus.
 
-## Hinweise zum Umstieg
+## Ausrollen des Updates
 
-- Die Konfiguration bleibt erhalten, der Router kommt von selbst zurück.
-- **Geräte mit 4 MB Flash und 32 MB RAM sind End of Life.** Sie bekommen
-  dieses Update nicht und bleiben auf der EOL-Firmware, einer Sackgasse: Der
-  Knoten läuft bis auf weiteres, es kommt aber nichts Neues mehr nach. Werden
-  Sicherheitslücken bekannt, schließen wir diese Router wie angekündigt vom
-  Netz aus.
+Wie bei den vorherigen Releases auch:
 
+- Zuerst geht die Firmware **für Neuinstallationen** auf den Firmware-Server.
+  Wer einen Router neu einrichtet, bekommt ab sofort diese Version.
+- **Freiwillige können sie schon jetzt von Hand einspielen.** Im Browser über
+  den Config-Mode wie gewohnt, auf dem Router läuft ja noch die bisherige
+  Firmware. Oder per SSH mit dieser Zeile:
+
+  ```sh
+  uci set autoupdater.stable.good_signatures=2; uci commit autoupdater; start-stop-daemon -S -b -x /usr/sbin/autoupdater -- -f
+  ```
+
+  Die Zwei ist der Kern der Sache: Diese Version trägt zunächst nur **zwei**
+  Unterschriften, deshalb nehmen die Knoten sie noch nicht von selbst. Nach der
+  Installation setzt die neue Firmware den Wert selbst wieder auf drei.
+- **In ein bis zwei Wochen bekommt die Firmware die dritte Unterschrift**,
+  wenn bis dahin nichts dagegen spricht. Ab dann holen sich alle Knoten mit
+  eingeschaltetem Autoupdater das Update selbst und installieren es - das ist
+  die Standardeinstellung. Die bisherige Konfiguration bleibt dabei erhalten,
+  der Router kommt von allein zurück.
+- **Die bisherige Version bleibt als Oldstable verfügbar.**
 
 ## P.S., ganz nebenbei
 
-Wer gerade dabei ist, die letzten Geräte mit 4 MB Flash zu ersetzen: Nehmt die
-Geräte mit **64 MB Arbeitsspeicher oder 8 MB Flash** gleich mit. Diese Version
-hält sie noch am Laufen - dafür sind zram, die entschlackten Hintergrunddienste und die
+**Geräte mit 4 MB Flash und 32 MB RAM sind End of Life.** Sie bekommen dieses
+Update nicht und bleiben auf der EOL-Firmware, einer Sackgasse: Der Knoten
+läuft bis auf weiteres, es kommt aber nichts Neues mehr nach. Werden
+Sicherheitslücken bekannt, schließen wir diese Router wie angekündigt vom Netz
+aus.
+
+Wer gerade dabei ist, die letzten davon zu ersetzen: Nehmt die Geräte mit
+**64 MB Arbeitsspeicher oder 8 MB Flash** gleich mit. Diese Version hält sie
+noch am Laufen - dafür sind zram, die entschlackten Hintergrunddienste und die
 sparsameren Skripte oben da -, aber in künftigen Gluon-Versionen werden auch
 sie wegfallen. Das ist keine Drohung, nur Arithmetik.
 
