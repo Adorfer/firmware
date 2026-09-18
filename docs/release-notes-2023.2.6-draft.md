@@ -47,9 +47,12 @@ Dualband-Router.
   behandelt statt von vorn gezählt.
 - **Auch der WLAN-Neustart wartet jetzt ab.** Er passierte bisher unabhängig
   von der Laufzeit.
-  <!-- TODO: Wenn geklärt ist, woher die Neustartschleifen der März-Stable
-       kamen (eulenfunk-hotfix/rebootIfNoGw.sh?), gehört das hier als
-       behobener Fehler hin - mit belegter Ursache, nicht als Vermutung. -->
+- **Neustartschleifen sind seltener und nachvollziehbar.** Ein Knoten, der
+  wiederholt seinen Gateway verliert, startet weiterhin neu — nun aber
+  frühestens nach 60 Minuten Laufzeit statt nach gut 30, und was in der ersten
+  Stunde passiert, steht im Protokoll. Ein Neustart behebt einen fehlenden
+  Gateway nicht; ob er bei Netzausfall überhaupt erfolgen soll, sehen wir uns
+  für die nächste Generation an.
 - **Neustartgründe bleiben erhalten.** Der Knoten schreibt mit, warum er neu
   gestartet ist; die letzten **sechs** Einträge überstehen den Neustart. Das
   macht aus „war weg" ein „war weg, weil …".
@@ -97,14 +100,15 @@ Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
 - **Warnungen statt stiller Fehler:** Der Knoten meldet, wenn der WLAN-Kanal
   nicht zur Firmware passt, wenn eine Offline-SSID dauerhaft festgeschrieben
   wurde oder wenn eine Portrolle den CPU-Port trifft.
-- **`uci commit` friert keine Laufzeitzustände mehr ein.** Manches steht nur
-  vorübergehend in der Konfiguration: die Offline-SSID, solange der Knoten
-  keinen Gateway sieht, oder das abgeschaltete WLAN während der Zeitschaltung.
-  Ein pauschales `uci commit` auf der Konsole schrieb das mit ins Flash — und
-  dann hieß der Router dauerhaft `FF_Offline_…` oder ließ das WLAN aus, lange
-  nachdem der Anlass weg war. Die Konsole weist ein solches Commit jetzt
-  zurück, nennt die betroffenen Zeilen und schlägt das gezielte
-  `uci commit gluon` vor. Skripte sind nicht betroffen.
+- **Mögliche unerwünschte Wechselwirkungen zwischen Paketen ausgeräumt.**
+  Betroffen waren der ssid-changer (Offline-SSID), die WLAN-Zeitschaltung
+  (ap-timer), die WLAN-Taste und der Domainwechsler. Ihre nur vorübergehend
+  gedachten Einträge konnten dauerhaft im Flash landen — etwa durch ein
+  pauschales `uci commit` auf der Konsole oder dadurch, dass man eine
+  Konfigurationsseite bloß ansah. Dann hieß der Router auch nach der Störung
+  weiter `FF_Offline_…` oder ließ das WLAN aus. Jetzt bleibt vorübergehend,
+  was vorübergehend gemeint ist; ein Commit, der solche Einträge mitnähme,
+  wird auf der Konsole zurückgewiesen und benennt sie.
 
 ## Konfigurationsseite im Browser
 
