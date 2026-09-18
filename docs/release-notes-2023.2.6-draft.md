@@ -234,8 +234,8 @@ aus.
 ## P.S., ganz nebenbei
 
 Wer gerade dabei ist, die letzten Geräte mit 4 MB Flash zu ersetzen: Nehmt die
-Geräte mit **64 MB Arbeitsspeicher** gleich mit. Diese Version hält sie noch am
-Laufen - dafür sind zram, die entschlackten Hintergrunddienste und die
+Geräte mit **64 MB Arbeitsspeicher oder 8 MB Flash** gleich mit. Diese Version
+hält sie noch am Laufen - dafür sind zram, die entschlackten Hintergrunddienste und die
 sparsameren Skripte oben da -, aber in künftigen Gluon-Versionen werden auch
 sie wegfallen. Das ist keine Drohung, nur Arithmetik.
 
