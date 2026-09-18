@@ -221,8 +221,9 @@ aus.
 ## Hinweise zum Umstieg
 
 - Die Konfiguration bleibt erhalten, der Router kommt von selbst zurück.
-- Geräte mit 4 MB Flash und 32 MB RAM werden nicht mehr unterstützt; für sie
-  gibt es einen eigenen Endstand.
+- **Geräte mit 4 MB Flash und 32 MB RAM sind End of Life.** Sie bekommen
+  dieses Update nicht und bleiben auf der EOL-Firmware, einer Sackgasse: Der
+  Knoten läuft dort weiter, es kommt aber nichts Neues mehr nach.
 
 
 ## P.S., ganz nebenbei
