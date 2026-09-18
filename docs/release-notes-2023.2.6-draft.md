@@ -88,8 +88,8 @@ Auf der Konsole gibt es eine neue Übersicht und mehrere Hilfsbefehle:
   prüft eine Firmware, **`lanrole`/`wanrole`** zeigen und setzen Portrollen,
   **`routername`** den Knotennamen.
 - **Warnungen statt stiller Fehler:** Der Knoten meldet, wenn der WLAN-Kanal
-  nicht zur Firmware passt, wenn eine Offline-SSID dauerhaft festgeschrieben
-  wurde oder wenn eine Portrolle den CPU-Port trifft.
+  nicht zur Firmware passt oder wenn eine Offline-SSID dauerhaft
+  festgeschrieben wurde.
 - **Mögliche unerwünschte Wechselwirkungen zwischen Paketen ausgeräumt.** Der
   Fall: Ein Paket setzt etwas absichtlich nur vorübergehend — die
   Offline-SSID, während kein Gateway da ist, oder das abgeschaltete WLAN
