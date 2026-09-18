@@ -36,8 +36,9 @@ mit dem Handy in der Hand.
    Ab hier bleiben **20 Minuten**, um den Router einzurichten.
 4. Verbinden, die Einrichtungsseite öffnet sich meist von selbst; sonst
    `http://setup.gluon` aufrufen.
-5. Nach 20 Minuten schaltet sich das WLAN von selbst ab. **Ein weiterer kurzer
-   Druck verlängert die Zeit** - er schaltet nicht aus.
+5. Nach 20 Minuten schaltet es sich von selbst ab; ein weiterer kurzer Druck
+   verlängert, schaltet aber nicht aus. Mit **"Speichern und Neustart"** ist es
+   ebenfalls weg, es bleibt kein Rest der 20 Minuten offen.
 
 **Und ja: Das geht wirklich nur im Setup-Mode, nicht im Normalbetrieb.** Ein
 laufender Knoten öffnet auf Tastendruck kein Einrichtungs-WLAN.
