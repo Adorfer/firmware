@@ -134,7 +134,7 @@ Dualband-Router.
 
 ## Der Knoten hilft sich selbst
 
-- **Die Prüfer schweigen nicht mehr die erste Stunde.** Bisher liefen sie in
+- **Die Checks schweigen nicht mehr die erste Stunde.** Bisher liefen sie in
   den ersten 60 Minuten nach einem Neustart gar nicht - wer direkt nach einem
   Reboot ins Log sah, sah nichts, egal ob der Knoten gesund war oder
   nicht. Jetzt laufen sie ab 5 Minuten Laufzeit und **melden**, halten sich mit
@@ -152,7 +152,7 @@ Dualband-Router.
 - **Neustartgründe bleiben erhalten.** Der Knoten schreibt mit, warum er neu
   gestartet ist; die letzten **sechs** Einträge überstehen den Neustart. Das
   macht aus „war weg" ein „war weg, weil …".
-- **Neue Prüfer für bekannte Hängerfälle:** ein klemmender WLAN-Chip (ath10k),
+- **Neue Checks für bekannte Hängerfälle:** ein klemmender WLAN-Chip (ath10k),
   ein hängender Ethernet-Sendepfad bei bestimmten Cudy-Geräten - dort wird
   zuerst der Port zurückgesetzt und erst dann neu gestartet -, und ein
   Remote-Log, das nach einem Adresswechsel ins Leere lief.
@@ -214,7 +214,7 @@ betreiben wollen: melden, dann bauen wir es wieder mit.
 ## Kleinere Korrekturen
 
 Dazu eine größere Zahl von Reparaturen, die einzeln aufzuführen wenig brächte.
-Der Schwerpunkt lag bei den **Verbindungsprüfern** (linkcheck): Mehrere
+Der Schwerpunkt lag beim **linkcheck**, der die Verbindungen überwacht: Mehrere
 Prüfungen waren wirkungslos, weil sie nie zutrafen, und einzelne griffen genau
 verkehrt herum. Sie tun jetzt das, was ihr Name sagt. Hinzu kommen zahlreiche
 Sparsamkeitskorrekturen - Konfiguration wird einmal je Lauf gelesen statt
