@@ -157,10 +157,11 @@ Dualband-Router.
   Station** anmeldet - kein Client und kein Mesh-Nachbar -, startet der Knoten
   erst das WLAN neu und, wenn das nichts bringt, sich selbst. Gedacht ist das
   für Geräte, deren Funk schon beim Hochfahren kaputt ist: Dort sieht von innen
-  alles gesund aus, und ohne Neustart bleibt es dabei. Der Preis: Ein Knoten,
-  der wirklich keine Nutzer und keine Nachbarn hat, startet dadurch etwa
-  zweimal am Tag neu. Wie oft das im Feld vorkommt, beobachten wir nach dem
-  Rollout; wen es stört, der schaltet den Check auf seinem Knoten ab.
+  alles gesund aus, und ohne Neustart bleibt es dabei. Ein Knoten, der wirklich
+  keine Nutzer und keine Nachbarn hat, startet dadurch etwa zweimal am Tag
+  neu. Das stört niemanden: Verbunden ist ja niemand, und ins Flash wird dabei
+  nichts geschrieben. Wem es trotzdem nicht passt, der schaltet den Check auf
+  seinem Knoten ab.
 - **Neue Checks für bekannte Hängerfälle:** ein klemmender WLAN-Chip (ath10k),
   ein hängender Ethernet-Sendepfad bei bestimmten Cudy-Geräten - dort wird
   zuerst der Port zurückgesetzt und erst dann neu gestartet -, und ein
